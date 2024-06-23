@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -46,7 +47,7 @@ fun AppBar(
         components.find { it.routeValue == routeValue }?.title
             ?: foundations.find { it.routeValue == routeValue }?.title ?: ""
     val description =
-        if (title == stringResource(id = R.string.tv_compose)) "Component Catalog" else null
+        if (title == stringResource(id = R.string.tv_compose)) "Welcome to the screens manager system" else null
     val isMainIconMagnified = description != null
 
     Row(
@@ -80,7 +81,7 @@ private fun HeadlineContent(
     ) {
         Box(
             modifier = Modifier
-                .size(if (isMainIconMagnified) 64.dp else 40.dp)
+                .size(if (isMainIconMagnified) 55.dp else 50.dp)
                 .background(
                     MaterialTheme.colorScheme.secondaryContainer.copy(0.4f),
                     shape = CircleShape
@@ -88,10 +89,10 @@ private fun HeadlineContent(
         ) {
             Icon(
                 modifier = Modifier
-                    .padding(if (isMainIconMagnified) 12.dp else 8.dp)
-                    .size(if (isMainIconMagnified) 38.dp else 22.dp),
-                painter = painterResource(id = R.drawable.ic_tv),
-                contentDescription = null
+                    .size(if (isMainIconMagnified) 50.dp else 40.dp),
+                painter = painterResource(id = R.drawable.ic_logo),
+                contentDescription = null,
+                tint = Color.Unspecified
             )
         }
 
