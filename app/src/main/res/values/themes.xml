@@ -1,0 +1,4 @@
+<resources>
+
+    <style name="Theme.MyScreens" parent="Theme.AppCompat.DayNight.NoActionBar" />
+</resources>
