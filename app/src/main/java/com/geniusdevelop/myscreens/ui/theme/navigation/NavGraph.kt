@@ -14,7 +14,7 @@ import com.geniusdevelop.myscreens.app.pages.LoginPage
 @Composable
 fun NavigationGraph() {
     val navHostController = LocalNavController.current
-    NavHost(navController = navHostController, startDestination = NavGraph.Home.routeName) {
+    NavHost(navController = navHostController, startDestination = NavGraph.Login.routeName) {
         destinations.forEach { destination ->
             composable(destination.routeName) {
                 destination.composable {
