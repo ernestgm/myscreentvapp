@@ -3,6 +3,7 @@ package com.geniusdevelop.myscreens.app.viewmodels
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.geniusdevelop.myscreens.app.api.conection.Repository
 import com.geniusdevelop.myscreens.app.api.models.User
 import com.geniusdevelop.myscreens.ui.theme.navigation.NavGraph.Home
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +20,7 @@ class LoginViewModel : ViewModel() {
         _uiState.value = LoginUiState.Loading
         viewModelScope.launch {
             try {
-                val response = com.geniusdevelop.myscreens.app.api.login(email, password)
+                val response = Repository.user.authenticate(email, password)
                 if (response.success != null) {
                     _uiState.value = LoginUiState.Ready(response.success.user)
                 } else {

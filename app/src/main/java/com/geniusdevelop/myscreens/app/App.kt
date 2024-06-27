@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
+import com.geniusdevelop.myscreens.app.api.conection.Repository
 import com.geniusdevelop.myscreens.ui.theme.BlueSeedColor
 import com.geniusdevelop.myscreens.ui.theme.Mode
 import com.geniusdevelop.myscreens.ui.theme.colorutils.Scheme.Companion.dark
@@ -33,6 +34,7 @@ fun App() {
 
     val argbColor = seedColor.color.toArgb()
     val colorScheme = dark(argbColor)
+    Repository.initialize()
 
     AppProviders(
         seedColor = seedColor,
