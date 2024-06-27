@@ -21,6 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.tv.material3.Button
 import androidx.tv.material3.ExperimentalTvMaterial3Api
@@ -28,8 +29,8 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.geniusdevelop.myscreens.R
-import com.geniusdevelop.myscreens.ui.theme.component.components
-import com.geniusdevelop.myscreens.ui.theme.component.foundations
+//import com.geniusdevelop.myscreens.ui.theme.component.components
+//import com.geniusdevelop.myscreens.ui.theme.component.foundations
 import com.geniusdevelop.myscreens.ui.theme.navigation.LocalNavController
 import com.geniusdevelop.myscreens.ui.theme.navigation.NavGraph
 
@@ -41,14 +42,9 @@ fun AppBar(
     val entry by navHostController.currentBackStackEntryAsState()
     val routeValue = entry?.destination?.route
 
-    val title = if (routeValue == NavGraph.Home.routeName)
-        stringResource(R.string.tv_compose)
-    else
-        components.find { it.routeValue == routeValue }?.title
-            ?: foundations.find { it.routeValue == routeValue }?.title ?: ""
-    val description =
-        if (title == stringResource(id = R.string.tv_compose)) "Welcome to the screens manager system" else null
-    val isMainIconMagnified = description != null
+    val title = stringResource(R.string.tv_compose)
+    val description = "Welcome to the screens manager system"
+    val isMainIconMagnified = true
 
     Row(
         modifier = Modifier

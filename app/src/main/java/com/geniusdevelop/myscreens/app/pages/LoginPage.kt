@@ -12,19 +12,14 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Button
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Text
-import com.geniusdevelop.myscreens.ui.theme.navigation.LocalNavController
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.focus.FocusDirection
@@ -33,34 +28,51 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Icon
-import androidx.tv.material3.IconButton
-import androidx.tv.material3.IconButtonDefaults
-import androidx.tv.material3.WideButton
 import com.geniusdevelop.myscreens.R
+import com.geniusdevelop.myscreens.app.api.models.User
+import com.geniusdevelop.myscreens.app.viewmodels.LoginUiState
+import com.geniusdevelop.myscreens.app.viewmodels.LoginViewModel
 
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalMaterial3Api::class)
 @Composable
-fun LoginPage() {
-    val navHostController = LocalNavController.current
-    var username by remember { mutableStateOf("") }
+fun LoginPage(
+    goToHomePage: (user: User) -> Unit,
+    loginPageViewModel: LoginViewModel = viewModel()
+) {
+    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
+
+    val uiState by loginPageViewModel.uiState.collectAsState()
+
+    when (val s = uiState) {
+        is LoginUiState.Loading -> {
+            //mostrar cargando
+        }
+        is LoginUiState.Ready -> {
+            s.user?.let { goToHomePage(it) }
+        }
+        is LoginUiState.Error -> {
+            //mostrar error
+        }
+        else -> {}
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize(),
         contentAlignment = Alignment.Center
-    ){
+    ) {
         Row(
             modifier = Modifier
                 .padding(30.dp, 0.dp),
 
-        ) {
+            ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth(0.5f)
@@ -99,8 +111,8 @@ fun LoginPage() {
                     }
                 }
                 OutlinedTextField(
-                    value = username,
-                    onValueChange = { username = it },
+                    value = email,
+                    onValueChange = { email = it },
                     label = { Text("Username") },
                     singleLine = true,
                     modifier = Modifier
@@ -150,16 +162,7 @@ fun LoginPage() {
                 ) {
                     Button(
                         onClick = {
-                            // Placeholder action for login button
-                            // Replace with your actual login logic
-                            if (username.isNotBlank() && password.isNotBlank()) {
-                                // Perform login action here
-                                // For simplicity, we clear the fields after login
-                                username = ""
-                                password = ""
-                            } else {
-                                // Show error message or handle empty fields
-                            }
+                            loginPageViewModel.authenticate(email, password)
                         },
                         contentPadding = ButtonDefaults.ButtonWithIconContentPadding
                     ) {

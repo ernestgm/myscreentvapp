@@ -43,9 +43,12 @@ enum class NavGraph(
 
     Login(
         routeName = "login",
-        composable = { appBar ->
+        composable = {
+            val navController = LocalNavController.current
             Column {
-                LoginPage()
+                LoginPage(
+                    goToHomePage = { navController.navigate(Home.routeName) }
+                )
             }
         }
     ),
