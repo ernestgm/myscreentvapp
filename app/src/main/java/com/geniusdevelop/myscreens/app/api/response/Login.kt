@@ -1,13 +1,21 @@
 package com.geniusdevelop.myscreens.app.api.response
 
 import com.geniusdevelop.myscreens.app.api.models.User
-import io.ktor.client.statement.HttpResponse
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class LoginResponse (
-    val success : LoginSuccess? = null
+    val success : LoginSuccess? = null,
+    val error : String? = null,
+    val message : String? = null
 )
+
+@Serializable
+data class LogoutResponse (
+    val success : String? = null,
+    val message : String? = null
+)
+
 
 @Serializable
 data class LoginSuccess (

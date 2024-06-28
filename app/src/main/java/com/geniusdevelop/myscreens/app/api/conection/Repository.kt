@@ -1,6 +1,7 @@
 package com.geniusdevelop.myscreens.app.api.conection
 
 import android.content.Context
+import android.util.Log
 
 
 object Repository {
@@ -10,7 +11,8 @@ object Repository {
     val user: IRepositoryUser
         get() = RepositoryInjector.getRepositoryUser()
 
-    fun initialize() {
-        RepositoryInjector.initialize()
+    fun initialize(token: String? = null) {
+        Log.d("TOKEN", token.toString())
+        RepositoryInjector.initialize(token)
     }
 }

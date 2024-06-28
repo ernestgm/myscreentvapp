@@ -1,20 +1,17 @@
 package com.geniusdevelop.myscreens.app.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.geniusdevelop.myscreens.app.api.conection.Repository
-import com.geniusdevelop.myscreens.app.api.models.User
-import com.geniusdevelop.myscreens.ui.theme.navigation.NavGraph.Home
+import com.geniusdevelop.myscreens.app.api.response.LoginSuccess
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
-class LoginViewModel : ViewModel() {
+class LoginViewModel () : ViewModel() {
     private val _uiState = MutableStateFlow<LoginUiState?>(null)
     val uiState: StateFlow<LoginUiState?> = _uiState
+
 
     fun authenticate(email: String, password: String) {
         _uiState.value = LoginUiState.Loading
@@ -22,13 +19,31 @@ class LoginViewModel : ViewModel() {
             try {
                 val response = Repository.user.authenticate(email, password)
                 if (response.success != null) {
-                    _uiState.value = LoginUiState.Ready(response.success.user)
+                    //Repository.initialize(response.success.token.toString())
+                    _uiState.value = LoginUiState.Ready(response.success)
                 } else {
-                    Log.d("LoginResponse", "Unauthorize")
+                    val msg = response.error
+                    _uiState.value = LoginUiState.Error(msg.toString())
                 }
             } catch (e: Exception) {
-                val a = e.message
-                Log.d("LoginRequest", a.toString())
+                _uiState.value = LoginUiState.Error(e.message.toString())
+            }
+        }
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            try {
+                val response = Repository.user.logout()
+                if (response.success != null) {
+                    //Repository.initialize()
+                    _uiState.value = LoginUiState.Ready()
+                } else {
+                    val msg = response.message
+                    _uiState.value = LoginUiState.Error(msg.toString())
+                }
+            } catch (e: Exception) {
+                _uiState.value = LoginUiState.Error(e.message.toString())
             }
         }
     }
@@ -36,8 +51,6 @@ class LoginViewModel : ViewModel() {
 
 sealed interface LoginUiState {
     data object Loading : LoginUiState
-    data object Error : LoginUiState
-    data class Ready(
-        val user: User?,
-    ) : LoginUiState
+    data class Error(val msg: String = "") : LoginUiState
+    data class Ready(val success: LoginSuccess? = null) : LoginUiState
 }
