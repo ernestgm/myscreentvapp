@@ -16,8 +16,10 @@ import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -62,6 +64,7 @@ fun AppBar(
     val username by sessionManager.name.collectAsState(initial = "")
     val coroutineScope = rememberCoroutineScope()
     val uiState by loginPageViewModel.uiState.collectAsStateWithLifecycle()
+    var showLoading by remember { mutableStateOf(false) }
 
     val title = stringResource(R.string.tv_compose)
     val description = "Welcome to the screens manager system"
@@ -69,24 +72,25 @@ fun AppBar(
 
     when (val s = uiState) {
         is LoginUiState.Error -> {
-            //showLoading = false
+            showLoading = false
             Toast.makeText(context, s.msg, Toast.LENGTH_LONG).show()
         }
         is LoginUiState.Ready -> {
-            //showLoading = false
+            showLoading = false
             coroutineScope.launch {
                 sessionManager.clearSession()
                 logoutClick()
             }
         }
         is LoginUiState.Loading -> {
-            //showLoading = true
+            showLoading = true
         }
         else -> {}
     }
 
     Row(
         modifier = Modifier
+            .background(Color.Transparent)
             .fillMaxWidth()
             .padding(start = 54.dp, top = 40.dp, end = 38.dp, bottom = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -95,7 +99,7 @@ fun AppBar(
         HeadlineContent(
             title = title,
             description = description,
-            isMainIconMagnified = isMainIconMagnified
+            isMainIconMagnified = isMainIconMagnified,
         )
 
         Row(
@@ -109,6 +113,7 @@ fun AppBar(
                 }
             }
             Actions(
+                disabledLogout = !showLoading,
                 logoutClick = {
                     loginPageViewModel.logout()
                 }
@@ -127,6 +132,8 @@ private fun HeadlineContent(
     Row(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .background(Color.Transparent)
     ) {
         Box(
             modifier = Modifier
@@ -166,10 +173,12 @@ private fun HeadlineContent(
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun Actions(
+    disabledLogout: Boolean,
     logoutClick: () -> Unit,
 ) {
     val actions = listOf(
         Action(
+            enabled = disabledLogout,
             icon = Icons.Default.ExitToApp,
             text = "Logout",
             onClick = logoutClick
@@ -178,7 +187,10 @@ private fun Actions(
 
     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
         actions.forEach {
-            Button(onClick = it.onClick) {
+            Button(
+                enabled = it.enabled,
+                onClick = it.onClick
+            ) {
                 Icon(
                     modifier = Modifier.size(16.dp),
                     imageVector = it.icon,
@@ -195,6 +207,7 @@ private fun Actions(
 }
 
 private data class Action(
+    val enabled: Boolean,
     val icon: ImageVector,
     val text: String,
     val onClick: () -> Unit,

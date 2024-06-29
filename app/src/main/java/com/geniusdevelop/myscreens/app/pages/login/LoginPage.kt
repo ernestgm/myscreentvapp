@@ -1,7 +1,5 @@
-package com.geniusdevelop.myscreens.app.pages
+package com.geniusdevelop.myscreens.app.pages.login
 
-import android.app.Application
-import android.content.res.Configuration
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -18,11 +16,9 @@ import androidx.tv.material3.Text
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.*
@@ -35,9 +31,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Icon
@@ -74,6 +68,7 @@ fun LoginPage(
                 sessionManager.saveSession(
                     true,
                     s.success?.user?.name.toString(),
+                    s.success?.user?.id.toString(),
                     s.success?.token.toString()
                 )
             }

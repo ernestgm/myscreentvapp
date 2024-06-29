@@ -1,10 +1,11 @@
 package com.geniusdevelop.myscreens.app.api.conection
 
+import android.content.Context
 import com.geniusdevelop.myscreens.BuildConfig
 
 internal object RepositoryInjector {
-    fun initialize(token: String?) {
-        Factory.newApiClient(token)
+    fun initialize(context: Context, token: String?) {
+        Factory.newApiClient(context, token)
     }
 
     fun getRepositoryContent(): IRepositoryContent {
@@ -16,14 +17,14 @@ internal object RepositoryInjector {
     }
 
     private object Factory {
-        fun newApiClient(token: String?): IRepositoryContent {
+        fun newApiClient(context: Context, token: String?): IRepositoryContent {
 
             val client = Client.builer()
                 .addBaseUrl(BuildConfig.BASE_URL)
                 .addToken(token)
                 .init()
 
-            return ApiManager.initialize(client)
+            return ApiManager.initialize(context, client)
         }
     }
 }

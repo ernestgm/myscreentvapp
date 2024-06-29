@@ -1,28 +1,21 @@
 package com.geniusdevelop.myscreens.ui.theme.navigation
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.tv.material3.Button
 import androidx.tv.material3.ExperimentalTvMaterial3Api
-import androidx.tv.material3.Text
 import com.geniusdevelop.myscreens.app.AppBar
 import com.geniusdevelop.myscreens.app.pages.*
-import com.geniusdevelop.myscreens.app.session.SessionManager
-import com.geniusdevelop.myscreens.ui.theme.component.ErrorDialog
-import com.geniusdevelop.myscreens.ui.theme.navigation.NavGraph.Home
+import com.geniusdevelop.myscreens.app.pages.home.HomePage
+import com.geniusdevelop.myscreens.app.pages.login.LoginPage
+import com.geniusdevelop.myscreens.app.pages.splash.SplashScreen
 
 
 @Composable

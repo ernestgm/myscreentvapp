@@ -1,4 +1,4 @@
-package com.geniusdevelop.myscreens.app.pages
+package com.geniusdevelop.myscreens.app.pages.splash
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box

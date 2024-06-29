@@ -11,8 +11,8 @@ object Repository {
     val user: IRepositoryUser
         get() = RepositoryInjector.getRepositoryUser()
 
-    fun initialize(token: String? = null) {
+    fun initialize(context: Context, token: String? = null) {
         Log.d("TOKEN", token.toString())
-        RepositoryInjector.initialize(token)
+        RepositoryInjector.initialize(context, token)
     }
 }

@@ -41,7 +41,7 @@ fun App() {
     val context = LocalContext.current
     val sessionManager = remember { SessionManager(context) }
     val token by sessionManager.token.collectAsState(initial = "")
-    Repository.initialize(token)
+    Repository.initialize(context, token)
 
     AppProviders(
         seedColor = seedColor,

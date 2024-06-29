@@ -19,6 +19,7 @@ class SessionManager(private val context: Context) {
     companion object {
         val IS_LOGGED_IN = booleanPreferencesKey("is_logged_in")
         val NAME = stringPreferencesKey("username")
+        val USER_ID = stringPreferencesKey("user_id")
         val TOKEN = stringPreferencesKey("token")
     }
 
@@ -32,14 +33,20 @@ class SessionManager(private val context: Context) {
             preferences[NAME]
         }
 
+    val userId: Flow<String?> = context.dataStore.data
+        .map { preferences ->
+            preferences[USER_ID]
+        }
+
     val token: Flow<String?> = context.dataStore.data
         .map { preferences ->
             preferences[TOKEN]
         }
 
-    suspend fun saveSession(isLoggedIn: Boolean, username: String, token: String) {
+    suspend fun saveSession(isLoggedIn: Boolean, username: String, userId: String, token: String) {
         context.dataStore.edit { preferences ->
             preferences[IS_LOGGED_IN] = isLoggedIn
+            preferences[USER_ID] = userId
             preferences[NAME] = username
             preferences[TOKEN] = token
         }
