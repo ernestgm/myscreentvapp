@@ -14,18 +14,24 @@ import kotlinx.coroutines.launch
 
 val Context.dataStore by preferencesDataStore(name = "session_preferences")
 
-class SessionManager(private val context: Context) {
+class SessionManager(val context: Context) {
 
     companion object {
         val IS_LOGGED_IN = booleanPreferencesKey("is_logged_in")
         val NAME = stringPreferencesKey("username")
         val USER_ID = stringPreferencesKey("user_id")
+        val DEVICE_CODE = stringPreferencesKey("device_code")
         val TOKEN = stringPreferencesKey("token")
     }
 
     val isLoggedIn: Flow<Boolean> = context.dataStore.data
         .map { preferences ->
             preferences[IS_LOGGED_IN] ?: false
+        }
+
+    val deviceCode: Flow<String?> = context.dataStore.data
+        .map { preferences ->
+            preferences[DEVICE_CODE]
         }
 
     val name: Flow<String?> = context.dataStore.data
@@ -42,6 +48,12 @@ class SessionManager(private val context: Context) {
         .map { preferences ->
             preferences[TOKEN]
         }
+
+    suspend fun saveDeviceCode(code: String) {
+        context.dataStore.edit { preferences ->
+            preferences[DEVICE_CODE] = code
+        }
+    }
 
     suspend fun saveSession(isLoggedIn: Boolean, username: String, userId: String, token: String) {
         context.dataStore.edit { preferences ->

@@ -9,6 +9,7 @@ import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.request.url
@@ -27,6 +28,13 @@ class Client private constructor(
             url(baseUrl+url)
             contentType(ContentType.Application.Json)
             setBody(request)
+        }.body()
+    }
+
+    suspend inline fun <reified T> get(url: String): T {
+        return httpClient.get() {
+            url(baseUrl+url)
+            contentType(ContentType.Application.Json)
         }.body()
     }
 

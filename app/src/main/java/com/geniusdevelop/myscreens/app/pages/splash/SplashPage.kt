@@ -74,7 +74,7 @@ fun SplashScreen() {
                 text = "Welcome to EScreen",
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = Color.DarkGray
             )
         }
     }

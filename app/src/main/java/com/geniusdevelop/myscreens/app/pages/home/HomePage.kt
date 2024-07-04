@@ -1,32 +1,37 @@
 package com.geniusdevelop.myscreens.app.pages.home
 
+import android.util.Log
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.geniusdevelop.myscreens.app.api.models.MovieList
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.Text
+import com.geniusdevelop.myscreens.app.session.SessionManager
 import com.geniusdevelop.myscreens.app.util.Padding
-import com.google.jetstream.presentation.screens.home.Top10MoviesList
+import com.geniusdevelop.myscreens.app.viewmodels.HomeScreeViewModel
+import com.geniusdevelop.myscreens.app.viewmodels.HomeScreenUiState
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 val ParentPadding = PaddingValues(vertical = 20.dp, horizontal = 50.dp)
 
@@ -42,6 +47,7 @@ fun rememberChildPadding(direction: LayoutDirection = LocalLayoutDirection.curre
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun HomePage(
     //onMovieClick: (movie: Movie) -> Unit,
@@ -50,61 +56,54 @@ fun HomePage(
     isTopBarVisible: Boolean = true,
     homeScreeViewModel: HomeScreeViewModel = viewModel(),
 ) {
-
+    val context = LocalContext.current
+    val sessionManager = remember { SessionManager(context) }
+    var showLoading by remember { mutableStateOf(false) }
+    val userId by sessionManager.userId.collectAsState(initial = "")
+    val coroutineScope = rememberCoroutineScope()
+    val code by sessionManager.deviceCode.collectAsState(initial = "")
 
     val uiState by homeScreeViewModel.uiState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(key1 = true) {
+        coroutineScope.launch {
+            homeScreeViewModel.setDeviceCode(userId.toString())
+        }
+    }
+
     when (val s = uiState) {
         is HomeScreenUiState.Ready -> {
-            Catalog(
-                top10Movies = s.top10MovieList,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .focusRequester(FocusRequester()),
-            )
+            showLoading = false
+            coroutineScope.launch {
+                sessionManager.saveDeviceCode(s.deviceID)
+            }
         }
 
-        is HomeScreenUiState.Loading -> {}
-        is HomeScreenUiState.Error -> {}
+        is HomeScreenUiState.Loading -> {
+            showLoading = true
+        }
+        is HomeScreenUiState.Error -> {
+            // Ir a la pantalla de error
+        }
+        else -> {}
     }
 
 
-}
-
-@Composable
-private fun Catalog(
-    top10Movies: MovieList,
-    //onMovieClick: (movie: Movie) -> Unit,
-    //onScroll: (isTopBarVisible: Boolean) -> Unit,
-    //goToVideoPlayer: (movie: Movie) -> Unit,
-    modifier: Modifier = Modifier,
-    isTopBarVisible: Boolean = true,
-) {
-    val focusManager = LocalFocusManager.current
-    val lazyListState = rememberLazyListState()
-
-    var immersiveListHasFocus by remember { mutableStateOf(false) }
-
-    LaunchedEffect(isTopBarVisible) {
-        focusManager.moveFocus(FocusDirection.Down)
-    }
-
-    LazyColumn(
-        state = lazyListState,
-        contentPadding = PaddingValues(bottom = 108.dp),
-        // Setting overscan margin to bottom to ensure the last row's visibility
-        modifier = modifier,
+    Box(
+        modifier = Modifier
+            .fillMaxSize(),
+        contentAlignment = Alignment.Center
     ) {
+        Row(
+            modifier = Modifier
+                .padding(30.dp, 0.dp),
 
-        item(contentType = "Top10MoviesList") {
-            Top10MoviesList(
-                movieList = top10Movies,
-                //onMovieClick = onMovieClick,
-                modifier = Modifier.onFocusChanged {
-                    immersiveListHasFocus = it.hasFocus
-                },
-                onMovieClick = {}
-            )
+            ) {
+            if (showLoading) {
+                Text(text = "Generando el codigo para esta Pantalla")
+            } else {
+                Text(text = "Su codigo es: ${code}")
+            }
         }
     }
 }

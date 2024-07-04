@@ -22,13 +22,14 @@ import com.geniusdevelop.myscreens.app.session.SessionManager
 import com.geniusdevelop.myscreens.ui.theme.BlueSeedColor
 import com.geniusdevelop.myscreens.ui.theme.Mode
 import com.geniusdevelop.myscreens.ui.theme.colorutils.Scheme.Companion.dark
+import com.geniusdevelop.myscreens.ui.theme.colorutils.Scheme.Companion.light
 import com.geniusdevelop.myscreens.ui.theme.colorutils.toColorScheme
 import com.geniusdevelop.myscreens.ui.theme.navigation.NavigationGraph
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun App() {
-    val themeMode by remember { mutableStateOf(Mode.Dark) }
+    val themeMode by remember { mutableStateOf(Mode.Light) }
     var seedColor by remember { mutableStateOf(BlueSeedColor) }
     var layoutDirection by remember { mutableStateOf(LayoutDirection.Ltr) }
     var fontScale by remember { mutableFloatStateOf(1.0f) }
@@ -36,7 +37,7 @@ fun App() {
     var isThemeSelectorExpanded by remember { mutableStateOf(false) }
 
     val argbColor = seedColor.color.toArgb()
-    val colorScheme = dark(argbColor)
+    val colorScheme = light(argbColor)
 
     val context = LocalContext.current
     val sessionManager = remember { SessionManager(context) }

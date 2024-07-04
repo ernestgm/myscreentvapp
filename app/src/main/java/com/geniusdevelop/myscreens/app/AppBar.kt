@@ -104,6 +104,8 @@ fun AppBar(
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .background(Color.Transparent)
         ) {
             if (isLoggedIn) {
                 username?.let {

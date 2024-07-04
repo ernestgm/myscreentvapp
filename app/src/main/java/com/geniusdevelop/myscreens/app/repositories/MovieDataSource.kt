@@ -37,5 +37,5 @@ class MovieDataSource (
 
 
     suspend fun getTop10MovieList() =
-        movieWithLongThumbnailDataReader.read().subList(20, 30)
+        movieWithLongThumbnailDataReader.read().subList(20, 23)
 }

@@ -143,8 +143,8 @@ fun LoginPage(
                         onNext = { focusManager.moveFocus(FocusDirection.Down) }
                     ),
                     colors = TextFieldDefaults.colors(
-                        unfocusedTextColor = Color.White,
-                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.Black,
+                        focusedTextColor = Color.Black,
                         focusedContainerColor = Color.Transparent,
                         unfocusedContainerColor = Color.Transparent
                     )
@@ -165,8 +165,8 @@ fun LoginPage(
                         onDone = { focusManager.moveFocus(FocusDirection.Down) }
                     ),
                     colors = TextFieldDefaults.colors(
-                        unfocusedTextColor = Color.White,
-                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.Black,
+                        focusedTextColor = Color.Black,
                         focusedContainerColor = Color.Transparent,
                         unfocusedContainerColor = Color.Transparent
                     ),
