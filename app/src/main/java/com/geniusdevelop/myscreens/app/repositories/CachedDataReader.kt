@@ -16,8 +16,8 @@
 
 package com.geniusdevelop.myscreens.app.repositories
 
-import com.geniusdevelop.myscreens.app.api.models.Movie
-import com.geniusdevelop.myscreens.app.api.models.MoviesResponseItem
+import com.geniusdevelop.myscreens.app.api.models.Image
+import com.geniusdevelop.myscreens.app.api.response.ImagesResponseItem
 import com.google.jetstream.data.util.AssetsReader
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -40,14 +40,14 @@ internal class CachedDataReader<T>(private val reader: suspend () -> List<T>) {
     }
 }
 
-internal typealias MovieDataReader = CachedDataReader<Movie>
+internal typealias MovieDataReader = CachedDataReader<Image>
 
 internal suspend fun readMovieData(
     assetsReader: AssetsReader,
     resourceId: String,
     dispatcher: CoroutineDispatcher = Dispatchers.IO
-): List<MoviesResponseItem> = withContext(dispatcher) {
+): List<ImagesResponseItem> = withContext(dispatcher) {
     assetsReader.getJsonDataFromAsset(resourceId).map {
-        Json.decodeFromString<List<MoviesResponseItem>>(it)
+        Json.decodeFromString<List<ImagesResponseItem>>(it)
     }.getOrDefault(emptyList())
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.jetstream.data.util
+package com.geniusdevelop.myscreens.app.util
 
 object StringConstants {
     object Movie {
@@ -50,7 +50,7 @@ object StringConstants {
         object ContentDescription {
             fun moviePoster(movieName: String) = "Movie poster of $movieName"
             fun image(imageName: String) = "image of $imageName"
-            const val MoviesCarousel = "Movies Carousel"
+            const val MoviesCarousel = "Images Carousel"
             const val UserAvatar = "User Profile Button"
             const val DashboardSearchButton = "Dashboard Search Button"
             const val BrandLogoImage = "Brand Logo Image"

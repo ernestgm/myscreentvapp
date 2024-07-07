@@ -16,4 +16,14 @@
 
 package com.geniusdevelop.myscreens.app.api.models
 
-typealias MovieList = List<Movie>
+import com.geniusdevelop.myscreens.app.api.response.ImagesResponseItem
+
+
+data class Image(
+    val posterUri: String,
+    val name: String,
+)
+
+fun ImagesResponseItem.toImage(): Image {
+    return Image(image_16_9, title,)
+}

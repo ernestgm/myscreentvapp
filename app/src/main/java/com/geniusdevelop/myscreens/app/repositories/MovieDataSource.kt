@@ -16,10 +16,9 @@
 
 package com.geniusdevelop.myscreens.app.repositories
 
-import com.geniusdevelop.myscreens.app.api.models.ThumbnailType
-import com.geniusdevelop.myscreens.app.api.models.toMovie
+import com.geniusdevelop.myscreens.app.api.models.toImage
 import com.google.jetstream.data.util.AssetsReader
-import com.google.jetstream.data.util.StringConstants
+import com.geniusdevelop.myscreens.app.util.StringConstants
 
 class MovieDataSource (
     assetsReader: AssetsReader
@@ -31,11 +30,11 @@ class MovieDataSource (
 
     private var movieWithLongThumbnailDataReader: MovieDataReader = CachedDataReader {
         top250MovieDataReader.read().map {
-            it.toMovie(ThumbnailType.Long)
+            it.toImage()
         }
     }
 
 
-    suspend fun getTop10MovieList() =
+    suspend fun getTop10Images() =
         movieWithLongThumbnailDataReader.read().subList(20, 23)
 }

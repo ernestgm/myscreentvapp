@@ -30,6 +30,7 @@ import com.geniusdevelop.myscreens.app.session.SessionManager
 import com.geniusdevelop.myscreens.app.util.Padding
 import com.geniusdevelop.myscreens.app.viewmodels.HomeScreeViewModel
 import com.geniusdevelop.myscreens.app.viewmodels.HomeScreenUiState
+import com.google.jetstream.presentation.common.Error
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
@@ -50,10 +51,7 @@ fun rememberChildPadding(direction: LayoutDirection = LocalLayoutDirection.curre
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun HomePage(
-    //onMovieClick: (movie: Movie) -> Unit,
-    //goToVideoPlayer: (movie: Movie) -> Unit,
-    //onScroll: (isTopBarVisible: Boolean) -> Unit,
-    isTopBarVisible: Boolean = true,
+    goToPlayerPage: () -> Unit,
     homeScreeViewModel: HomeScreeViewModel = viewModel(),
 ) {
     val context = LocalContext.current
@@ -76,6 +74,7 @@ fun HomePage(
             showLoading = false
             coroutineScope.launch {
                 sessionManager.saveDeviceCode(s.deviceID)
+                goToPlayerPage()
             }
         }
 
@@ -83,7 +82,7 @@ fun HomePage(
             showLoading = true
         }
         is HomeScreenUiState.Error -> {
-            // Ir a la pantalla de error
+            Error(text = s.msg, modifier = Modifier.fillMaxSize())
         }
         else -> {}
     }

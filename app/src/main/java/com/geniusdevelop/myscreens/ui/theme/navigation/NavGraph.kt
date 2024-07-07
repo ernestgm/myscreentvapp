@@ -16,6 +16,7 @@ import com.geniusdevelop.myscreens.app.pages.*
 import com.geniusdevelop.myscreens.app.pages.home.HomePage
 import com.geniusdevelop.myscreens.app.pages.login.LoginPage
 import com.geniusdevelop.myscreens.app.pages.splash.SplashScreen
+import com.geniusdevelop.myscreens.app.pages.player.PlayerPage
 
 
 @Composable
@@ -51,9 +52,12 @@ enum class NavGraph(
     Home(
         routeName = "home",
         composable = { appBar ->
+            val navController = LocalNavController.current
             Column {
                 appBar()
-                HomePage()
+                HomePage(
+                    goToPlayerPage = {navController.navigate(NavGraph.Player.routeName)}
+                )
             }
         }
     ),
@@ -63,8 +67,6 @@ enum class NavGraph(
         routeName = "login",
         composable = {
             val navController = LocalNavController.current
-            var showModal by remember { mutableStateOf(false) }
-            var msg by remember { mutableStateOf("") }
             
             Column {
                 LoginPage(
@@ -73,16 +75,15 @@ enum class NavGraph(
             }
         }
     ),
-//    // foundations
-//    Color(
-//        routeName = "color",
-//        composable = { appBar ->
-//            Column {
-//                appBar()
-//                //ColorsScreen()
-//            }
-//        }
-//    ),
+    // Player
+    Player(
+        routeName = "player",
+        composable = {
+            Column {
+                PlayerPage()
+            }
+        }
+    ),
 //    Typography(
 //        routeName = "typography",
 //        composable = { appBar ->
@@ -205,25 +206,7 @@ val destinations = listOf(
     NavGraph.Splash,
     NavGraph.Home,
     NavGraph.Login,
-
-//    // foundation
-//    NavGraph.Color,
-//    NavGraph.Typography,
-//    NavGraph.Motion,
-//    NavGraph.Interaction,
-//
-//    // components
-//    NavGraph.Buttons,
-//    NavGraph.Cards,
-//    NavGraph.Chips,
-//    NavGraph.Lists,
-//    NavGraph.ImmersiveList,
-//    NavGraph.FeaturedCarousel,
-//    NavGraph.NavigationDrawer,
-//    NavGraph.TabRow,
-//    NavGraph.ModalDialog,
-//    NavGraph.TextFields,
-//    NavGraph.VideoPlayer,
+    NavGraph.Player,
 )
 
 val LocalNavController = compositionLocalOf<NavHostController> {

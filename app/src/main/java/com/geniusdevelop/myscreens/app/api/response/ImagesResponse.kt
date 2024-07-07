@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.geniusdevelop.myscreens.app.api.models
+package com.geniusdevelop.myscreens.app.api.response
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class MoviesResponseItem(
+data class ImagesResponseItem(
     val id: String,
     val videoUri: String,
     val subtitleUri: String?,

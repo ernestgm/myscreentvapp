@@ -1,18 +1,19 @@
 package com.geniusdevelop.myscreens.app.api.conection
 
 import android.content.Context
+import com.geniusdevelop.myscreens.app.api.models.ImageList
 import com.geniusdevelop.myscreens.app.api.models.User
 import com.geniusdevelop.myscreens.app.api.request.LoginRequest
 import com.geniusdevelop.myscreens.app.api.request.SetIdRequest
 import com.geniusdevelop.myscreens.app.api.response.GetCodeResponse
+import com.geniusdevelop.myscreens.app.api.response.GetImagesResponse
 import com.geniusdevelop.myscreens.app.api.response.LoginResponse
 import com.geniusdevelop.myscreens.app.api.response.LogoutResponse
 import com.geniusdevelop.myscreens.app.api.response.SetDeviceIDResponse
 import com.geniusdevelop.myscreens.app.api.response.SetIdResponse
+import com.geniusdevelop.myscreens.app.repositories.MovieDataSource
 import com.geniusdevelop.myscreens.app.util.DeviceUtils
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.flow
+import com.google.jetstream.data.util.AssetsReader
 
 class ApiManager internal constructor(
     private val context: Context,
@@ -51,6 +52,17 @@ class ApiManager internal constructor(
         return SetDeviceIDResponse(success = true, code = code)
     }
 
+    override suspend fun getContents(deviceCode: String): ImageList {
+        val assetsReader = AssetsReader(context)
+        val dataReader = MovieDataSource(assetsReader)
+
+        return dataReader.getTop10Images()
+    }
+
+    override suspend fun getImagesByScreenCode(deviceCode: String): GetImagesResponse {
+        return client.get<GetImagesResponse>("/images/byScreen?code=$deviceCode")
+    }
+
     private suspend fun getDeviceCode(deviceID: String, userId: String): String {
         var code = ""
         val response = client.get<GetCodeResponse>("/device?device_id=$deviceID&user_id=$userId")
@@ -61,14 +73,6 @@ class ApiManager internal constructor(
         }
 
         return code
-    }
-
-    override suspend fun getUserSessions(): User {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun getSessionToken(): String {
-        TODO("Not yet implemented")
     }
 
     companion object {
