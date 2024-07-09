@@ -16,10 +16,7 @@
 
 package com.geniusdevelop.myscreens.app.pages.player
 
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -30,12 +27,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
@@ -45,7 +43,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -53,23 +50,17 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Carousel
 import androidx.tv.material3.CarouselDefaults
 import androidx.tv.material3.CarouselState
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.ShapeDefaults
 import androidx.tv.material3.Text
-import com.geniusdevelop.myscreens.R
 import com.geniusdevelop.myscreens.app.api.response.Images
 import com.geniusdevelop.myscreens.app.api.response.Product
-import com.geniusdevelop.myscreens.app.util.Configuration
 import com.geniusdevelop.myscreens.app.util.Padding
-import com.geniusdevelop.myscreens.app.util.StringConstants
+import kotlinx.coroutines.delay
 
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -83,54 +74,48 @@ val CarouselSaver = Saver<CarouselState, Int>(
 )
 @Composable
 fun PlayerCarousel(
-    images: Array<Images>,
-    padding: Padding,
-    modifier: Modifier = Modifier
+    images: Array<Images>
 ) {
     val carouselState = rememberSaveable(saver = CarouselSaver) { CarouselState(0) }
     var isCarouselFocused by remember { mutableStateOf(false) }
 
-    Carousel(
-        modifier = modifier
-            .padding(start = padding.start, end = padding.start, top = padding.top)
-            //.clip(ShapeDefaults.Large)
-            .onFocusChanged {
-                // Because the carousel itself never gets the focus
-                isCarouselFocused = it.hasFocus
-            }
-            .semantics {
-                contentDescription =
-                    StringConstants.Composable.ContentDescription.MoviesCarousel
-            },
-        itemCount = images.size,
-        carouselState = carouselState,
-        carouselIndicator = {
-            CarouselIndicator(
-                itemCount = images.size,
-                activeItemIndex = carouselState.activeItemIndex
-            )
-        },
-        contentTransformStartToEnd = fadeIn(tween(durationMillis = Configuration.Carousel.TimerTransation))
-            .togetherWith(fadeOut(tween(durationMillis = Configuration.Carousel.TimerTransation))),
-        contentTransformEndToStart = fadeIn(tween(durationMillis = Configuration.Carousel.TimerTransation))
-            .togetherWith(fadeOut(tween(durationMillis = Configuration.Carousel.TimerTransation))),
-        content = { index ->
-            val image = images[index]
-            if (image.isStatic()) {
-                CarouselItemBackground(image = image, modifier = Modifier.fillMaxSize())
-            } else {
-                CarouselItemProducts(
-                    image = image,
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
+    CustomCarousel(images = images)
+}
+
+@Composable
+fun CustomCarousel(
+    images: Array<Images>
+) {
+    val durations = images.map {
+        ((it.duration?.toLong() ?: 1) * 1000)
+    }
+
+    var currentIndex by remember { mutableIntStateOf(0) }
+
+    LaunchedEffect(currentIndex) {
+        delay(durations[currentIndex])
+        if (images.isNotEmpty()) {
+            currentIndex = (currentIndex + 1) % images.size
         }
-    )
+    }
+
+    Crossfade(targetState = currentIndex, label = "") { index ->
+        if (images.isNotEmpty()) {
+            CarouselItemBackground(image = images[index], modifier = Modifier.fillMaxSize())
+        }
+    }
+//    Box(
+//        modifier = Modifier.fillMaxSize(),
+//        contentAlignment = Alignment.BottomEnd
+//    ) {
+//        CarouselIndicator(itemCount = images.size, activeItemIndex = currentIndex)
+//    }
+
 }
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-private fun BoxScope.CarouselIndicator(
+fun BoxScope.CarouselIndicator(
     itemCount: Int,
     activeItemIndex: Int,
     modifier: Modifier = Modifier
@@ -139,11 +124,11 @@ private fun BoxScope.CarouselIndicator(
         modifier = modifier
             .padding(0.dp)
             .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
+            .align(Alignment.BottomEnd)
             .graphicsLayer {
                 clip = true
                 shape = ShapeDefaults.ExtraSmall
             }
-            .align(Alignment.BottomEnd)
     ) {
         CarouselDefaults.IndicatorRow(
             modifier = Modifier

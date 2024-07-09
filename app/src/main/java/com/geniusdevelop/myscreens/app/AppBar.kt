@@ -67,7 +67,7 @@ fun AppBar(
     var showLoading by remember { mutableStateOf(false) }
 
     val title = stringResource(R.string.tv_compose)
-    val description = "Welcome to the screens manager system"
+    val description = "Player for the EScreen System"
     val isMainIconMagnified = true
 
     when (val s = uiState) {
@@ -111,7 +111,7 @@ fun AppBar(
                 username?.let {
                     Text(
                         modifier = Modifier.padding(all = 20.dp),
-                        text = "Bienvenido $it")
+                        text = "Welcome $it")
                 }
             }
             Actions(

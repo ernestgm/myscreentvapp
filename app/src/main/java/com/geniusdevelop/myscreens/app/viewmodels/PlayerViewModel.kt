@@ -43,7 +43,7 @@ class PlayerViewModel : ViewModel() {
                 if (!result.success.toBoolean()) {
                     _uiState.value = PlayerUiState.ReadyToUpdate
                 } else {
-                    Log.d("SERVER_RESPONSE", "no hay cambios")
+                    _uiState.value = PlayerUiState.UpdateError("")
                 }
             } catch (e: Exception) {
                 //_uiState.value = PlayerUiState.Error(e.message.toString())

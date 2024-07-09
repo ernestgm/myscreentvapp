@@ -10,4 +10,5 @@ interface IRepositoryContent {
     suspend fun getContents(deviceCode: String): ImageList
     suspend fun getImagesByScreenCode(deviceCode: String): GetImagesResponse
     suspend fun checkScreenUpdated(screenId: String, updatedAt: String): CheckScreenUpdateResponse
+    suspend fun checkExistScreenByCode(code: String): CheckScreenUpdateResponse
 }

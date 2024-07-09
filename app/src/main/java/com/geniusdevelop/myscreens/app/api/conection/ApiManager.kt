@@ -74,6 +74,10 @@ class ApiManager internal constructor(
         return client.get<CheckScreenUpdateResponse>("/screens/checkUpdatedAt?udpated_time=$encodeUpdateAt&code=$screenCode")
     }
 
+    override suspend fun checkExistScreenByCode(code: String): CheckScreenUpdateResponse {
+        return client.get<CheckScreenUpdateResponse>("/screens/byCode?code=$code")
+    }
+
     private suspend fun getDeviceCode(deviceID: String, userId: String): String {
         var code = ""
         val response = client.get<GetCodeResponse>("/device?device_id=$deviceID&user_id=$userId")

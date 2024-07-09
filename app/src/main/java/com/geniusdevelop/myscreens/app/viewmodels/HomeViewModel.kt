@@ -1,6 +1,7 @@
 package com.geniusdevelop.myscreens.app.viewmodels
 
 
+import android.util.Log
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -40,6 +41,17 @@ class HomeScreeViewModel() : ViewModel() {
             }
         }
     }
+
+    fun checkExistScreenForDevice(code: String) {
+        viewModelScope.launch {
+            try {
+                val result = Repository.api.checkExistScreenByCode(code)
+                _uiState.value = HomeScreenUiState.ExistScreen(result.success.toBoolean())
+            } catch (e: Exception) {
+                _uiState.value = HomeScreenUiState.Error(e.message.toString())
+            }
+        }
+    }
 }
 
 sealed interface HomeScreenUiState {
@@ -48,4 +60,5 @@ sealed interface HomeScreenUiState {
     data class Ready(
         val deviceID: String
     ) : HomeScreenUiState
+    data class ExistScreen(val exist: Boolean): HomeScreenUiState
 }

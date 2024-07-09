@@ -22,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.geniusdevelop.myscreens.R
 import com.geniusdevelop.myscreens.app.session.SessionManager
@@ -73,8 +74,7 @@ fun SplashScreen() {
             Text(
                 text = "Welcome to EScreen",
                 fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.DarkGray
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
             )
         }
     }

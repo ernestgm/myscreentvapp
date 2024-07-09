@@ -17,10 +17,15 @@
 package com.google.jetstream.presentation.common
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
@@ -28,13 +33,25 @@ import androidx.tv.material3.Text
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun Loading(
+    text:String = "Loading",
     modifier: Modifier = Modifier,
-    style: TextStyle = MaterialTheme.typography.displayMedium
+    style: TextStyle = MaterialTheme.typography.displaySmall
 ) {
     Box(modifier = modifier, contentAlignment = Alignment.Center) {
-        Text(
-            text = "Cargando",
-            style = style
-        )
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = text,
+                style = style,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+            )
+            CircularProgressIndicator(
+                modifier = Modifier
+                    .padding(20.dp),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+            )
+        }
+
     }
 }

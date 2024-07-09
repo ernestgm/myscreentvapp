@@ -1,9 +1,8 @@
 package com.geniusdevelop.myscreens.app.pages.home
 
-import android.util.Log
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,19 +19,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.tv.material3.ExperimentalTvMaterial3Api
-import androidx.tv.material3.Text
+import androidx.tv.material3.MaterialTheme
 import com.geniusdevelop.myscreens.app.session.SessionManager
+import com.geniusdevelop.myscreens.app.util.Configuration
 import com.geniusdevelop.myscreens.app.util.Padding
+import com.geniusdevelop.myscreens.app.util.startTimer
+import com.geniusdevelop.myscreens.app.util.stopTimer
 import com.geniusdevelop.myscreens.app.viewmodels.HomeScreeViewModel
 import com.geniusdevelop.myscreens.app.viewmodels.HomeScreenUiState
 import com.google.jetstream.presentation.common.Error
-import kotlinx.coroutines.coroutineScope
+import com.google.jetstream.presentation.common.Loading
 import kotlinx.coroutines.launch
+import java.util.Timer
 
 val ParentPadding = PaddingValues(vertical = 20.dp, horizontal = 50.dp)
 
@@ -48,11 +52,10 @@ fun rememberChildPadding(direction: LayoutDirection = LocalLayoutDirection.curre
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun HomePage(
     goToPlayerPage: () -> Unit,
-    homeScreeViewModel: HomeScreeViewModel = viewModel(),
+    homeScreeViewModel: HomeScreeViewModel = viewModel()
 ) {
     val context = LocalContext.current
     val sessionManager = remember { SessionManager(context) }
@@ -62,6 +65,8 @@ fun HomePage(
     val code by sessionManager.deviceCode.collectAsState(initial = "")
 
     val uiState by homeScreeViewModel.uiState.collectAsStateWithLifecycle()
+
+    var timer:Timer? = null
 
     LaunchedEffect(key1 = true) {
         coroutineScope.launch {
@@ -74,10 +79,20 @@ fun HomePage(
             showLoading = false
             coroutineScope.launch {
                 sessionManager.saveDeviceCode(s.deviceID)
+
+                timer = startTimer(Configuration.TimerCheckExistScreen.toLong()) {
+                    homeScreeViewModel.checkExistScreenForDevice(code.toString())
+                }
+            }
+        }
+        is HomeScreenUiState.ExistScreen -> {
+            if (s.exist) {
+                timer?.let {
+                    stopTimer(it)
+                }
                 goToPlayerPage()
             }
         }
-
         is HomeScreenUiState.Loading -> {
             showLoading = true
         }
@@ -93,15 +108,16 @@ fun HomePage(
             .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Row(
+        Column(
             modifier = Modifier
-                .padding(30.dp, 0.dp),
+                .padding(10.dp, 0.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
 
             ) {
             if (showLoading) {
-                Text(text = "Generando el codigo para esta Pantalla")
+                Loading(text = "Creating device code", modifier = Modifier.fillMaxSize())
             } else {
-                Text(text = "Su codigo es: ${code}")
+                Loading(text = "Waiting for the screen data. Device Code: ${code}", modifier = Modifier.fillMaxSize())
             }
         }
     }

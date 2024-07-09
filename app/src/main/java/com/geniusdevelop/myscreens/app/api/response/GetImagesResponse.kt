@@ -21,6 +21,7 @@ data class Images (
     val image: String? = null,
     val screen_id: String? = null,
     val is_static: String? = null,
+    val duration: Int? = null,
     val products: Array<Product>? = null
 ) {
     fun getImageBitmap(): Bitmap? {
