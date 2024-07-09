@@ -6,6 +6,6 @@ object Configuration {
         const val TimerTransation = 5000
     }
     object Player {
-        const val UpdateTimeRequest = 300000
+        const val UpdateTimeRequest = 30000
     }
 }

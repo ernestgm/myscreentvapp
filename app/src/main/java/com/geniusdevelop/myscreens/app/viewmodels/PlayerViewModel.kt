@@ -25,7 +25,9 @@ class PlayerViewModel : ViewModel() {
             try {
                 val result = Repository.api.getImagesByScreenCode(deviceCode)
                 if (result.success.toBoolean()) {
-                    _uiState.value = result.data?.let { PlayerUiState.Ready(it) }
+                    _uiState.value = result.data?.let {
+                        PlayerUiState.Ready(it, result.screen_updated_at.toString())
+                    }
                 }
             } catch (e: Exception) {
                 _uiState.value = PlayerUiState.Error(e.message.toString())
@@ -33,18 +35,33 @@ class PlayerViewModel : ViewModel() {
         }
     }
 
+    fun checkForUpdate(deviceCode:String, updatedAt: String) {
+        viewModelScope.launch {
+            Log.d("SERVER_RESPONSE", "chequeando")
+            try {
+                val result = Repository.api.checkScreenUpdated(deviceCode, updatedAt)
+                if (!result.success.toBoolean()) {
+                    _uiState.value = PlayerUiState.ReadyToUpdate
+                } else {
+                    Log.d("SERVER_RESPONSE", "no hay cambios")
+                }
+            } catch (e: Exception) {
+                //_uiState.value = PlayerUiState.Error(e.message.toString())
+                Log.d("SERVER_RESPONSE", e.message.toString())
+            }
+        }
+    }
+
     fun updatePlayer(deviceCode: String) {
         viewModelScope.launch {
             while (true) {
-                delay(Configuration.Player.UpdateTimeRequest.toLong())
                 try {
                     val result = Repository.api.getImagesByScreenCode(deviceCode)
                     if (result.success.toBoolean()) {
-                        _uiState.value = result.data?.let { PlayerUiState.Update(it) }
+                        _uiState.value = result.data?.let { PlayerUiState.Update(it, result.screen_updated_at.toString()) }
                     }
                 } catch (e: Exception) {
-                    //_uiState.value = PlayerUiState.Error(e.message.toString())
-                    Log.d("SERVER_RESPONSE", e.message.toString())
+                    _uiState.value = PlayerUiState.UpdateError(e.message.toString())
                 }
             }
         }
@@ -55,9 +72,14 @@ sealed interface PlayerUiState {
     data object Loading : PlayerUiState
     data class Error(val msg: String = "") : PlayerUiState
     data class Ready(
-        val images: Array<Images>
+        val images: Array<Images>,
+        val updatedAt: String
     ) : PlayerUiState
+
+    data object ReadyToUpdate : PlayerUiState
     data class Update(
-        val images: Array<Images>
+        val images: Array<Images>,
+        val updatedAt: String
     ) : PlayerUiState
+    data class UpdateError(val msg: String = "") : PlayerUiState
 }

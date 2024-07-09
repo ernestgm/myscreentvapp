@@ -9,6 +9,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class GetImagesResponse (
     val success : String? = null,
+    val screen_updated_at: String? = null,
     val data: Array<Images>? = null
 )
 
@@ -48,4 +49,9 @@ data class Product (
 data class Price (
     val id: String? = null,
     val value: String? = null
+)
+
+@Serializable
+data class CheckScreenUpdateResponse(
+    val success: String? = null
 )

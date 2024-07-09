@@ -5,6 +5,7 @@ import com.geniusdevelop.myscreens.app.api.models.ImageList
 import com.geniusdevelop.myscreens.app.api.models.User
 import com.geniusdevelop.myscreens.app.api.request.LoginRequest
 import com.geniusdevelop.myscreens.app.api.request.SetIdRequest
+import com.geniusdevelop.myscreens.app.api.response.CheckScreenUpdateResponse
 import com.geniusdevelop.myscreens.app.api.response.GetCodeResponse
 import com.geniusdevelop.myscreens.app.api.response.GetImagesResponse
 import com.geniusdevelop.myscreens.app.api.response.LoginResponse
@@ -14,6 +15,8 @@ import com.geniusdevelop.myscreens.app.api.response.SetIdResponse
 import com.geniusdevelop.myscreens.app.repositories.MovieDataSource
 import com.geniusdevelop.myscreens.app.util.DeviceUtils
 import com.google.jetstream.data.util.AssetsReader
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 class ApiManager internal constructor(
     private val context: Context,
@@ -61,6 +64,14 @@ class ApiManager internal constructor(
 
     override suspend fun getImagesByScreenCode(deviceCode: String): GetImagesResponse {
         return client.get<GetImagesResponse>("/images/byScreen?code=$deviceCode")
+    }
+
+    override suspend fun checkScreenUpdated(
+        screenCode: String,
+        updatedAt: String
+    ): CheckScreenUpdateResponse {
+        val encodeUpdateAt = URLEncoder.encode(updatedAt, StandardCharsets.UTF_8.toString())
+        return client.get<CheckScreenUpdateResponse>("/screens/checkUpdatedAt?udpated_time=$encodeUpdateAt&code=$screenCode")
     }
 
     private suspend fun getDeviceCode(deviceID: String, userId: String): String {
