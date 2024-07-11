@@ -4,9 +4,9 @@ package com.geniusdevelop.myscreens.app.util
 object Configuration {
     const val TimerCheckExistScreen = 5000
     object Carousel {
-        const val TimerTransation = 5000
+        const val TimerTransationDefault = 60000L
     }
     object Player {
-        const val UpdateTimeRequest = 30000
+        const val UpdateTimeRequestDefault = 60000L
     }
 }

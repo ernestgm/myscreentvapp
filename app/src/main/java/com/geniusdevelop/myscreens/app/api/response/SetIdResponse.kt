@@ -20,5 +20,6 @@ data class SetDeviceIDResponse (
 
 @Serializable
 data class ErrorValidator (
-    val code: Array<String> = emptyArray()
+    val code: Array<String> = emptyArray(),
+    val device_id: Array<String> = emptyArray(),
 )

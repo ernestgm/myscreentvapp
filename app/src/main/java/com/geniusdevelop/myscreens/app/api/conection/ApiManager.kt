@@ -46,8 +46,8 @@ class ApiManager internal constructor(
             } else {
                 if (!response.data?.code.isNullOrEmpty()) {
                     setDeviceID(userId)
-                } else {
-                    return SetDeviceIDResponse(error = true, message = "Este dispositivo ya tiene un Codigo Asignado!!!")
+                } else if(!response.data?.device_id.isNullOrEmpty()) {
+                    return SetDeviceIDResponse(error = true, message = response.data?.device_id?.first().toString())
                 }
             }
         }

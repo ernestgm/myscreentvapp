@@ -37,12 +37,15 @@ class PlayerViewModel : ViewModel() {
 
     fun checkForUpdate(deviceCode:String, updatedAt: String) {
         viewModelScope.launch {
-            Log.d("SERVER_RESPONSE", "chequeando")
             try {
+                Log.d("SERVER_RESPONSE", "chequeando $updatedAt")
                 val result = Repository.api.checkScreenUpdated(deviceCode, updatedAt)
-                if (!result.success.toBoolean()) {
+                Log.d("SERVER_RESPONSE", result.success.toString())
+                if (result.success != null && !result.success.toBoolean()) {
+                    Log.d("SERVER_RESPONSE", "cambios")
                     _uiState.value = PlayerUiState.ReadyToUpdate
                 } else {
+                    Log.d("SERVER_RESPONSE", "sin cambios")
                     _uiState.value = PlayerUiState.UpdateError("")
                 }
             } catch (e: Exception) {
@@ -54,15 +57,13 @@ class PlayerViewModel : ViewModel() {
 
     fun updatePlayer(deviceCode: String) {
         viewModelScope.launch {
-            while (true) {
-                try {
-                    val result = Repository.api.getImagesByScreenCode(deviceCode)
-                    if (result.success.toBoolean()) {
-                        _uiState.value = result.data?.let { PlayerUiState.Update(it, result.screen_updated_at.toString()) }
-                    }
-                } catch (e: Exception) {
-                    _uiState.value = PlayerUiState.UpdateError(e.message.toString())
+            try {
+                val result = Repository.api.getImagesByScreenCode(deviceCode)
+                if (result.success != null && result.success.toBoolean()) {
+                    _uiState.value = result.data?.let { PlayerUiState.Update(it, result.screen_updated_at.toString()) }
                 }
+            } catch (e: Exception) {
+                _uiState.value = PlayerUiState.UpdateError(e.message.toString())
             }
         }
     }
