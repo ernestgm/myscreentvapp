@@ -19,6 +19,7 @@ package com.geniusdevelop.myscreens.app.pages.player
 import android.util.Log
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,6 +28,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import com.geniusdevelop.myscreens.app.api.response.Images
@@ -81,12 +83,21 @@ fun PlayerCarousel(
 
 @Composable
 private fun CarouselItemBackground(image: Images, modifier: Modifier = Modifier) {
-    image.getImageBitmap()?.asImageBitmap()?.let {
-        Image(
-            bitmap = it,
-            contentDescription = image.description.toString(),
-            modifier = modifier,
-            contentScale = ContentScale.Crop
-        )
+    Box(modifier = modifier) {
+        image.getImageBitmap()?.asImageBitmap()?.let {
+            Image(
+                bitmap = it,
+                contentDescription = image.description.toString(),
+                modifier = modifier.alpha(0.3F),
+                contentScale = ContentScale.Crop
+            )
+            Image(
+                bitmap = it,
+                contentDescription = image.description.toString(),
+                modifier = modifier,
+                contentScale = ContentScale.Fit
+            )
+        }
     }
+
 }

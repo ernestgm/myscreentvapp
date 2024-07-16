@@ -85,7 +85,7 @@ fun LogoutPage(
                 .padding(30.dp, 0.dp),
 
             ) {
-            Loading(text = "Logout", modifier = Modifier.fillMaxSize())
+            Loading(text = "Coming out", modifier = Modifier.fillMaxSize())
         }
     }
 }
