@@ -48,12 +48,12 @@ fun rememberChildPadding(direction: LayoutDirection = LocalLayoutDirection.curre
 @Composable
 fun HomePage(
     goToPlayerPage: () -> Unit,
+    goToLogoutPage: () -> Unit,
     homeScreeViewModel: HomeScreeViewModel = viewModel()
 ) {
     val context = LocalContext.current
     val sessionManager = remember { SessionManager(context) }
     var showLoading by remember { mutableStateOf(false) }
-    var showWaiting by remember { mutableStateOf(false) }
     val userId by sessionManager.userId.collectAsState(initial = "")
     val coroutineScope = rememberCoroutineScope()
     val code by sessionManager.deviceCode.collectAsState(initial = "")
@@ -71,7 +71,7 @@ fun HomePage(
             showLoading = false
             coroutineScope.launch {
                 sessionManager.saveDeviceCode(s.deviceCode)
-                homeScreeViewModel.initSubscribeDevice(code.toString())
+                homeScreeViewModel.initSubscribeDevice(code.toString(), userId.toString())
                 homeScreeViewModel.checkExistScreenForDevice(code.toString())
             }
         }
@@ -89,6 +89,9 @@ fun HomePage(
         }
         is HomeScreenUiState.DisabledScreen -> {
             Error(text = "Screen has been Disabled. Contact with support. Device Code: ${code}", modifier = Modifier.fillMaxSize())
+        }
+        is HomeScreenUiState.LogoutUser -> {
+            goToLogoutPage()
         }
         else -> {}
     }

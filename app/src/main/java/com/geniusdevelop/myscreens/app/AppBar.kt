@@ -1,6 +1,5 @@
 package com.geniusdevelop.myscreens.app
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,17 +13,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -32,10 +28,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.tv.material3.Button
 import androidx.tv.material3.ExperimentalTvMaterial3Api
@@ -43,19 +35,13 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.geniusdevelop.myscreens.R
-import com.geniusdevelop.myscreens.app.api.conection.Repository
 import com.geniusdevelop.myscreens.app.session.SessionManager
-import com.geniusdevelop.myscreens.app.viewmodels.LoginUiState
-import com.geniusdevelop.myscreens.app.viewmodels.LoginViewModel
 import com.geniusdevelop.myscreens.ui.theme.navigation.LocalNavController
-import kotlinx.coroutines.flow.last
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun AppBar(
     logoutClick: () -> Unit,
-    loginPageViewModel: LoginViewModel = viewModel()
 ) {
     val navHostController = LocalNavController.current
     val entry by navHostController.currentBackStackEntryAsState()
@@ -64,39 +50,11 @@ fun AppBar(
     val sessionManager = remember { SessionManager(context) }
     val isLoggedIn by sessionManager.isLoggedIn.collectAsState(initial = false)
     val username by sessionManager.name.collectAsState(initial = "")
-    val userId by sessionManager.userId.collectAsState(initial = "")
-    val coroutineScope = rememberCoroutineScope()
-    val uiState by loginPageViewModel.uiState.collectAsStateWithLifecycle()
     var showLoading by remember { mutableStateOf(false) }
 
     val title = stringResource(R.string.tv_compose)
     val description = "Player for the EScreen System"
     val isMainIconMagnified = true
-
-    LaunchedEffect(key1 = true) {
-        coroutineScope.launch {
-            loginPageViewModel.initUserSuscribe(userId.toString())
-        }
-    }
-
-    when (val s = uiState) {
-        is LoginUiState.Error -> {
-            showLoading = false
-            Toast.makeText(context, s.msg, Toast.LENGTH_LONG).show()
-        }
-        is LoginUiState.Ready -> {
-            showLoading = false
-            coroutineScope.launch {
-                sessionManager.clearSession()
-                Repository.wsManager.connect()
-                logoutClick()
-            }
-        }
-        is LoginUiState.Loading -> {
-            showLoading = true
-        }
-        else -> {}
-    }
 
     Row(
         modifier = Modifier
@@ -127,7 +85,7 @@ fun AppBar(
             Actions(
                 disabledLogout = !showLoading,
                 logoutClick = {
-                    loginPageViewModel.logout()
+                    logoutClick()
                 }
             )
         }

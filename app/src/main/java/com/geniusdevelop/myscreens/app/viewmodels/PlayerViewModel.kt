@@ -27,6 +27,7 @@ class PlayerViewModel : ViewModel() {
 
     private lateinit var imagesSubscription: Subscription
     private lateinit var screenSubscription: Subscription
+    private lateinit var userSubscription: Subscription
     private val _uiState = MutableStateFlow<PlayerUiState?>(null)
     val uiState: StateFlow<PlayerUiState?> = _uiState
 
@@ -60,7 +61,7 @@ class PlayerViewModel : ViewModel() {
         }
     }
 
-    fun initSubscriptions(deviceCode: String) {
+    fun initSubscriptions(deviceCode: String, userID: String) {
         System.out.println("init subscribed to")
 
         val subListener: SubscriptionEventListener = object : SubscriptionEventListener() {
@@ -89,6 +90,7 @@ class PlayerViewModel : ViewModel() {
                             "check_screen_update" -> {
                                 Repository.wsManager.removeSubscription(imagesSubscription)
                                 Repository.wsManager.removeSubscription(screenSubscription)
+                                Repository.wsManager.removeSubscription(userSubscription)
                                 _uiState.value = PlayerUiState.GotoHome
                             }
                         }
@@ -97,6 +99,16 @@ class PlayerViewModel : ViewModel() {
                         when (data.message) {
                             "check_images_update" -> {
                                 _uiState.value = PlayerUiState.ReadyToUpdate
+                            }
+                        }
+                    }
+                    "user_$userID" -> {
+                        when (data.message) {
+                            "logout" -> {
+                                Repository.wsManager.removeSubscription(screenSubscription)
+                                Repository.wsManager.removeSubscription(userSubscription)
+                                Repository.wsManager.removeSubscription(imagesSubscription)
+                                _uiState.value = PlayerUiState.GotoLogout
                             }
                         }
                     }
@@ -116,6 +128,7 @@ class PlayerViewModel : ViewModel() {
         try {
             imagesSubscription = Repository.wsManager.newSubscription("player_images_$deviceCode", subListener)
             screenSubscription = Repository.wsManager.newSubscription("player_screen_$deviceCode", subListener)
+            userSubscription = Repository.wsManager.newSubscription("user_$userID", subListener)
         } catch (e: DuplicateSubscriptionException) {
             e.printStackTrace()
             return
@@ -125,6 +138,7 @@ class PlayerViewModel : ViewModel() {
         viewModelScope.launch {
             imagesSubscription.subscribe()
             screenSubscription.subscribe()
+            userSubscription.subscribe()
         }
     }
 }
@@ -132,6 +146,7 @@ class PlayerViewModel : ViewModel() {
 sealed interface PlayerUiState {
     data object Loading : PlayerUiState
     data object GotoHome : PlayerUiState
+    data object GotoLogout : PlayerUiState
     data class Error(val msg: String = "") : PlayerUiState
     data class Ready(
         val images: Array<Images>,

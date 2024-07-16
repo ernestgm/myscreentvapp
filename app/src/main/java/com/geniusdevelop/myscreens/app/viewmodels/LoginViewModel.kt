@@ -22,7 +22,6 @@ import kotlinx.serialization.json.Json
 import java.nio.charset.StandardCharsets.UTF_8
 
 class LoginViewModel : ViewModel() {
-    private lateinit var subscription: Subscription
     private val _uiState = MutableStateFlow<LoginUiState?>(null)
     val uiState: StateFlow<LoginUiState?> = _uiState
 
@@ -49,62 +48,10 @@ class LoginViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 Repository.user.logout()
-                subscription.unsubscribe()
                 _uiState.value = LoginUiState.Ready()
             } catch (e: Exception) {
                 _uiState.value = LoginUiState.Error(e.message.toString())
             }
-        }
-    }
-
-    fun initUserSuscribe(userId: String) {
-
-        val subListener: SubscriptionEventListener = object : SubscriptionEventListener() {
-            override fun onSubscribed(sub: Subscription, event: SubscribedEvent) {
-                System.out.println(("subscribed to " + sub.channel) + ", recovered " + event.recovered)
-            }
-
-            override fun onSubscribing(sub: Subscription?, event: SubscribingEvent) {
-                System.out.printf("subscribing: %s%n", event.reason)
-            }
-
-            override fun onUnsubscribed(sub: Subscription, event: UnsubscribedEvent) {
-                System.out.println(("unsubscribed " + sub.channel) + ", reason: " + event.reason)
-            }
-
-            override fun onError(sub: Subscription, event: SubscriptionErrorEvent) {
-                System.out.println(("subscription error " + sub.channel) + " " + event.error.toString())
-            }
-
-            override fun onPublication(sub: Subscription, event: PublicationEvent) {
-                val data = Json.decodeFromString<WSMessage>(String(event.data, UTF_8))
-                if (data.message == "logout") {
-                    logout()
-                }
-
-                System.out.println(("message from " + sub.channel) + " " + data)
-            }
-
-            override fun onJoin(sub: Subscription, event: JoinEvent) {
-                println("client " + event.info.client + " joined channel " + sub.channel)
-            }
-
-            override fun onLeave(sub: Subscription, event: LeaveEvent) {
-                println("client " + event.info.client + " left channel " + sub.channel)
-            }
-        }
-
-
-        try {
-            subscription = Repository.wsManager.newSubscription("user_$userId", subListener)
-        } catch (e: DuplicateSubscriptionException) {
-            e.printStackTrace()
-            return
-        }
-
-
-        viewModelScope.launch {
-            subscription.subscribe()
         }
     }
 }

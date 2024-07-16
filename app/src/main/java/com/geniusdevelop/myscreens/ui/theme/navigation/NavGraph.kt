@@ -12,6 +12,7 @@ import com.geniusdevelop.myscreens.app.pages.home.HomePage
 import com.geniusdevelop.myscreens.app.pages.login.LoginPage
 import com.geniusdevelop.myscreens.app.pages.splash.SplashScreen
 import com.geniusdevelop.myscreens.app.pages.player.PlayerPage
+import com.geniusdevelop.myscreens.app.pages.logout.LogoutPage
 
 
 @Composable
@@ -23,7 +24,7 @@ fun NavigationGraph() {
             composable(destination.routeName) {
                 destination.composable {
                     AppBar(
-                        logoutClick = { navHostController.navigate(NavGraph.Login.routeName) },
+                        logoutClick = { navHostController.navigate(NavGraph.Logout.routeName) },
                     )
                 }
             }
@@ -51,7 +52,8 @@ enum class NavGraph(
             Column {
                 appBar()
                 HomePage(
-                    goToPlayerPage = {navController.navigate(NavGraph.Player.routeName)}
+                    goToPlayerPage = { navController.navigate(NavGraph.Player.routeName) },
+                    goToLogoutPage = { navController.navigate(Logout.routeName) }
                 )
             }
         }
@@ -77,20 +79,21 @@ enum class NavGraph(
             val navController = LocalNavController.current
             Column {
                 PlayerPage(
-                    goToHomePage = { navController.navigate(Home.routeName) }
+                    goToHomePage = { navController.navigate(Home.routeName) },
+                    goToLogout = { navController.navigate(NavGraph.Logout.routeName) }
                 )
             }
         }
-    )
-//    Motion(
-//        routeName = "motion",
-//        composable = { appBar ->
-//            Column {
-//                appBar()
-//                //MotionScreen()
-//            }
-//        }
-//    ),
+    ),
+    Logout(
+        routeName = "motion",
+        composable = {
+            val navController = LocalNavController.current
+            Column {
+                LogoutPage(goToLogin = { navController.navigate(NavGraph.Login.routeName) })
+            }
+        }
+    ),
 //    Interaction(
 //        routeName = "interaction",
 //        composable = { appBar ->
@@ -196,6 +199,7 @@ val destinations = listOf(
     NavGraph.Home,
     NavGraph.Login,
     NavGraph.Player,
+    NavGraph.Logout,
 )
 
 val LocalNavController = compositionLocalOf<NavHostController> {

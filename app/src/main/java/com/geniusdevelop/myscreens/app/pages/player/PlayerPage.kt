@@ -30,6 +30,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun PlayerPage(
     goToHomePage: () -> Unit,
+    goToLogout: () -> Unit,
     playerPageViewModel: PlayerViewModel = viewModel(),
 ) {
     val context = LocalContext.current
@@ -40,6 +41,7 @@ fun PlayerPage(
     var initialSizeImages by remember { mutableIntStateOf(0) }
     val coroutineScope = rememberCoroutineScope()
     val code by sessionManager.deviceCode.collectAsState(initial = "")
+    val userId by sessionManager.userId.collectAsState(initial = "")
 
     val uiState by playerPageViewModel.uiState.collectAsStateWithLifecycle()
 
@@ -47,7 +49,7 @@ fun PlayerPage(
 
     LaunchedEffect(key1 = true) {
         coroutineScope.launch {
-            playerPageViewModel.initSubscriptions(code.toString())
+            playerPageViewModel.initSubscriptions(code.toString(), userId.toString())
             playerPageViewModel.getContents(code.toString())
         }
     }
@@ -94,6 +96,9 @@ fun PlayerPage(
         }
         is PlayerUiState.GotoHome -> {
             goToHomePage()
+        }
+        is PlayerUiState.GotoLogout -> {
+            goToLogout()
         }
         else -> {}
     }

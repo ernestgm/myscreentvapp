@@ -24,7 +24,8 @@ import java.nio.charset.StandardCharsets.UTF_8
 
 class HomeScreeViewModel() : ViewModel() {
 
-    private lateinit var subscription: Subscription
+    private lateinit var screenSubscription: Subscription
+    private lateinit var userSubscription: Subscription
     private val _uiState = MutableStateFlow<HomeScreenUiState?>(null)
     val uiState: StateFlow<HomeScreenUiState?> = _uiState
 
@@ -45,7 +46,7 @@ class HomeScreeViewModel() : ViewModel() {
         }
     }
 
-    fun initSubscribeDevice(deviceCode: String) {
+    fun initSubscribeDevice(deviceCode: String, userID: String) {
         System.out.println("init subscribed to")
         val subListener: SubscriptionEventListener = object : SubscriptionEventListener() {
             override fun onSubscribed(sub: Subscription, event: SubscribedEvent) {
@@ -67,11 +68,25 @@ class HomeScreeViewModel() : ViewModel() {
             override fun onPublication(sub: Subscription, event: PublicationEvent) {
                 val data = Json.decodeFromString<WSMessage>(String(event.data, UTF_8))
                 System.out.println(("message from " + sub.channel) + " " + data.message)
-                when (data.message) {
-                    "check_screen_update" -> {
-                        checkExistScreenForDevice(deviceCode)
+                when (sub.channel) {
+                    "user_$userID" -> {
+                        when (data.message) {
+                            "logout" -> {
+                                Repository.wsManager.removeSubscription(screenSubscription)
+                                Repository.wsManager.removeSubscription(userSubscription)
+                                _uiState.value = HomeScreenUiState.LogoutUser
+                            }
+                        }
+                    }
+                    "home_screen_$deviceCode" -> {
+                        when (data.message) {
+                            "check_screen_update" -> {
+                                checkExistScreenForDevice(deviceCode)
+                            }
+                        }
                     }
                 }
+
             }
 
             override fun onJoin(sub: Subscription, event: JoinEvent) {
@@ -85,7 +100,8 @@ class HomeScreeViewModel() : ViewModel() {
 
 
         try {
-            subscription = Repository.wsManager.newSubscription("home_screen_$deviceCode", subListener)
+            screenSubscription = Repository.wsManager.newSubscription("home_screen_$deviceCode", subListener)
+            userSubscription = Repository.wsManager.newSubscription("user_$userID", subListener)
         } catch (e: DuplicateSubscriptionException) {
             println("duplicado ${e.message}")
             e.printStackTrace()
@@ -94,7 +110,8 @@ class HomeScreeViewModel() : ViewModel() {
 
 
         viewModelScope.launch {
-            subscription.subscribe()
+            screenSubscription.subscribe()
+            userSubscription.subscribe()
         }
     }
 
@@ -104,7 +121,8 @@ class HomeScreeViewModel() : ViewModel() {
                 val result = Repository.api.checkExistScreenByCode(code)
                 if (result.enabled != null && result.enabled.toBoolean()) {
                     if (result.success.toBoolean()) {
-                        Repository.wsManager.removeSubscription(subscription)
+                        Repository.wsManager.removeSubscription(screenSubscription)
+                        Repository.wsManager.removeSubscription(userSubscription)
                     }
                     _uiState.value = HomeScreenUiState.ExistScreen(result.success.toBoolean())
                 } else {
@@ -125,6 +143,7 @@ sealed interface HomeScreenUiState {
     ) : HomeScreenUiState
     data class ExistScreen(val exist: Boolean): HomeScreenUiState
     data object DisabledScreen: HomeScreenUiState
+    data object LogoutUser: HomeScreenUiState
 }
 
 
