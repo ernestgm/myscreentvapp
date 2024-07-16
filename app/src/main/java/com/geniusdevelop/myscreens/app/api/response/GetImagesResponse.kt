@@ -54,5 +54,6 @@ data class Price (
 
 @Serializable
 data class CheckScreenUpdateResponse(
-    val success: String? = null
+    val success: String? = null,
+    val enabled: String? = null
 )

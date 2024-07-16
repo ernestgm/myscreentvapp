@@ -3,16 +3,11 @@ package com.geniusdevelop.myscreens.ui.theme.navigation
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import com.geniusdevelop.myscreens.app.AppBar
-import com.geniusdevelop.myscreens.app.pages.*
 import com.geniusdevelop.myscreens.app.pages.home.HomePage
 import com.geniusdevelop.myscreens.app.pages.login.LoginPage
 import com.geniusdevelop.myscreens.app.pages.splash.SplashScreen
@@ -79,20 +74,14 @@ enum class NavGraph(
     Player(
         routeName = "player",
         composable = {
+            val navController = LocalNavController.current
             Column {
-                PlayerPage()
+                PlayerPage(
+                    goToHomePage = { navController.navigate(Home.routeName) }
+                )
             }
         }
-    ),
-//    Typography(
-//        routeName = "typography",
-//        composable = { appBar ->
-//            Column {
-//                appBar()
-//                //TypographyScreen()
-//            }
-//        }
-//    ),
+    )
 //    Motion(
 //        routeName = "motion",
 //        composable = { appBar ->

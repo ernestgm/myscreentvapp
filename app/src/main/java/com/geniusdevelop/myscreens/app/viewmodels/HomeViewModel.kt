@@ -1,27 +1,30 @@
 package com.geniusdevelop.myscreens.app.viewmodels
 
 
-import android.util.Log
-import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.geniusdevelop.myscreens.app.api.conection.Repository
-import com.geniusdevelop.myscreens.app.session.SessionManager
-import com.geniusdevelop.myscreens.app.session.dataStore
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
+import com.geniusdevelop.myscreens.app.api.response.WSMessage
+import io.github.centrifugal.centrifuge.DuplicateSubscriptionException
+import io.github.centrifugal.centrifuge.JoinEvent
+import io.github.centrifugal.centrifuge.LeaveEvent
+import io.github.centrifugal.centrifuge.PublicationEvent
+import io.github.centrifugal.centrifuge.SubscribedEvent
+import io.github.centrifugal.centrifuge.SubscribingEvent
+import io.github.centrifugal.centrifuge.Subscription
+import io.github.centrifugal.centrifuge.SubscriptionErrorEvent
+import io.github.centrifugal.centrifuge.SubscriptionEventListener
+import io.github.centrifugal.centrifuge.UnsubscribedEvent
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
+import java.nio.charset.StandardCharsets.UTF_8
+
 
 class HomeScreeViewModel() : ViewModel() {
 
+    private lateinit var subscription: Subscription
     private val _uiState = MutableStateFlow<HomeScreenUiState?>(null)
     val uiState: StateFlow<HomeScreenUiState?> = _uiState
 
@@ -42,11 +45,71 @@ class HomeScreeViewModel() : ViewModel() {
         }
     }
 
+    fun initSubscribeDevice(deviceCode: String) {
+        System.out.println("init subscribed to")
+        val subListener: SubscriptionEventListener = object : SubscriptionEventListener() {
+            override fun onSubscribed(sub: Subscription, event: SubscribedEvent) {
+                System.out.println(("subscribed to " + sub.channel) + ", recovered " + event.recovered)
+            }
+
+            override fun onSubscribing(sub: Subscription?, event: SubscribingEvent) {
+                System.out.printf("subscribing: %s%n", event.reason)
+            }
+
+            override fun onUnsubscribed(sub: Subscription, event: UnsubscribedEvent) {
+                System.out.println(("unsubscribed " + sub.channel) + ", reason: " + event.reason)
+            }
+
+            override fun onError(sub: Subscription, event: SubscriptionErrorEvent) {
+                System.out.println(("subscription error " + sub.channel) + " " + event.error.toString())
+            }
+
+            override fun onPublication(sub: Subscription, event: PublicationEvent) {
+                val data = Json.decodeFromString<WSMessage>(String(event.data, UTF_8))
+                System.out.println(("message from " + sub.channel) + " " + data.message)
+                when (data.message) {
+                    "check_screen_update" -> {
+                        checkExistScreenForDevice(deviceCode)
+                    }
+                }
+            }
+
+            override fun onJoin(sub: Subscription, event: JoinEvent) {
+                println("client " + event.info.client + " joined channel " + sub.channel)
+            }
+
+            override fun onLeave(sub: Subscription, event: LeaveEvent) {
+                println("client " + event.info.client + " left channel " + sub.channel)
+            }
+        }
+
+
+        try {
+            subscription = Repository.wsManager.newSubscription("home_screen_$deviceCode", subListener)
+        } catch (e: DuplicateSubscriptionException) {
+            println("duplicado ${e.message}")
+            e.printStackTrace()
+            return
+        }
+
+
+        viewModelScope.launch {
+            subscription.subscribe()
+        }
+    }
+
     fun checkExistScreenForDevice(code: String) {
         viewModelScope.launch {
             try {
                 val result = Repository.api.checkExistScreenByCode(code)
-                _uiState.value = HomeScreenUiState.ExistScreen(result.success.toBoolean())
+                if (result.enabled != null && result.enabled.toBoolean()) {
+                    if (result.success.toBoolean()) {
+                        Repository.wsManager.removeSubscription(subscription)
+                    }
+                    _uiState.value = HomeScreenUiState.ExistScreen(result.success.toBoolean())
+                } else {
+                    _uiState.value = HomeScreenUiState.DisabledScreen
+                }
             } catch (e: Exception) {
                 _uiState.value = HomeScreenUiState.Error(e.message.toString())
             }
@@ -58,7 +121,10 @@ sealed interface HomeScreenUiState {
     data object Loading : HomeScreenUiState
     data class Error(val msg: String = "") : HomeScreenUiState
     data class Ready(
-        val deviceID: String
+        val deviceCode: String
     ) : HomeScreenUiState
     data class ExistScreen(val exist: Boolean): HomeScreenUiState
+    data object DisabledScreen: HomeScreenUiState
 }
+
+

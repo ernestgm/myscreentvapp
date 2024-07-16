@@ -41,7 +41,7 @@ class Client private constructor(
 
     companion object {
         // Builder para configurar el cliente
-        fun builer(): Builder {
+        fun builder(): Builder {
             return Builder()
         }
     }

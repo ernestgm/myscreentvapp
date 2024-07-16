@@ -11,8 +11,10 @@ object Repository {
     val user: IRepositoryUser
         get() = RepositoryInjector.getRepositoryUser()
 
+    val wsManager: WSManager
+        get() = RepositoryInjector.getWSRepository()
+
     fun initialize(context: Context, token: String? = null) {
-        Log.d("TOKEN", token.toString())
         RepositoryInjector.initialize(context, token)
     }
 }

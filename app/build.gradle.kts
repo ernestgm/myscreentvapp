@@ -35,6 +35,12 @@ android {
             buildConfigField("String", "BASE_URL",
                 "\"http://10.0.2.2/laravel/screen-server/public/api/v1\""
             )
+            buildConfigField("String", "WS_BASE_URL",
+                "\"ws://10.0.2.2:8000/connection/websocket\""
+            )
+            buildConfigField("String", "WS_SECRET",
+                "\"MEcvUw7o5RpJsgeF9Ay\""
+            )
         }
         release {
             isMinifyEnabled = false
@@ -42,7 +48,15 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            buildConfigField("String", "BASE_URL", "https://api-dev.example.com")
+            buildConfigField("String", "BASE_URL",
+                "\"http://10.0.2.2/laravel/screen-server/public/api/v1\""
+            )
+            buildConfigField("String", "WS_BASE_URL",
+                "\"ws://10.0.2.2:8000/connection/websocket\""
+            )
+            buildConfigField("String", "WS_SECRET",
+                "\"MEcvUw7o5RpJsgeF9Ay\""
+            )
         }
     }
 
@@ -93,11 +107,13 @@ dependencies {
     implementation(libs.kotlin.serialization)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.kotlin.jwt)
 
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-
+    implementation(libs.centrifuge.java)
+    implementation (libs.androidx.lifecycle.extensions)
 }

@@ -14,14 +14,15 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import com.geniusdevelop.myscreens.app.api.conection.Repository
 import com.geniusdevelop.myscreens.app.session.SessionManager
+import com.geniusdevelop.myscreens.app.util.AppLifecycleObserver
 import com.geniusdevelop.myscreens.ui.theme.BlueSeedColor
 import com.geniusdevelop.myscreens.ui.theme.Mode
-import com.geniusdevelop.myscreens.ui.theme.colorutils.Scheme.Companion.dark
 import com.geniusdevelop.myscreens.ui.theme.colorutils.Scheme.Companion.light
 import com.geniusdevelop.myscreens.ui.theme.colorutils.toColorScheme
 import com.geniusdevelop.myscreens.ui.theme.navigation.NavigationGraph
@@ -43,6 +44,7 @@ fun App() {
     val sessionManager = remember { SessionManager(context) }
     val token by sessionManager.token.collectAsState(initial = "")
     Repository.initialize(context, token)
+    ProcessLifecycleOwner.get().lifecycle.addObserver(AppLifecycleObserver())
 
     AppProviders(
         seedColor = seedColor,

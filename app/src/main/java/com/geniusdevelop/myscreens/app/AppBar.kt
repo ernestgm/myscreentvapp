@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,6 +43,7 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.geniusdevelop.myscreens.R
+import com.geniusdevelop.myscreens.app.api.conection.Repository
 import com.geniusdevelop.myscreens.app.session.SessionManager
 import com.geniusdevelop.myscreens.app.viewmodels.LoginUiState
 import com.geniusdevelop.myscreens.app.viewmodels.LoginViewModel
@@ -62,6 +64,7 @@ fun AppBar(
     val sessionManager = remember { SessionManager(context) }
     val isLoggedIn by sessionManager.isLoggedIn.collectAsState(initial = false)
     val username by sessionManager.name.collectAsState(initial = "")
+    val userId by sessionManager.userId.collectAsState(initial = "")
     val coroutineScope = rememberCoroutineScope()
     val uiState by loginPageViewModel.uiState.collectAsStateWithLifecycle()
     var showLoading by remember { mutableStateOf(false) }
@@ -69,6 +72,12 @@ fun AppBar(
     val title = stringResource(R.string.tv_compose)
     val description = "Player for the EScreen System"
     val isMainIconMagnified = true
+
+    LaunchedEffect(key1 = true) {
+        coroutineScope.launch {
+            loginPageViewModel.initUserSuscribe(userId.toString())
+        }
+    }
 
     when (val s = uiState) {
         is LoginUiState.Error -> {
@@ -79,6 +88,7 @@ fun AppBar(
             showLoading = false
             coroutineScope.launch {
                 sessionManager.clearSession()
+                Repository.wsManager.connect()
                 logoutClick()
             }
         }
