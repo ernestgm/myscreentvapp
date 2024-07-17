@@ -1,13 +1,16 @@
 package com.geniusdevelop.myscreens.app.api.conection
 
 import android.content.Context
+import android.widget.Toast
 import com.geniusdevelop.myscreens.BuildConfig
 import com.geniusdevelop.myscreens.app.util.DeviceUtils
 
 internal object RepositoryInjector {
-    fun initialize(context: Context, token: String?) {
+    fun initialize(context: Context, token: String?, onError: (msg: String) -> Unit) {
         Factory.newApiClient(context, token)
-        Factory.newWSClient(context)
+        Factory.newWSClient(context) { msg ->
+            onError(msg)
+        }
     }
 
     fun getRepositoryContent(): IRepositoryContent {
@@ -33,9 +36,11 @@ internal object RepositoryInjector {
             return ApiManager.initialize(context, client)
         }
 
-        fun newWSClient(context: Context): WSManager {
+        fun newWSClient(context: Context, onError: (msg: String) -> Unit): WSManager {
             val deviceID = DeviceUtils(context).getDeviceId()
-            val client  = WSClient.builder()
+            val client  = WSClient.builder { msg ->
+                    onError(msg)
+                }
                 .addBaseUrl(BuildConfig.WS_BASE_URL)
                 .addSecret(BuildConfig.WS_SECRET)
                 .addUserId(deviceID)

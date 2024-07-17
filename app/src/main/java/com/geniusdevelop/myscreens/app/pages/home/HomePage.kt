@@ -71,12 +71,11 @@ fun HomePage(
             showLoading = false
             coroutineScope.launch {
                 sessionManager.saveDeviceCode(s.deviceCode)
-                homeScreeViewModel.initSubscribeDevice(code.toString(), userId.toString())
+                homeScreeViewModel.initSubscribeDevice(code.toString())
                 homeScreeViewModel.checkExistScreenForDevice(code.toString())
             }
         }
         is HomeScreenUiState.ExistScreen -> {
-            System.out.println("ExistScreen")
             if (s.exist) {
                 goToPlayerPage()
             }
@@ -85,6 +84,7 @@ fun HomePage(
             Loading(text = "Creating device code", modifier = Modifier.fillMaxSize())
         }
         is HomeScreenUiState.Error -> {
+            homeScreeViewModel.initSubscribeDevice(code.toString())
             Error(text = s.msg, modifier = Modifier.fillMaxSize())
         }
         is HomeScreenUiState.DisabledScreen -> {

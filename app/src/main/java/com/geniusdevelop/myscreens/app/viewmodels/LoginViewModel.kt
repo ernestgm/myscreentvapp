@@ -32,7 +32,6 @@ class LoginViewModel : ViewModel() {
             try {
                 val response = Repository.user.authenticate(email, password)
                 if (response.success != null) {
-                    //Repository.initialize(response.success.token.toString())
                     _uiState.value = LoginUiState.Ready(response.success)
                 } else {
                     val msg = response.error

@@ -49,7 +49,7 @@ fun PlayerPage(
 
     LaunchedEffect(key1 = true) {
         coroutineScope.launch {
-            playerPageViewModel.initSubscriptions(code.toString(), userId.toString())
+            playerPageViewModel.initSubscriptions(code.toString())
             playerPageViewModel.getContents(code.toString())
         }
     }

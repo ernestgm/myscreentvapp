@@ -46,7 +46,7 @@ class HomeScreeViewModel() : ViewModel() {
         }
     }
 
-    fun initSubscribeDevice(deviceCode: String, userID: String) {
+    fun initSubscribeDevice(deviceCode: String) {
         System.out.println("init subscribed to")
         val subListener: SubscriptionEventListener = object : SubscriptionEventListener() {
             override fun onSubscribed(sub: Subscription, event: SubscribedEvent) {
@@ -69,7 +69,7 @@ class HomeScreeViewModel() : ViewModel() {
                 val data = Json.decodeFromString<WSMessage>(String(event.data, UTF_8))
                 System.out.println(("message from " + sub.channel) + " " + data.message)
                 when (sub.channel) {
-                    "user_$userID" -> {
+                    "user_$deviceCode" -> {
                         when (data.message) {
                             "logout" -> {
                                 Repository.wsManager.removeSubscription(screenSubscription)
@@ -101,7 +101,7 @@ class HomeScreeViewModel() : ViewModel() {
 
         try {
             screenSubscription = Repository.wsManager.newSubscription("home_screen_$deviceCode", subListener)
-            userSubscription = Repository.wsManager.newSubscription("user_$userID", subListener)
+            userSubscription = Repository.wsManager.newSubscription("user_$deviceCode", subListener)
         } catch (e: DuplicateSubscriptionException) {
             println("duplicado ${e.message}")
             e.printStackTrace()
@@ -119,14 +119,16 @@ class HomeScreeViewModel() : ViewModel() {
         viewModelScope.launch {
             try {
                 val result = Repository.api.checkExistScreenByCode(code)
-                if (result.enabled != null && result.enabled.toBoolean()) {
-                    if (result.success.toBoolean()) {
-                        Repository.wsManager.removeSubscription(screenSubscription)
-                        Repository.wsManager.removeSubscription(userSubscription)
-                    }
+                if (!result.success.toBoolean()) {
                     _uiState.value = HomeScreenUiState.ExistScreen(result.success.toBoolean())
                 } else {
-                    _uiState.value = HomeScreenUiState.DisabledScreen
+                    if (result.enabled != null && result.enabled.toBoolean()) {
+                        Repository.wsManager.removeSubscription(screenSubscription)
+                        Repository.wsManager.removeSubscription(userSubscription)
+                        _uiState.value = HomeScreenUiState.ExistScreen(result.success.toBoolean())
+                    } else {
+                        _uiState.value = HomeScreenUiState.DisabledScreen
+                    }
                 }
             } catch (e: Exception) {
                 _uiState.value = HomeScreenUiState.Error(e.message.toString())

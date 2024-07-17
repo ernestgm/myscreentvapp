@@ -162,7 +162,10 @@ fun LoginPage(
                         imeAction = ImeAction.Done
                     ),
                     keyboardActions = KeyboardActions(
-                        onDone = { focusManager.moveFocus(FocusDirection.Down) }
+                        onDone = {
+                            loginPageViewModel.authenticate(email, password)
+                            focusManager.moveFocus(FocusDirection.Down)
+                        }
                     ),
                     colors = TextFieldDefaults.colors(
                         unfocusedTextColor = Color.Black,

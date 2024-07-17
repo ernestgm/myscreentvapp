@@ -61,7 +61,7 @@ class PlayerViewModel : ViewModel() {
         }
     }
 
-    fun initSubscriptions(deviceCode: String, userID: String) {
+    fun initSubscriptions(deviceCode: String) {
         System.out.println("init subscribed to")
 
         val subListener: SubscriptionEventListener = object : SubscriptionEventListener() {
@@ -102,7 +102,7 @@ class PlayerViewModel : ViewModel() {
                             }
                         }
                     }
-                    "user_$userID" -> {
+                    "user_$deviceCode" -> {
                         when (data.message) {
                             "logout" -> {
                                 Repository.wsManager.removeSubscription(screenSubscription)
@@ -128,7 +128,7 @@ class PlayerViewModel : ViewModel() {
         try {
             imagesSubscription = Repository.wsManager.newSubscription("player_images_$deviceCode", subListener)
             screenSubscription = Repository.wsManager.newSubscription("player_screen_$deviceCode", subListener)
-            userSubscription = Repository.wsManager.newSubscription("user_$userID", subListener)
+            userSubscription = Repository.wsManager.newSubscription("user_$deviceCode", subListener)
         } catch (e: DuplicateSubscriptionException) {
             e.printStackTrace()
             return

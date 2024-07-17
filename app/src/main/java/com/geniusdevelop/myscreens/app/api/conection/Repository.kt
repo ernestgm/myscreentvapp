@@ -14,7 +14,9 @@ object Repository {
     val wsManager: WSManager
         get() = RepositoryInjector.getWSRepository()
 
-    fun initialize(context: Context, token: String? = null) {
-        RepositoryInjector.initialize(context, token)
+    fun initialize(context: Context, token: String? = null, onError: (msg: String) -> Unit) {
+        RepositoryInjector.initialize(context, token) { msg ->
+            onError(msg)
+        }
     }
 }

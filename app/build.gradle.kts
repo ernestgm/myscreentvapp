@@ -43,16 +43,17 @@ android {
             )
         }
         release {
+            applicationIdSuffix = ".release"
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
             buildConfigField("String", "BASE_URL",
-                "\"http://10.0.2.2/laravel/screen-server/public/api/v1\""
+                "\"http://192.168.1.181/laravel/screen-server/public/api/v1\""
             )
             buildConfigField("String", "WS_BASE_URL",
-                "\"ws://10.0.2.2:8000/connection/websocket\""
+                "\"ws://192.168.1.181:8000/connection/websocket\""
             )
             buildConfigField("String", "WS_SECRET",
                 "\"MEcvUw7o5RpJsgeF9Ay\""
