@@ -62,6 +62,12 @@ class SessionManager(val context: Context) {
         }
     }
 
+    suspend fun saveIsLogin(isLogin: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[IS_LOGGED_IN] = isLogin
+        }
+    }
+
     suspend fun saveScreenUpdatedAt(updateAt: String) {
         context.dataStore.edit { preferences ->
             preferences[SCREEN_UPDATED_AT] = updateAt
@@ -81,5 +87,6 @@ class SessionManager(val context: Context) {
         context.dataStore.edit { preferences ->
             preferences.clear()
         }
+        saveIsLogin(false)
     }
 }
