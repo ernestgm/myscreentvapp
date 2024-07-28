@@ -1,3 +1,5 @@
+import java.util.Date
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -17,7 +19,6 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
-
     }
 
     buildFeatures {
@@ -32,15 +33,6 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            buildConfigField("String", "BASE_URL",
-                "\"http://10.0.2.2/laravel/screen-server/public/api/v1\""
-            )
-            buildConfigField("String", "WS_BASE_URL",
-                "\"ws://10.0.2.2:8000/connection/websocket\""
-            )
-            buildConfigField("String", "WS_SECRET",
-                "\"MEcvUw7o5RpJsgeF9Ay\""
-            )
         }
         release {
             applicationIdSuffix = ".release"
@@ -49,6 +41,34 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+    }
+    productFlavors {
+        create("prod") {
+            buildConfigField("String", "BASE_URL",
+                "\"http://desa-backscreen.tocasoft.com:82/api/v1\""
+            )
+            buildConfigField("String", "WS_BASE_URL",
+                "\"ws://192.168.1.181:8000/connection/websocket\""
+            )
+            buildConfigField("String", "WS_SECRET",
+                "\"940e1175-d3ec-45ee-adb2-3508272074f3\""
+            )
+            dimension = "api"
+        }
+        create("desa") {
+            buildConfigField("String", "BASE_URL",
+                "\"http://desa-backscreen.tocasoft.com:82/api/v1\""
+            )
+            buildConfigField("String", "WS_BASE_URL",
+                "\"ws://centrifugue.tocasoft.com:8000/connection/websocket\""
+            )
+            buildConfigField("String", "WS_SECRET",
+                "\"940e1175-d3ec-45ee-adb2-3508272074f3\""
+            )
+            dimension="api"
+        }
+        create("devdesa") {
             buildConfigField("String", "BASE_URL",
                 "\"http://192.168.1.181/laravel/screen-server/public/api/v1\""
             )
@@ -58,6 +78,31 @@ android {
             buildConfigField("String", "WS_SECRET",
                 "\"MEcvUw7o5RpJsgeF9Ay\""
             )
+            dimension = "api"
+        }
+        create("dev") {
+            buildConfigField("String", "BASE_URL",
+                "\"http://10.0.2.2/laravel/screen-server/public/api/v1\""
+            )
+            buildConfigField("String", "WS_BASE_URL",
+                "\"ws://10.0.2.2:8000/connection/websocket\""
+            )
+            buildConfigField("String", "WS_SECRET",
+                "\"MEcvUw7o5RpJsgeF9Ay\""
+            )
+            dimension = "api"
+        }
+    }
+
+    applicationVariants.all {
+        val variant = this
+        variant.outputs.all {
+            val output = this
+            val project = "myscreen"
+            val flavor = variant.productFlavors[0].name
+            val versionName = variant.versionName
+            val apkName = "${project}-${flavor}-${versionName}.apk"
+            (output as com.android.build.gradle.internal.api.BaseVariantOutputImpl).outputFileName = apkName
         }
     }
 
@@ -79,6 +124,7 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    flavorDimensions += listOf("api")
 }
 
 dependencies {
@@ -95,7 +141,7 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.navigation.compose)
     implementation(libs.androidx.material3.android)
-    
+
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.okhttp)
     implementation(libs.ktor.client.json)
