@@ -27,7 +27,8 @@ import com.geniusdevelop.myscreens.app.session.SessionManager
 import com.geniusdevelop.myscreens.app.util.Padding
 import com.geniusdevelop.myscreens.app.viewmodels.HomeScreeViewModel
 import com.geniusdevelop.myscreens.app.viewmodels.HomeScreenUiState
-import com.google.jetstream.presentation.common.Error
+import com.geniusdevelop.myscreens.ui.theme.common.Error
+import com.geniusdevelop.myscreens.ui.theme.common.ErrorWithButton
 import com.google.jetstream.presentation.common.Loading
 import kotlinx.coroutines.launch
 
@@ -85,7 +86,11 @@ fun HomePage(
         }
         is HomeScreenUiState.Error -> {
             homeScreeViewModel.initSubscribeDevice(code.toString())
-            Error(text = s.msg, modifier = Modifier.fillMaxSize())
+            ErrorWithButton(text = s.msg, modifier = Modifier.fillMaxSize()) {
+                coroutineScope.launch {
+                    homeScreeViewModel.setDeviceCode(userId.toString())
+                }
+            }
         }
         is HomeScreenUiState.DisabledScreen -> {
             Error(text = "Screen has been Disabled. Contact with support. Device Code: ${code}", modifier = Modifier.fillMaxSize())

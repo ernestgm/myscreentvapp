@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package com.google.jetstream.presentation.common
+package com.geniusdevelop.myscreens.ui.theme.common
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -32,11 +33,34 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.tv.material3.Button
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.Text
 import com.geniusdevelop.myscreens.R
 
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+fun ErrorWithButton(text: String, modifier: Modifier = Modifier, retry: () -> Unit) {
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Error(text = text, modifier)
+            Spacer(modifier = Modifier.padding(20.dp))
+            Button(
+                onClick = { retry() },
+            ) {
+                Text(text = "Try Again")
+            }
+        }
+        
+    }
+}
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -64,6 +88,6 @@ fun Error(text: String, modifier: Modifier = Modifier) {
                 color = Color.Gray
             )
         }
-        
+
     }
 }

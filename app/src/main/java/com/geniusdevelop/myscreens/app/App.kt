@@ -1,6 +1,5 @@
 package com.geniusdevelop.myscreens.app
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -27,7 +26,6 @@ import com.geniusdevelop.myscreens.ui.theme.Mode
 import com.geniusdevelop.myscreens.ui.theme.colorutils.Scheme.Companion.light
 import com.geniusdevelop.myscreens.ui.theme.colorutils.toColorScheme
 import com.geniusdevelop.myscreens.ui.theme.navigation.NavigationGraph
-import com.google.jetstream.presentation.common.Error
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable

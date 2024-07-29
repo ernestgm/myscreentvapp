@@ -1,7 +1,6 @@
 package com.geniusdevelop.myscreens.app.pages.player
 
 
-import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -21,7 +20,7 @@ import com.geniusdevelop.myscreens.app.api.response.Images
 import com.geniusdevelop.myscreens.app.session.SessionManager
 import com.geniusdevelop.myscreens.app.viewmodels.PlayerUiState
 import com.geniusdevelop.myscreens.app.viewmodels.PlayerViewModel
-import com.google.jetstream.presentation.common.Error
+import com.geniusdevelop.myscreens.ui.theme.common.Error
 import com.google.jetstream.presentation.common.Loading
 import kotlinx.coroutines.launch
 

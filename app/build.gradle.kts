@@ -46,10 +46,10 @@ android {
     productFlavors {
         create("prod") {
             buildConfigField("String", "BASE_URL",
-                "\"http://desa-backscreen.tocasoft.com:82/api/v1\""
+                "\"http://47.204.0.63:82/api/v1\""
             )
             buildConfigField("String", "WS_BASE_URL",
-                "\"ws://192.168.1.181:8000/connection/websocket\""
+                "\"ws://47.204.0.63:8000/connection/websocket\""
             )
             buildConfigField("String", "WS_SECRET",
                 "\"940e1175-d3ec-45ee-adb2-3508272074f3\""
@@ -58,10 +58,10 @@ android {
         }
         create("desa") {
             buildConfigField("String", "BASE_URL",
-                "\"http://desa-backscreen.tocasoft.com:82/api/v1\""
+                "\"http://47.204.0.63:82/api/v1\""
             )
             buildConfigField("String", "WS_BASE_URL",
-                "\"ws://centrifugue.tocasoft.com:8000/connection/websocket\""
+                "\"ws://47.204.0.63:8000/connection/websocket\""
             )
             buildConfigField("String", "WS_SECRET",
                 "\"940e1175-d3ec-45ee-adb2-3508272074f3\""
