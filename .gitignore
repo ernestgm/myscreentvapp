@@ -16,3 +16,5 @@ local.properties
 /app/devdesa/
 /app/release/
 /app/desa/
+/.idea/
+*.log
