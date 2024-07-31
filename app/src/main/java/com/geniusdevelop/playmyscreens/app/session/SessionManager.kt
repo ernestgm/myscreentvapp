@@ -1,0 +1,87 @@
+package com.geniusdevelop.playmyscreens.app.session
+
+import android.content.Context
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+
+val Context.dataStore by preferencesDataStore(name = "session_preferences")
+
+class SessionManager(val context: Context) {
+
+    companion object {
+        val IS_LOGGED_IN = booleanPreferencesKey("is_logged_in")
+        val NAME = stringPreferencesKey("username")
+        val USER_ID = stringPreferencesKey("user_id")
+        val DEVICE_CODE = stringPreferencesKey("device_code")
+        val TOKEN = stringPreferencesKey("token")
+        val SCREEN_UPDATED_AT = stringPreferencesKey("screen_updated_at")
+    }
+
+    val isLoggedIn: Flow<Boolean> = context.dataStore.data
+        .map { preferences ->
+            preferences[IS_LOGGED_IN] ?: false
+        }
+
+    val deviceCode: Flow<String?> = context.dataStore.data
+        .map { preferences ->
+            preferences[DEVICE_CODE]
+        }
+
+    val name: Flow<String?> = context.dataStore.data
+        .map { preferences ->
+            preferences[NAME]
+        }
+
+    val userId: Flow<String?> = context.dataStore.data
+        .map { preferences ->
+            preferences[USER_ID]
+        }
+
+    val screenUpdateAt: Flow<String?> = context.dataStore.data
+        .map { preferences ->
+            preferences[SCREEN_UPDATED_AT]
+        }
+
+    val token: Flow<String?> = context.dataStore.data
+        .map { preferences ->
+            preferences[TOKEN]
+        }
+
+    suspend fun saveDeviceCode(code: String) {
+        context.dataStore.edit { preferences ->
+            preferences[DEVICE_CODE] = code
+        }
+    }
+
+    suspend fun saveIsLogin(isLogin: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[IS_LOGGED_IN] = isLogin
+        }
+    }
+
+    suspend fun saveScreenUpdatedAt(updateAt: String) {
+        context.dataStore.edit { preferences ->
+            preferences[SCREEN_UPDATED_AT] = updateAt
+        }
+    }
+
+    suspend fun saveSession(isLoggedIn: Boolean, username: String, userId: String, token: String) {
+        context.dataStore.edit { preferences ->
+            preferences[IS_LOGGED_IN] = isLoggedIn
+            preferences[USER_ID] = userId
+            preferences[NAME] = username
+            preferences[TOKEN] = token
+        }
+    }
+
+    suspend fun clearSession() {
+        context.dataStore.edit { preferences ->
+            preferences.clear()
+        }
+        saveIsLogin(false)
+    }
+}

@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "MyScreens"
+rootProject.name = "PlayMyScreens"
 include(":app")
  

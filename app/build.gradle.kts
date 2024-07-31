@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.geniusdevelop.myscreens"
+    namespace = "com.geniusdevelop.playmyscreens"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.geniusdevelop.myscreens"
+        applicationId = "com.geniusdevelop.playmyscreens"
         minSdk = 21
         targetSdk = 34
         versionCode = 1
@@ -82,7 +82,7 @@ android {
         }
         create("dev") {
             buildConfigField("String", "BASE_URL",
-                "\"http://10.0.2.2/laravel/screen-server/public/api/v1\""
+                "\"http://10.0.2.2/screen-server/public/api/v1\""
             )
             buildConfigField("String", "WS_BASE_URL",
                 "\"ws://10.0.2.2:8000/connection/websocket\""
@@ -98,7 +98,7 @@ android {
         val variant = this
         variant.outputs.all {
             val output = this
-            val project = "myscreen"
+            val project = "playmyscreens"
             val flavor = variant.productFlavors[0].name
             val versionName = variant.versionName
             val apkName = "${project}-${flavor}-${versionName}.apk"
