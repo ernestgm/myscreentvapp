@@ -53,5 +53,17 @@ data class Price (
 @Serializable
 data class CheckScreenUpdateResponse(
     val success: String? = null,
-    val enabled: String? = null
+    val screen: Screen? = null
 )
+
+@Serializable
+data class Screen (
+    val id: Int? = null,
+    val name: String? = null,
+    val enabled: Int? = null,
+    val images: Array<Images>? = null
+) {
+    fun isEnable(): Boolean {
+        return enabled == 1
+    }
+}

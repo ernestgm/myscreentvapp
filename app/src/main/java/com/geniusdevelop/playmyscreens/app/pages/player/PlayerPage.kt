@@ -93,9 +93,6 @@ fun PlayerPage(
         is PlayerUiState.Ready -> {
             images = s.images
             initialSizeImages = images.size
-            coroutineScope.launch {
-                sessionManager.saveScreenUpdatedAt(s.updatedAt)
-            }
         }
 
         is PlayerUiState.Loading -> {
@@ -115,10 +112,6 @@ fun PlayerPage(
             }
             if (images.size == 1) {
                 initialSizeImages = images.size
-            }
-
-            coroutineScope.launch {
-                sessionManager.saveScreenUpdatedAt(s.updatedAt)
             }
         }
 

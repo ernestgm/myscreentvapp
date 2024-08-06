@@ -35,10 +35,10 @@ class PlayerViewModel : ViewModel() {
         _uiState.value = PlayerUiState.Loading
         viewModelScope.launch {
             try {
-                val result = Repository.api.getImagesByScreenCode(deviceCode)
+                val result = Repository.api.getDataScreenByDeviceCode(deviceCode)
                 if (result.success.toBoolean()) {
-                    _uiState.value = result.data?.let {
-                        PlayerUiState.Ready(it, result.screen_updated_at.toString())
+                    _uiState.value = result.screen?.images?.let {
+                        PlayerUiState.Ready(it)
                     }
                 }
             } catch (e: Exception) {
@@ -50,9 +50,9 @@ class PlayerViewModel : ViewModel() {
     fun updatePlayer(deviceCode: String) {
         viewModelScope.launch {
             try {
-                val result = Repository.api.getImagesByScreenCode(deviceCode)
+                val result = Repository.api.getDataScreenByDeviceCode(deviceCode)
                 if (result.success != null && result.success.toBoolean()) {
-                    _uiState.value = result.data?.let { PlayerUiState.Update(it, result.screen_updated_at.toString()) }
+                    _uiState.value = result.screen?.images?.let { PlayerUiState.Update(it) }
                 }
             } catch (e: Exception) {
                 _uiState.value = PlayerUiState.UpdateError(e.message.toString())
@@ -148,14 +148,12 @@ sealed interface PlayerUiState {
     data object GotoLogout : PlayerUiState
     data class Error(val msg: String = "") : PlayerUiState
     data class Ready(
-        val images: Array<Images>,
-        val updatedAt: String
+        val images: Array<Images>
     ) : PlayerUiState
 
     data object ReadyToUpdate : PlayerUiState
     data class Update(
-        val images: Array<Images>,
-        val updatedAt: String
+        val images: Array<Images>
     ) : PlayerUiState
     data class UpdateError(val msg: String = "") : PlayerUiState
 }

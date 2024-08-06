@@ -38,7 +38,7 @@ class ApiManager internal constructor(
 
         if (code == "") {
             code = deviceUtils.generateSixDigitRandom().toString()
-            val response = client.post<SetIdResponse>("/device", SetIdRequest(code, deviceID, userId))
+            val response = client.post<SetIdResponse>("/device", SetIdRequest(deviceID, code, deviceID, userId))
 
             if (response.success.toString() == "success") {
                 return SetDeviceIDResponse(success = true, code = code)
@@ -47,6 +47,8 @@ class ApiManager internal constructor(
                     setDeviceID(userId)
                 } else if(!response.data?.device_id.isNullOrEmpty()) {
                     return SetDeviceIDResponse(error = true, message = response.data?.device_id?.first().toString())
+                } else {
+                    return SetDeviceIDResponse(error = true, message = "Error creating the device code")
                 }
             }
         }
@@ -73,13 +75,13 @@ class ApiManager internal constructor(
         return client.get<CheckScreenUpdateResponse>("/screens/checkUpdatedAt?udpated_time=$encodeUpdateAt&code=$screenCode")
     }
 
-    override suspend fun checkExistScreenByCode(code: String): CheckScreenUpdateResponse {
-        return client.get<CheckScreenUpdateResponse>("/screens/byCode?code=$code")
+    override suspend fun getDataScreenByDeviceCode(code: String): CheckScreenUpdateResponse {
+        return client.get<CheckScreenUpdateResponse>("/devices/getScreen?code=$code")
     }
 
     private suspend fun getDeviceCode(deviceID: String, userId: String): String {
         var code = ""
-        val response = client.get<GetCodeResponse>("/device?device_id=$deviceID&user_id=$userId")
+        val response = client.get<GetCodeResponse>("/devices/byId?device_id=$deviceID&user_id=$userId")
         code = if (response.data != null) {
             response.data.code.toString()
         } else {

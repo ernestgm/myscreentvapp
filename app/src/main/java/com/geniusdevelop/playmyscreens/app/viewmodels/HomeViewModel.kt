@@ -118,11 +118,11 @@ class HomeScreeViewModel() : ViewModel() {
     fun checkExistScreenForDevice(code: String) {
         viewModelScope.launch {
             try {
-                val result = Repository.api.checkExistScreenByCode(code)
+                val result = Repository.api.getDataScreenByDeviceCode(code)
                 if (!result.success.toBoolean()) {
                     _uiState.value = HomeScreenUiState.ExistScreen(result.success.toBoolean())
                 } else {
-                    if (result.enabled != null && result.enabled.toBoolean()) {
+                    if (result.screen != null && result.screen.isEnable()) {
                         Repository.wsManager.removeSubscription(screenSubscription)
                         Repository.wsManager.removeSubscription(userSubscription)
                         _uiState.value = HomeScreenUiState.ExistScreen(result.success.toBoolean())
