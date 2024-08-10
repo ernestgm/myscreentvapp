@@ -18,7 +18,6 @@ class SessionManager(val context: Context) {
         val USER_ID = stringPreferencesKey("user_id")
         val DEVICE_CODE = stringPreferencesKey("device_code")
         val TOKEN = stringPreferencesKey("token")
-        val SCREEN_UPDATED_AT = stringPreferencesKey("screen_updated_at")
     }
 
     val isLoggedIn: Flow<Boolean> = context.dataStore.data
@@ -41,11 +40,6 @@ class SessionManager(val context: Context) {
             preferences[USER_ID]
         }
 
-    val screenUpdateAt: Flow<String?> = context.dataStore.data
-        .map { preferences ->
-            preferences[SCREEN_UPDATED_AT]
-        }
-
     val token: Flow<String?> = context.dataStore.data
         .map { preferences ->
             preferences[TOKEN]
@@ -57,15 +51,9 @@ class SessionManager(val context: Context) {
         }
     }
 
-    suspend fun saveIsLogin(isLogin: Boolean) {
+    private suspend fun saveIsLogin(isLogin: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[IS_LOGGED_IN] = isLogin
-        }
-    }
-
-    suspend fun saveScreenUpdatedAt(updateAt: String) {
-        context.dataStore.edit { preferences ->
-            preferences[SCREEN_UPDATED_AT] = updateAt
         }
     }
 

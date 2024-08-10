@@ -32,20 +32,6 @@ import com.geniusdevelop.playmyscreens.ui.theme.common.ErrorWithButton
 import com.google.jetstream.presentation.common.Loading
 import kotlinx.coroutines.launch
 
-val ParentPadding = PaddingValues(vertical = 20.dp, horizontal = 50.dp)
-
-@Composable
-fun rememberChildPadding(direction: LayoutDirection = LocalLayoutDirection.current): Padding {
-    return remember {
-        Padding(
-            start = ParentPadding.calculateStartPadding(direction) + 8.dp,
-            top = ParentPadding.calculateTopPadding(),
-            end = ParentPadding.calculateEndPadding(direction) + 8.dp,
-            bottom = ParentPadding.calculateBottomPadding()
-        )
-    }
-}
-
 @Composable
 fun HomePage(
     goToPlayerPage: () -> Unit,

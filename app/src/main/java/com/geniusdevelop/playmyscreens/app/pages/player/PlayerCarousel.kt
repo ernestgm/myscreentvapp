@@ -21,6 +21,7 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -52,7 +53,6 @@ fun PlayerCarousel(
     LaunchedEffect(key1 = updateCurrentIndex) {
         if (images.isNotEmpty()) {
             if (updateCurrentIndex) {
-                Log.d("CAROUSEL", "Index update")
                 if (images.size > 1) {
                     currentIndex = (currentIndex + 1) % images.size
                 }
@@ -78,9 +78,15 @@ fun PlayerCarousel(
     ) { index ->
         if (images.isNotEmpty()) {
             if (index in images.indices && !updating) {
-                CarouselItemBackground(image = images[index], modifier = Modifier.fillMaxSize())
+                CarouselItemBackground(
+                    image = images[index],
+                    modifier = Modifier.fillMaxSize()
+                )
             } else {
-                CarouselItemBackground(image = images[0], modifier = Modifier.fillMaxSize())
+                CarouselItemBackground(
+                    image = images[0],
+                    modifier = Modifier.fillMaxSize()
+                )
             }
         }
     }
@@ -98,11 +104,17 @@ private fun CarouselItemBackground(image: Images, modifier: Modifier = Modifier)
                 modifier = modifier.alpha(0.3F),
                 contentScale = ContentScale.Crop
             )
+            var contentScale = ContentScale.Fit
+
+            if (it.width > it.height) {
+                contentScale = ContentScale.FillBounds
+            }
+
             Image(
                 bitmap = it,
                 contentDescription = image.description.toString(),
                 modifier = modifier,
-                contentScale = ContentScale.Fit
+                contentScale = contentScale
             )
         }
     }

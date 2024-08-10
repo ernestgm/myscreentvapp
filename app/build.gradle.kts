@@ -141,6 +141,7 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.navigation.compose)
     implementation(libs.androidx.material3.android)
+    implementation(libs.androidx.constraintlayout.compose)
 
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.okhttp)

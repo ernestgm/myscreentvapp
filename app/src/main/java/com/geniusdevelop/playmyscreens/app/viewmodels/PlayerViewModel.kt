@@ -4,7 +4,9 @@ package com.geniusdevelop.playmyscreens.app.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.geniusdevelop.playmyscreens.app.api.conection.Repository
+import com.geniusdevelop.playmyscreens.app.api.response.Ad
 import com.geniusdevelop.playmyscreens.app.api.response.Images
+import com.geniusdevelop.playmyscreens.app.api.response.Marquee
 import com.geniusdevelop.playmyscreens.app.api.response.WSMessage
 import io.github.centrifugal.centrifuge.DuplicateSubscriptionException
 import io.github.centrifugal.centrifuge.JoinEvent
@@ -26,6 +28,7 @@ class PlayerViewModel : ViewModel() {
 
     private lateinit var imagesSubscription: Subscription
     private lateinit var screenSubscription: Subscription
+    private lateinit var marqueeSubscription: Subscription
     private lateinit var userSubscription: Subscription
     private val _uiState = MutableStateFlow<PlayerUiState?>(null)
     val uiState: StateFlow<PlayerUiState?> = _uiState
@@ -43,6 +46,21 @@ class PlayerViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 _uiState.value = PlayerUiState.Error(e.message.toString())
+            }
+        }
+    }
+
+    fun getMarquee(deviceCode: String) {
+        viewModelScope.launch {
+            try {
+                val result = Repository.api.getMarqueeByDeviceCode(deviceCode)
+                if (result.success != null && result.success.toBoolean()) {
+                    _uiState.value = result.marquee?.let { PlayerUiState.ShowMarquee(it) }
+                } else {
+                    _uiState.value = PlayerUiState.HideMarquee
+                }
+            } catch (e: Exception) {
+                _uiState.value = PlayerUiState.UpdateError(e.message.toString())
             }
         }
     }
@@ -101,6 +119,13 @@ class PlayerViewModel : ViewModel() {
                             }
                         }
                     }
+                    "player_marquee_$deviceCode" -> {
+                        when (data.message) {
+                            "check_marquee_update" -> {
+                                _uiState.value = PlayerUiState.UpdateMarquee
+                            }
+                        }
+                    }
                     "user_$deviceCode" -> {
                         when (data.message) {
                             "logout" -> {
@@ -127,6 +152,7 @@ class PlayerViewModel : ViewModel() {
         try {
             imagesSubscription = Repository.wsManager.newSubscription("player_images_$deviceCode", subListener)
             screenSubscription = Repository.wsManager.newSubscription("player_screen_$deviceCode", subListener)
+            marqueeSubscription = Repository.wsManager.newSubscription("player_marquee_$deviceCode", subListener)
             userSubscription = Repository.wsManager.newSubscription("user_$deviceCode", subListener)
         } catch (e: DuplicateSubscriptionException) {
             e.printStackTrace()
@@ -137,6 +163,7 @@ class PlayerViewModel : ViewModel() {
         viewModelScope.launch {
             imagesSubscription.subscribe()
             screenSubscription.subscribe()
+            marqueeSubscription.subscribe()
             userSubscription.subscribe()
         }
     }
@@ -155,5 +182,10 @@ sealed interface PlayerUiState {
     data class Update(
         val images: Array<Images>
     ) : PlayerUiState
+    data class ShowMarquee(
+        val marquee: Marquee
+    ) : PlayerUiState
+    data object UpdateMarquee : PlayerUiState
     data class UpdateError(val msg: String = "") : PlayerUiState
+    data object HideMarquee : PlayerUiState
 }

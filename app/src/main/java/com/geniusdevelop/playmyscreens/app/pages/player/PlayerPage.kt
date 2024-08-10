@@ -4,20 +4,14 @@ package com.geniusdevelop.playmyscreens.app.pages.player
 import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -29,24 +23,15 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonColors
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
-import androidx.tv.material3.Icon
-import androidx.tv.material3.MaterialTheme
 import com.geniusdevelop.playmyscreens.app.api.response.Images
+import com.geniusdevelop.playmyscreens.app.components.Marquee
 import com.geniusdevelop.playmyscreens.app.session.SessionManager
 import com.geniusdevelop.playmyscreens.app.viewmodels.PlayerUiState
 import com.geniusdevelop.playmyscreens.app.viewmodels.PlayerViewModel
@@ -76,6 +61,13 @@ fun PlayerPage(
     val uiState by playerPageViewModel.uiState.collectAsStateWithLifecycle()
     val activity = LocalContext.current as? Activity
 
+    var maxHeightImagesBox by remember { mutableStateOf(0.90f) }
+    var maxHeightMarqueeBox by remember { mutableStateOf(0.10f) }
+
+    var marqueeMessage by remember { mutableStateOf("") }
+    var marqueeBgColor by remember { mutableStateOf("") }
+    var marqueeTextColor by remember { mutableStateOf("") }
+
     BackHandler {
         coroutineScope.launch {
             activity?.finish()
@@ -86,6 +78,7 @@ fun PlayerPage(
         coroutineScope.launch {
             playerPageViewModel.initSubscriptions(code.toString())
             playerPageViewModel.getContents(code.toString())
+            playerPageViewModel.getMarquee(code.toString())
         }
     }
 
@@ -123,9 +116,45 @@ fun PlayerPage(
             }
         }
 
+        is PlayerUiState.UpdateMarquee -> {
+            coroutineScope.launch {
+                playerPageViewModel.getMarquee(code.toString())
+            }
+        }
+
         is PlayerUiState.UpdateError -> {
             updateCurrentIndex = false
             updatingImagesData = false
+        }
+
+        is PlayerUiState.ShowMarquee -> {
+            maxHeightImagesBox = 0.90f
+            maxHeightMarqueeBox = 0.10f
+
+            marqueeMessage = ""
+            marqueeBgColor = s.marquee.bg_color.toString()
+            marqueeTextColor = s.marquee.text_color.toString()
+
+            val ads = s.marquee.ads?.filter { ad -> ad.isEnable() }
+
+            if (!ads.isNullOrEmpty()) {
+                ads.forEachIndexed{ idx, ad ->
+                    if (ad.isEnable()) {
+                        marqueeMessage = "$marqueeMessage ${ad.message}"
+                        if (idx != ads.size - 1) {
+                            marqueeMessage = "$marqueeMessage *"
+                        }
+                    }
+                }
+            } else {
+                maxHeightImagesBox = 1f
+                maxHeightMarqueeBox = 0f
+            }
+        }
+
+        is PlayerUiState.HideMarquee -> {
+            maxHeightImagesBox = 1f
+            maxHeightMarqueeBox = 0f
         }
 
         is PlayerUiState.GotoHome -> {
@@ -163,12 +192,47 @@ fun PlayerPage(
                 }
             }
         }
-        PlayerCarousel(
-            images = images,
-            updateCurrentIndex = updateCurrentIndex,
-            updating = updatingImagesData
+        ConstraintLayout(
+            modifier = Modifier.fillMaxSize()
         ) {
-            showButtonPause = true
+            // Create references for the composables to constrain
+            val (topBox, bottomBox) = createRefs()
+            Box(
+                modifier = Modifier
+                    .constrainAs(topBox) {
+                        top.linkTo(parent.top)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                        bottom.linkTo(bottomBox.top)
+                    }
+                    .fillMaxHeight(maxHeightImagesBox)
+                    .fillMaxWidth()
+            ) {
+                PlayerCarousel(
+                    images = images,
+                    updateCurrentIndex = updateCurrentIndex,
+                    updating = updatingImagesData
+                ) {
+                    showButtonPause = true
+                }
+            }
+            Box(
+                modifier = Modifier
+                    .constrainAs(bottomBox) {
+                        top.linkTo(topBox.bottom)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                        bottom.linkTo(parent.bottom)
+                    }
+                    .fillMaxWidth(1f)
+                    .fillMaxHeight(maxHeightMarqueeBox)
+                    .background(Color(android.graphics.Color.parseColor(marqueeBgColor)))
+            ) {
+                Marquee(
+                    text = marqueeMessage,
+                    textColor = marqueeTextColor
+                )
+            }
         }
     } else {
         Loading(text = "Waiting images for this screen", modifier = Modifier.fillMaxSize())

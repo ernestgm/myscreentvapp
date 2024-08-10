@@ -1,9 +1,9 @@
 package com.geniusdevelop.playmyscreens.app.api.conection
 
 import android.content.Context
-import com.geniusdevelop.playmyscreens.app.api.models.ImageList
 import com.geniusdevelop.playmyscreens.app.api.request.LoginRequest
 import com.geniusdevelop.playmyscreens.app.api.request.SetIdRequest
+import com.geniusdevelop.playmyscreens.app.api.response.CheckMarqueeUpdateResponse
 import com.geniusdevelop.playmyscreens.app.api.response.CheckScreenUpdateResponse
 import com.geniusdevelop.playmyscreens.app.api.response.GetCodeResponse
 import com.geniusdevelop.playmyscreens.app.api.response.GetImagesResponse
@@ -11,9 +11,7 @@ import com.geniusdevelop.playmyscreens.app.api.response.LoginResponse
 import com.geniusdevelop.playmyscreens.app.api.response.LogoutResponse
 import com.geniusdevelop.playmyscreens.app.api.response.SetDeviceIDResponse
 import com.geniusdevelop.playmyscreens.app.api.response.SetIdResponse
-import com.geniusdevelop.playmyscreens.app.repositories.MovieDataSource
 import com.geniusdevelop.playmyscreens.app.util.DeviceUtils
-import com.google.jetstream.data.util.AssetsReader
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -56,13 +54,6 @@ class ApiManager internal constructor(
         return SetDeviceIDResponse(success = true, code = code)
     }
 
-    override suspend fun getContents(deviceCode: String): ImageList {
-        val assetsReader = AssetsReader(context)
-        val dataReader = MovieDataSource(assetsReader)
-
-        return dataReader.getTop10Images()
-    }
-
     override suspend fun getImagesByScreenCode(deviceCode: String): GetImagesResponse {
         return client.get<GetImagesResponse>("/images/byScreen?code=$deviceCode")
     }
@@ -77,6 +68,10 @@ class ApiManager internal constructor(
 
     override suspend fun getDataScreenByDeviceCode(code: String): CheckScreenUpdateResponse {
         return client.get<CheckScreenUpdateResponse>("/devices/getScreen?code=$code")
+    }
+
+    override suspend fun getMarqueeByDeviceCode(code: String): CheckMarqueeUpdateResponse {
+        return client.get<CheckMarqueeUpdateResponse>("/devices/getMarquee?code=$code")
     }
 
     private suspend fun getDeviceCode(deviceID: String, userId: String): String {

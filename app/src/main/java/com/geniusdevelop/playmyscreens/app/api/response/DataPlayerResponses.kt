@@ -57,11 +57,37 @@ data class CheckScreenUpdateResponse(
 )
 
 @Serializable
+data class CheckMarqueeUpdateResponse(
+    val success: String? = null,
+    val marquee: Marquee? = null
+)
+
+@Serializable
 data class Screen (
     val id: Int? = null,
     val name: String? = null,
     val enabled: Int? = null,
     val images: Array<Images>? = null
+) {
+    fun isEnable(): Boolean {
+        return enabled == 1
+    }
+}
+
+@Serializable
+data class Marquee (
+    val id: Int? = null,
+    val name: String? = null,
+    val bg_color: String? = null,
+    val text_color: String? = null,
+    val ads: Array<Ad>? = null
+)
+
+@Serializable
+data class Ad (
+    val id: String? = null,
+    val message: String? = null,
+    val enabled: Int? = null,
 ) {
     fun isEnable(): Boolean {
         return enabled == 1
