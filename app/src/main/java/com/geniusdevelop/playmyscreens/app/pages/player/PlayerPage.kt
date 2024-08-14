@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -41,7 +42,6 @@ import com.google.jetstream.presentation.common.Loading
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun PlayerPage(
     goToHomePage: () -> Unit,
@@ -61,12 +61,12 @@ fun PlayerPage(
     val uiState by playerPageViewModel.uiState.collectAsStateWithLifecycle()
     val activity = LocalContext.current as? Activity
 
-    var maxHeightImagesBox by remember { mutableStateOf(0.90f) }
-    var maxHeightMarqueeBox by remember { mutableStateOf(0.10f) }
+    var maxHeightImagesBox by remember { mutableStateOf(1f) }
+    var maxHeightMarqueeBox by remember { mutableStateOf(0f) }
 
     var marqueeMessage by remember { mutableStateOf("") }
-    var marqueeBgColor by remember { mutableStateOf("") }
-    var marqueeTextColor by remember { mutableStateOf("") }
+    var marqueeBgColor by remember { mutableStateOf("#000000") }
+    var marqueeTextColor by remember { mutableStateOf("#FFFFFF") }
 
     BackHandler {
         coroutineScope.launch {
@@ -74,11 +74,29 @@ fun PlayerPage(
         }
     }
 
-    LaunchedEffect(key1 = true) {
+    LaunchedEffect(key1 = Unit) {
         coroutineScope.launch {
             playerPageViewModel.initSubscriptions(code.toString())
-            playerPageViewModel.getContents(code.toString())
             playerPageViewModel.getMarquee(code.toString())
+        }
+    }
+
+    fun updateScreens() {
+        coroutineScope.launch {
+            updatingImagesData = true
+            updateCurrentIndex = false
+            playerPageViewModel.updatePlayer(code.toString())
+        }
+    }
+
+    fun reloadCarrousel() {
+        updatingImagesData = false
+        if (initialSizeImages == 1) {
+            updateCurrentIndex = true
+            initialSizeImages = images.size
+        }
+        if (images.size == 1) {
+            initialSizeImages = images.size
         }
     }
 
@@ -98,27 +116,16 @@ fun PlayerPage(
 
         is PlayerUiState.Update -> {
             images = s.images
-            updatingImagesData = false
-            if (initialSizeImages == 1) {
-                updateCurrentIndex = true
-                initialSizeImages = images.size
-            }
-            if (images.size == 1) {
-                initialSizeImages = images.size
-            }
+            reloadCarrousel()
         }
 
         is PlayerUiState.ReadyToUpdate -> {
-            coroutineScope.launch {
-                updatingImagesData = true
-                updateCurrentIndex = false
-                playerPageViewModel.updatePlayer(code.toString())
-            }
+            updateScreens()
         }
 
         is PlayerUiState.UpdateMarquee -> {
             coroutineScope.launch {
-                playerPageViewModel.getMarquee(code.toString())
+                playerPageViewModel.getMarquee(code.toString(), true)
             }
         }
 
@@ -142,13 +149,17 @@ fun PlayerPage(
                     if (ad.isEnable()) {
                         marqueeMessage = "$marqueeMessage ${ad.message}"
                         if (idx != ads.size - 1) {
-                            marqueeMessage = "$marqueeMessage *"
+                            marqueeMessage = "$marqueeMessage ***** "
                         }
                     }
                 }
             } else {
                 maxHeightImagesBox = 1f
                 maxHeightMarqueeBox = 0f
+            }
+
+            if (!s.isUpdate) {
+                playerPageViewModel.getContents(code.toString())
             }
         }
 
@@ -192,6 +203,7 @@ fun PlayerPage(
                 }
             }
         }
+
         ConstraintLayout(
             modifier = Modifier.fillMaxSize()
         ) {
@@ -207,6 +219,7 @@ fun PlayerPage(
                     }
                     .fillMaxHeight(maxHeightImagesBox)
                     .fillMaxWidth()
+                    .zIndex(2f)
             ) {
                 PlayerCarousel(
                     images = images,
@@ -226,11 +239,12 @@ fun PlayerPage(
                     }
                     .fillMaxWidth(1f)
                     .fillMaxHeight(maxHeightMarqueeBox)
-                    .background(Color(android.graphics.Color.parseColor(marqueeBgColor)))
+                    .zIndex(1f)
             ) {
                 Marquee(
                     text = marqueeMessage,
-                    textColor = marqueeTextColor
+                    textColor = marqueeTextColor,
+                    bgColor = marqueeBgColor,
                 )
             }
         }

@@ -4,7 +4,6 @@ package com.geniusdevelop.playmyscreens.app.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.geniusdevelop.playmyscreens.app.api.conection.Repository
-import com.geniusdevelop.playmyscreens.app.api.response.Ad
 import com.geniusdevelop.playmyscreens.app.api.response.Images
 import com.geniusdevelop.playmyscreens.app.api.response.Marquee
 import com.geniusdevelop.playmyscreens.app.api.response.WSMessage
@@ -18,6 +17,7 @@ import io.github.centrifugal.centrifuge.Subscription
 import io.github.centrifugal.centrifuge.SubscriptionErrorEvent
 import io.github.centrifugal.centrifuge.SubscriptionEventListener
 import io.github.centrifugal.centrifuge.UnsubscribedEvent
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -50,12 +50,12 @@ class PlayerViewModel : ViewModel() {
         }
     }
 
-    fun getMarquee(deviceCode: String) {
+    fun getMarquee(deviceCode: String,  isUpdate: Boolean = false) {
         viewModelScope.launch {
             try {
                 val result = Repository.api.getMarqueeByDeviceCode(deviceCode)
                 if (result.success != null && result.success.toBoolean()) {
-                    _uiState.value = result.marquee?.let { PlayerUiState.ShowMarquee(it) }
+                    _uiState.value = result.marquee?.let { PlayerUiState.ShowMarquee(it, isUpdate) }
                 } else {
                     _uiState.value = PlayerUiState.HideMarquee
                 }
@@ -63,6 +63,10 @@ class PlayerViewModel : ViewModel() {
                 _uiState.value = PlayerUiState.UpdateError(e.message.toString())
             }
         }
+    }
+
+    fun updateImages(images: Array<Images>) {
+        PlayerUiState.Update(images)
     }
 
     fun updatePlayer(deviceCode: String) {
@@ -123,6 +127,10 @@ class PlayerViewModel : ViewModel() {
                         when (data.message) {
                             "check_marquee_update" -> {
                                 _uiState.value = PlayerUiState.UpdateMarquee
+                                viewModelScope.launch {
+                                    delay(2000)
+                                    _uiState.value = PlayerUiState.ReadyToUpdate
+                                }
                             }
                         }
                     }
@@ -159,7 +167,6 @@ class PlayerViewModel : ViewModel() {
             return
         }
 
-
         viewModelScope.launch {
             imagesSubscription.subscribe()
             screenSubscription.subscribe()
@@ -183,7 +190,8 @@ sealed interface PlayerUiState {
         val images: Array<Images>
     ) : PlayerUiState
     data class ShowMarquee(
-        val marquee: Marquee
+        val marquee: Marquee,
+        val isUpdate: Boolean
     ) : PlayerUiState
     data object UpdateMarquee : PlayerUiState
     data class UpdateError(val msg: String = "") : PlayerUiState
