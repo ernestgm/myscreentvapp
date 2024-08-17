@@ -16,6 +16,7 @@
 
 package com.geniusdevelop.playmyscreens.ui.theme.common
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -59,6 +60,9 @@ fun ErrorWithButton(text: String, modifier: Modifier = Modifier, retry: () -> Un
 
             Button(
                 onClick = { retry() },
+                modifier = Modifier.clickable {
+                    retry()
+                }
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_refresh),

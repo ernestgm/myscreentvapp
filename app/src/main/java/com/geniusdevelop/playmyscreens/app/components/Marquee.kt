@@ -34,10 +34,10 @@ fun Marquee(
             display: block;
             height: 100%;
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             color: ${textColor};
             background-color: ${bgColor};
-            font-size: 36px;
+            font-size: 38px;
             font-height: bold;
             text-transform: uppercase;
         }

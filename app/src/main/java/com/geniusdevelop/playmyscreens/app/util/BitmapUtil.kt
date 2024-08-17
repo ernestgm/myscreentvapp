@@ -10,4 +10,13 @@ object BitmapUtil {
         val decodedString = Base64.decode(pureBase64Encode, Base64.DEFAULT)
         return BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
     }
+
+    fun isAspectRatio16x9(width: Int, height: Int): Boolean {
+        val aspectRatio = width.toDouble() / height.toDouble()
+        val targetRatio = 16.0 / 9.0
+
+        // Compara la relación de aspecto con 16:9 con un margen de tolerancia
+        val tolerance = 0.01
+        return kotlin.math.abs(aspectRatio - targetRatio) < tolerance
+    }
 }

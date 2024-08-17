@@ -57,7 +57,7 @@ class PlayerViewModel : ViewModel() {
                 if (result.success != null && result.success.toBoolean()) {
                     _uiState.value = result.marquee?.let { PlayerUiState.ShowMarquee(it, isUpdate) }
                 } else {
-                    _uiState.value = PlayerUiState.HideMarquee
+                    _uiState.value = PlayerUiState.HideMarquee(isUpdate)
                 }
             } catch (e: Exception) {
                 _uiState.value = PlayerUiState.UpdateError(e.message.toString())
@@ -195,5 +195,5 @@ sealed interface PlayerUiState {
     ) : PlayerUiState
     data object UpdateMarquee : PlayerUiState
     data class UpdateError(val msg: String = "") : PlayerUiState
-    data object HideMarquee : PlayerUiState
+    data class HideMarquee (val isUpdate: Boolean) : PlayerUiState
 }

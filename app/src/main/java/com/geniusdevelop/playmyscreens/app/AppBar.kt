@@ -1,6 +1,7 @@
 package com.geniusdevelop.playmyscreens.app
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -159,7 +160,10 @@ private fun Actions(
         actions.forEach {
             Button(
                 enabled = it.enabled,
-                onClick = it.onClick
+                onClick = it.onClick,
+                modifier = Modifier.clickable {
+                    it.onClick()
+                }
             ) {
                 Icon(
                     modifier = Modifier.size(16.dp),

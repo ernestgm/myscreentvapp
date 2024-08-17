@@ -166,6 +166,9 @@ fun PlayerPage(
         is PlayerUiState.HideMarquee -> {
             maxHeightImagesBox = 1f
             maxHeightMarqueeBox = 0f
+            if (!s.isUpdate) {
+                playerPageViewModel.getContents(code.toString())
+            }
         }
 
         is PlayerUiState.GotoHome -> {

@@ -2,6 +2,7 @@ package com.geniusdevelop.playmyscreens.app.pages.login
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -185,7 +186,10 @@ fun LoginPage(
                             loginPageViewModel.authenticate(email, password)
                         },
                         contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
-                        enabled = !showLoading
+                        enabled = !showLoading,
+                        modifier = Modifier.clickable {
+                            loginPageViewModel.authenticate(email, password)
+                        },
                     ) {
 
                         val image = if (showLoading) { Icons.Default.Refresh } else { Icons.Default.ArrowForward }
