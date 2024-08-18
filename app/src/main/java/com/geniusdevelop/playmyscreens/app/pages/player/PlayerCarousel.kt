@@ -18,13 +18,14 @@ package com.geniusdevelop.playmyscreens.app.pages.player
 
 import android.util.Log
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,6 +46,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
@@ -109,7 +111,7 @@ fun PlayerCarousel(
         } else {
             CarouselItemBackground(
                 image = imagesBitmaps[0],
-                description = descriptions[currentIndex],
+                description = descriptions[0],
                 modifier = Modifier
                     .fillMaxSize()
                     .clickable {
@@ -123,25 +125,6 @@ fun PlayerCarousel(
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun CarouselItemBackground(image: ImageBitmap?, description: String?, modifier: Modifier = Modifier) {
-    val gradient = if (!description.isNullOrBlank()) {
-         modifier.drawWithContent {
-            drawContent()
-            drawRect(
-                Brush.verticalGradient(
-                    startY = 300f,
-                    endY = 600f,
-                    colors = listOf(
-                        Color.Transparent,
-                        Color.Black.copy(alpha = 0.5f)
-                    )
-                )
-            )
-        }
-    } else {
-        modifier
-    }
-
-
         Box(
             modifier = modifier
         ) {
@@ -160,18 +143,39 @@ private fun CarouselItemBackground(image: ImageBitmap?, description: String?, mo
                 Image(
                     bitmap = it,
                     contentDescription = "",
-                    modifier = gradient,
+                    modifier = modifier,
                     contentScale = contentScale
                 )
             }
 
             if (!description.isNullOrBlank()) {
-                Row( modifier = Modifier
+                Box( modifier = Modifier
+                    .height(100.dp)
                     .align(Alignment.BottomCenter)
-                    .padding(15.dp)
-                )  {
+                    .padding(0.dp)) {
+                    Spacer(modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                        .drawWithContent {
+                            drawContent()
+                            drawRect(
+                                Brush.verticalGradient(
+                                    startY = 1f,
+                                    endY = 30f,
+                                    colors = listOf(
+                                        Color.Transparent,
+                                        Color.Black.copy(alpha = .7f)
+                                    )
+                                )
+                            )
+                        }
+                    )
                     Text(
                         text = description,
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .fillMaxWidth()
+                            .padding(12.dp),
                         style = MaterialTheme.typography.titleMedium.copy(
                             color = MaterialTheme.colorScheme.onSurface.copy(
                                 red = 1f,
@@ -184,7 +188,8 @@ private fun CarouselItemBackground(image: ImageBitmap?, description: String?, mo
                                 offset = Offset(x = 2f, y = 4f),
                                 blurRadius = 2f
                             ),
-                            fontSize = 32.sp
+                            fontSize = 45.sp,
+                            textAlign = TextAlign.Center
                         )
                     )
                 }
