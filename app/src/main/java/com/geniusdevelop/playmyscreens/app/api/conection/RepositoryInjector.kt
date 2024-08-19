@@ -1,12 +1,17 @@
 package com.geniusdevelop.playmyscreens.app.api.conection
 
 import android.content.Context
+import androidx.compose.runtime.collectAsState
 import com.geniusdevelop.playmyscreens.BuildConfig
+import com.geniusdevelop.playmyscreens.app.session.SessionManager
 import com.geniusdevelop.playmyscreens.app.util.DeviceUtils
 
 internal object RepositoryInjector {
-    fun initialize(context: Context, token: String?, onError: (msg: String) -> Unit) {
+    fun initialize(context: Context, token: String?) {
         Factory.newApiClient(context, token)
+    }
+
+    fun initializeWs(context: Context, onError: (msg: String) -> Unit) {
         Factory.newWSClient(context) { msg ->
             onError(msg)
         }
@@ -26,7 +31,6 @@ internal object RepositoryInjector {
 
     private object Factory {
         fun newApiClient(context: Context, token: String?): IRepositoryContent {
-
             val client = Client.builder()
                 .addBaseUrl(BuildConfig.BASE_URL)
                 .addToken(token)

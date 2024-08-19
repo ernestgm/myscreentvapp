@@ -1,6 +1,7 @@
 package com.geniusdevelop.playmyscreens.app.api.conection
 
 import android.content.Context
+import io.github.centrifugal.centrifuge.ClientState
 import io.github.centrifugal.centrifuge.Subscription
 import io.github.centrifugal.centrifuge.SubscriptionEventListener
 import io.github.centrifugal.centrifuge.SubscriptionOptions

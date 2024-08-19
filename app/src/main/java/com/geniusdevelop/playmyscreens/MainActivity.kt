@@ -1,6 +1,7 @@
 package com.geniusdevelop.playmyscreens
 
 import android.os.Bundle
+import android.util.Log
 import android.view.WindowManager
 import android.window.OnBackInvokedDispatcher
 import androidx.activity.ComponentActivity
@@ -20,7 +21,6 @@ class MainActivity : ComponentActivity() {
         })
 
         enableActiveScreen()
-
         setContent {
             App()
         }

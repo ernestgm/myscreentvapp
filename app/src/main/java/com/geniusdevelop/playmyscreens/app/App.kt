@@ -1,8 +1,10 @@
 package com.geniusdevelop.playmyscreens.app
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -31,23 +33,24 @@ import com.geniusdevelop.playmyscreens.ui.theme.navigation.NavigationGraph
 @Composable
 fun App() {
     val themeMode by remember { mutableStateOf(Mode.Light) }
-    var seedColor by remember { mutableStateOf(BlueSeedColor) }
-    var layoutDirection by remember { mutableStateOf(LayoutDirection.Ltr) }
-    var fontScale by remember { mutableFloatStateOf(1.0f) }
-
-    var isThemeSelectorExpanded by remember { mutableStateOf(false) }
+    val seedColor by remember { mutableStateOf(BlueSeedColor) }
+    val layoutDirection by remember { mutableStateOf(LayoutDirection.Ltr) }
+    val fontScale by remember { mutableFloatStateOf(1.0f) }
 
     val argbColor = seedColor.color.toArgb()
     val colorScheme = light(argbColor)
-
     val context = LocalContext.current
     val sessionManager = remember { SessionManager(context) }
     var error by remember { mutableStateOf("") }
     val token by sessionManager.token.collectAsState(initial = "")
-    Repository.initialize(context, token) { msg ->
-        error = msg
+    Repository.initialize(context, token)
+
+    LaunchedEffect(key1 = Unit) {
+        Repository.initializeWs(context){ msg ->
+            error = msg
+        }
+        ProcessLifecycleOwner.get().lifecycle.addObserver(AppLifecycleObserver())
     }
-    ProcessLifecycleOwner.get().lifecycle.addObserver(AppLifecycleObserver())
 
     AppProviders(
         seedColor = seedColor,
