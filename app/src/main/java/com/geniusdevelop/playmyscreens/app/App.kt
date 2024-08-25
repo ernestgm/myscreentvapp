@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -21,7 +20,6 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import com.geniusdevelop.playmyscreens.app.api.conection.Repository
-import com.geniusdevelop.playmyscreens.app.session.SessionManager
 import com.geniusdevelop.playmyscreens.app.util.AppLifecycleObserver
 import com.geniusdevelop.playmyscreens.ui.theme.BlueSeedColor
 import com.geniusdevelop.playmyscreens.ui.theme.Mode
@@ -40,16 +38,13 @@ fun App() {
     val argbColor = seedColor.color.toArgb()
     val colorScheme = light(argbColor)
     val context = LocalContext.current
-    val sessionManager = remember { SessionManager(context) }
-    var error by remember { mutableStateOf("") }
-    val token by sessionManager.token.collectAsState(initial = "")
-    Repository.initialize(context, token)
+    Repository.initializeApiConfig(context)
 
     LaunchedEffect(key1 = Unit) {
-        Repository.initializeWs(context){ msg ->
-            error = msg
-        }
-        ProcessLifecycleOwner.get().lifecycle.addObserver(AppLifecycleObserver())
+//        Repository.initializeWs(context){ msg ->
+//            error = msg
+//        }
+//        ProcessLifecycleOwner.get().lifecycle.addObserver(AppLifecycleObserver())
     }
 
     AppProviders(

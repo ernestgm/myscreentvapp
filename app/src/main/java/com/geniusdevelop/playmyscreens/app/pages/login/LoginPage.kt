@@ -37,6 +37,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Icon
 import com.geniusdevelop.playmyscreens.R
+import com.geniusdevelop.playmyscreens.app.api.conection.Repository
 import com.geniusdevelop.playmyscreens.app.session.SessionManager
 import com.geniusdevelop.playmyscreens.app.viewmodels.LoginUiState
 import com.geniusdevelop.playmyscreens.app.viewmodels.LoginViewModel
@@ -66,6 +67,7 @@ fun LoginPage(
         is LoginUiState.Ready -> {
             showLoading = false
             coroutineScope.launch {
+                Repository.refreshApiToken(s.success?.token.toString())
                 sessionManager.saveSession(
                     true,
                     s.success?.user?.name.toString(),

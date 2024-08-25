@@ -17,7 +17,7 @@ import java.nio.charset.StandardCharsets
 
 class ApiManager internal constructor(
     private val context: Context,
-    private val client: Client
+    var client: Client
 ) : IRepositoryUser, IRepositoryContent {
 
     override suspend fun authenticate(email: String, password: String): LoginResponse {
@@ -72,6 +72,10 @@ class ApiManager internal constructor(
 
     override suspend fun getMarqueeByDeviceCode(code: String): CheckMarqueeUpdateResponse {
         return client.get<CheckMarqueeUpdateResponse>("/devices/getMarquee?code=$code")
+    }
+
+    fun refreshClientToken(token: String?) {
+        this.client = client.builder.useBearerToken(!token.isNullOrEmpty()).addToken(token.toString()).init()
     }
 
     private suspend fun getDeviceCode(deviceID: String, userId: String): String {

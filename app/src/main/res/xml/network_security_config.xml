@@ -9,5 +9,10 @@
         <domain includeSubdomains="true">desa-backscreen.tocasoft.com</domain>
         <domain includeSubdomains="true">desa-backscreen.geniusdevelops.com</domain>
         <domain includeSubdomains="true">centrifugue.tocasoft.com</domain>
+        <domain includeSubdomains="true">geniusdevelops.com</domain>
+        <trust-anchors>
+            <certificates src="user"/>
+            <certificates src="system"/>
+        </trust-anchors>
     </domain-config>
 </network-security-config>

@@ -45,30 +45,29 @@ android {
     }
     productFlavors {
         create("prod") {
+            buildConfigField("String", "ENV",
+                "\"Prod\""
+            )
             buildConfigField("String", "BASE_URL",
-                "\"http://47.204.0.63:82/api/v1\""
+                "\"\""
             )
             buildConfigField("String", "WS_BASE_URL",
-                "\"ws://47.204.0.63:8000/connection/websocket\""
+                "\"\""
             )
             buildConfigField("String", "WS_SECRET",
-                "\"940e1175-d3ec-45ee-adb2-3508272074f3\""
+                "\"\""
             )
             dimension = "api"
         }
         create("desa") {
-            buildConfigField("String", "BASE_URL",
-                "\"http://47.204.0.63:82/api/v1\""
-            )
-            buildConfigField("String", "WS_BASE_URL",
-                "\"ws://47.204.0.63:8000/connection/websocket\""
-            )
-            buildConfigField("String", "WS_SECRET",
-                "\"940e1175-d3ec-45ee-adb2-3508272074f3\""
-            )
+            buildConfigField("String", "ENV", "\"Dev\"")
+            buildConfigField("String", "BASE_URL", "\"\"")
+            buildConfigField("String", "WS_BASE_URL", "\"\"")
+            buildConfigField("String", "WS_SECRET", "\"\"")
             dimension="api"
         }
         create("devdesa") {
+            buildConfigField("String", "ENV", "\"\"")
             buildConfigField("String", "BASE_URL",
                 "\"http://192.168.1.181/screen-server/public/api/v1\""
             )
@@ -81,6 +80,7 @@ android {
             dimension = "api"
         }
         create("dev") {
+            buildConfigField("String", "ENV", "\"\"")
             buildConfigField("String", "BASE_URL",
                 "\"http://10.0.2.2/screen-server/public/api/v1\""
             )

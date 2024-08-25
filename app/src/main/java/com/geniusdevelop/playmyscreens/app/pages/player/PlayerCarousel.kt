@@ -164,7 +164,7 @@ private fun CarouselItemBackground(image: ImageBitmap?, description: String?, mo
                                     endY = 30f,
                                     colors = listOf(
                                         Color.Transparent,
-                                        Color.Black.copy(alpha = .7f)
+                                        Color.Black.copy(alpha = .8f)
                                     )
                                 )
                             )
@@ -181,7 +181,7 @@ private fun CarouselItemBackground(image: ImageBitmap?, description: String?, mo
                                 red = 1f,
                                 blue = 1f,
                                 green = 1f,
-                                alpha = 0.65f
+                                alpha = 1f
                             ),
                             shadow = Shadow(
                                 color = Color.Black.copy(alpha = 0.5f),

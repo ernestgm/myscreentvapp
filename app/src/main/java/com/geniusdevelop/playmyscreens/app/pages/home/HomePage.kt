@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.geniusdevelop.playmyscreens.app.session.SessionManager
+import com.geniusdevelop.playmyscreens.app.util.DeviceUtils
 import com.geniusdevelop.playmyscreens.app.util.Padding
 import com.geniusdevelop.playmyscreens.app.viewmodels.HomeScreeViewModel
 import com.geniusdevelop.playmyscreens.app.viewmodels.HomeScreenUiState
@@ -63,6 +64,7 @@ fun HomePage(
             }
         }
         is HomeScreenUiState.ExistScreen -> {
+            val a = s.exist
             if (s.exist) {
                 goToPlayerPage()
             }
@@ -72,7 +74,7 @@ fun HomePage(
         }
         is HomeScreenUiState.Error -> {
             homeScreeViewModel.initSubscribeDevice(code.toString())
-            ErrorWithButton(text = s.msg, modifier = Modifier.fillMaxSize()) {
+            ErrorWithButton(text = "${s.msg} ID: (${DeviceUtils(context).getDeviceId()})", modifier = Modifier.fillMaxSize()) {
                 coroutineScope.launch {
                     homeScreeViewModel.setDeviceCode(userId.toString())
                 }
