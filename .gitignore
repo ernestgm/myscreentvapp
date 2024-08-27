@@ -18,3 +18,5 @@ local.properties
 /app/desa/
 /.idea/
 *.log
+/.idea/
+/.idea/inspectionProfiles/

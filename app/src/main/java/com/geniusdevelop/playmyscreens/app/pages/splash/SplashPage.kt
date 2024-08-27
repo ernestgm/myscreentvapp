@@ -57,7 +57,7 @@ fun SplashScreen(
 
     LaunchedEffect(Unit) {
         coroutineScope.launch {
-            splashScreeViewModel.getConfigurationByEnv("dev")
+            splashScreeViewModel.getConfigurationByEnv()
         }
     }
 
@@ -79,9 +79,9 @@ fun SplashScreen(
         }
         is SplashScreenUiState.Loading -> {}
         is SplashScreenUiState.Error -> {
-            ErrorWithButton(text = "${s.msg}", modifier = Modifier.fillMaxSize()) {
+            ErrorWithButton(text = s.msg, modifier = Modifier.fillMaxSize()) {
                 coroutineScope.launch {
-                    splashScreeViewModel.getConfigurationByEnv("dev")
+                    splashScreeViewModel.getConfigurationByEnv()
                 }
             }
         }

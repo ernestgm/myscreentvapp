@@ -17,7 +17,7 @@ class SplashViewModel() : ViewModel() {
     val uiState: StateFlow<HomeScreenUiState?> = _uiState
 
 
-    fun getConfigurationByEnv (env: String) {
+    fun getConfigurationByEnv () {
         _uiState.value = HomeScreenUiState.Loading
         viewModelScope.launch {
             try {

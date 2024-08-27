@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "25206897756",
+    "project_id": "myscreens-a359a",
+    "storage_bucket": "myscreens-a359a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:25206897756:android:fcbc3fbd6ccbabe7ad3a99",
+        "android_client_info": {
+          "package_name": "com.geniusdevelop.playmyscreens.debug"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCB4UWZL5pBb8Ri5Z0_zcBzGO1G_vmyYCs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:25206897756:android:8b864a8f70b90d13ad3a99",
+        "android_client_info": {
+          "package_name": "com.geniusdevelop.playmyscreens.release"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCB4UWZL5pBb8Ri5Z0_zcBzGO1G_vmyYCs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

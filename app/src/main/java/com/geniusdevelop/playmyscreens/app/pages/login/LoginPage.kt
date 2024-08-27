@@ -74,8 +74,8 @@ fun LoginPage(
                     s.success?.user?.id.toString(),
                     s.success?.token.toString()
                 )
+                goToHomePage()
             }
-            goToHomePage()
         }
         is LoginUiState.Loading -> {
             showLoading = true

@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.jetbrains.kotlin.serialization)
+    alias(libs.plugins.google.gms.services)
+    alias(libs.plugins.google.firebase.crashlytics)
 }
 
 android {
@@ -45,18 +47,10 @@ android {
     }
     productFlavors {
         create("prod") {
-            buildConfigField("String", "ENV",
-                "\"Prod\""
-            )
-            buildConfigField("String", "BASE_URL",
-                "\"\""
-            )
-            buildConfigField("String", "WS_BASE_URL",
-                "\"\""
-            )
-            buildConfigField("String", "WS_SECRET",
-                "\"\""
-            )
+            buildConfigField("String", "ENV", "\"Prod\"")
+            buildConfigField("String", "BASE_URL", "\"\"")
+            buildConfigField("String", "WS_BASE_URL", "\"\"")
+            buildConfigField("String", "WS_SECRET", "\"\"")
             dimension = "api"
         }
         create("desa") {
@@ -164,4 +158,8 @@ dependencies {
 
     implementation(libs.centrifuge.java)
     implementation (libs.androidx.lifecycle.extensions)
+
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.crashlytics)
 }

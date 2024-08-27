@@ -1,13 +1,10 @@
 package com.geniusdevelop.playmyscreens
 
 import android.os.Bundle
-import android.util.Log
 import android.view.WindowManager
-import android.window.OnBackInvokedDispatcher
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import com.geniusdevelop.playmyscreens.app.App
 
 class MainActivity : ComponentActivity() {
