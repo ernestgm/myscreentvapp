@@ -82,6 +82,13 @@ class PlayerViewModel : ViewModel() {
         }
     }
 
+    fun removeAllSubcription() {
+        Repository.wsManager.removeSubscription(imagesSubscription)
+        Repository.wsManager.removeSubscription(marqueeSubscription)
+        Repository.wsManager.removeSubscription(screenSubscription)
+        Repository.wsManager.removeSubscription(userSubscription)
+    }
+
     fun initSubscriptions(deviceCode: String) {
         System.out.println("init subscribed to")
 
@@ -109,9 +116,7 @@ class PlayerViewModel : ViewModel() {
                     "player_screen_$deviceCode" -> {
                         when (data.message) {
                             "check_screen_update" -> {
-                                Repository.wsManager.removeSubscription(imagesSubscription)
-                                Repository.wsManager.removeSubscription(screenSubscription)
-                                Repository.wsManager.removeSubscription(userSubscription)
+                                removeAllSubcription()
                                 _uiState.value = PlayerUiState.GotoHome
                             }
                         }
@@ -137,9 +142,7 @@ class PlayerViewModel : ViewModel() {
                     "user_$deviceCode" -> {
                         when (data.message) {
                             "logout" -> {
-                                Repository.wsManager.removeSubscription(screenSubscription)
-                                Repository.wsManager.removeSubscription(userSubscription)
-                                Repository.wsManager.removeSubscription(imagesSubscription)
+                                removeAllSubcription()
                                 _uiState.value = PlayerUiState.GotoLogout
                             }
                         }
