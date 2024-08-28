@@ -17,6 +17,7 @@ import io.github.centrifugal.centrifuge.Subscription
 import io.github.centrifugal.centrifuge.SubscriptionErrorEvent
 import io.github.centrifugal.centrifuge.SubscriptionEventListener
 import io.github.centrifugal.centrifuge.UnsubscribedEvent
+import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -45,7 +46,11 @@ class PlayerViewModel : ViewModel() {
                     }
                 }
             } catch (e: Exception) {
-                _uiState.value = PlayerUiState.Error(e.message.toString())
+                if ( e is UnresolvedAddressException ) {
+                    _uiState.value = PlayerUiState.Error("Network Error: Check your internet connection.")
+                } else {
+                    _uiState.value = PlayerUiState.Error("Error: " + e.message.toString())
+                }
             }
         }
     }
@@ -60,7 +65,11 @@ class PlayerViewModel : ViewModel() {
                     _uiState.value = PlayerUiState.HideMarquee(isUpdate)
                 }
             } catch (e: Exception) {
-                _uiState.value = PlayerUiState.UpdateError(e.message.toString())
+                if ( e is UnresolvedAddressException ) {
+                    _uiState.value = PlayerUiState.Error("Network Error: Check your internet connection.")
+                } else {
+                    _uiState.value = PlayerUiState.Error("Error: " + e.message.toString())
+                }
             }
         }
     }
@@ -77,7 +86,11 @@ class PlayerViewModel : ViewModel() {
                     _uiState.value = result.screen?.images?.let { PlayerUiState.Update(it) }
                 }
             } catch (e: Exception) {
-                _uiState.value = PlayerUiState.UpdateError(e.message.toString())
+                if ( e is UnresolvedAddressException ) {
+                    _uiState.value = PlayerUiState.Error("Network Error: Check your internet connection.")
+                } else {
+                    _uiState.value = PlayerUiState.Error("Error: " + e.message.toString())
+                }
             }
         }
     }

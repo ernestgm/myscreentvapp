@@ -15,6 +15,7 @@ import io.github.centrifugal.centrifuge.Subscription
 import io.github.centrifugal.centrifuge.SubscriptionErrorEvent
 import io.github.centrifugal.centrifuge.SubscriptionEventListener
 import io.github.centrifugal.centrifuge.UnsubscribedEvent
+import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -41,7 +42,11 @@ class HomeScreeViewModel() : ViewModel() {
                     _uiState.value = HomeScreenUiState.Error(result.message)
                 }
             } catch (e: Exception) {
-                _uiState.value = HomeScreenUiState.Error(e.message.toString())
+                if ( e is UnresolvedAddressException ) {
+                    _uiState.value = HomeScreenUiState.Error("Network Error: Check your internet connection.")
+                } else {
+                    _uiState.value = HomeScreenUiState.Error("Error: " + e.message.toString())
+                }
             }
         }
     }
@@ -131,7 +136,11 @@ class HomeScreeViewModel() : ViewModel() {
                     }
                 }
             } catch (e: Exception) {
-                _uiState.value = HomeScreenUiState.Error(e.message.toString())
+                if ( e is UnresolvedAddressException ) {
+                    _uiState.value = HomeScreenUiState.Error("Network Error: Check your internet connection.")
+                } else {
+                    _uiState.value = HomeScreenUiState.Error("Error: " + e.message.toString())
+                }
             }
         }
     }

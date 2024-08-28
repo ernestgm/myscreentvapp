@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import com.geniusdevelop.playmyscreens.BuildConfig
 import com.geniusdevelop.playmyscreens.app.api.conection.Repository
 import com.geniusdevelop.playmyscreens.app.api.response.ConfigFields
+import io.ktor.util.network.UnresolvedAddressException
+import io.ktor.utils.io.errors.IOException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -30,7 +32,11 @@ class SplashViewModel() : ViewModel() {
                     }
                 }
             } catch (e: Exception) {
-                _uiState.value = SplashScreenUiState.Error(e.message.toString())
+                if ( e is UnresolvedAddressException ) {
+                    _uiState.value = SplashScreenUiState.Error("Network Error: Check your internet connection.")
+                } else {
+                    _uiState.value = SplashScreenUiState.Error("Error: " + e.message.toString())
+                }
             }
         }
     }
