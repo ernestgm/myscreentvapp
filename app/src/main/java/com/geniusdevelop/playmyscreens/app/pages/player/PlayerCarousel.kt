@@ -18,6 +18,7 @@ package com.geniusdevelop.playmyscreens.app.pages.player
 
 import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -152,29 +153,12 @@ private fun CarouselItemBackground(image: ImageBitmap?, description: String?, mo
                 Box( modifier = Modifier
                     .height(100.dp)
                     .align(Alignment.BottomCenter)
-                    .padding(0.dp)) {
-                    Spacer(modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight()
-                        .drawWithContent {
-                            drawContent()
-                            drawRect(
-                                Brush.verticalGradient(
-                                    startY = 1f,
-                                    endY = 30f,
-                                    colors = listOf(
-                                        Color.Transparent,
-                                        Color.Black.copy(alpha = .8f)
-                                    )
-                                )
-                            )
-                        }
-                    )
+                    .padding(5.dp)) {
                     Text(
                         text = description,
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
-                            .fillMaxWidth()
+                            .background(Color.Black.copy(alpha = .8f))
                             .padding(12.dp),
                         style = MaterialTheme.typography.titleMedium.copy(
                             color = MaterialTheme.colorScheme.onSurface.copy(
