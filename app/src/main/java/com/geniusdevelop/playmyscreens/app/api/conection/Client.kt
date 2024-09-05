@@ -4,6 +4,7 @@ import android.util.Log
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BasicAuthCredentials
 import io.ktor.client.plugins.auth.providers.BearerTokens
@@ -90,10 +91,15 @@ class Client private constructor(
 
             val httpClient = HttpClient(CIO) {
                 engine {
-                    requestTimeout = 0
                     https {
                         trustManager = MyTrustManager
                     }
+                }
+
+                install(HttpTimeout) {
+                    requestTimeoutMillis = 180000  // Tiempo máximo de espera para la solicitud (10 segundos)
+                    connectTimeoutMillis = 180000   // Tiempo máximo de espera para la conexión (5 segundos)
+                    socketTimeoutMillis = 180000   // Tiempo máximo de espera para la recepción de datos del socket (15 segundos)
                 }
 
                 install(ContentNegotiation) {
@@ -105,7 +111,6 @@ class Client private constructor(
                 }
 
                 if (useBearerTokens) {
-                    Log.d("TOKEN", "Install bearer")
                     install(Auth) {
                         bearer {
                             loadTokens {

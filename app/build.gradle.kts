@@ -17,7 +17,7 @@ android {
         minSdk = 21
         targetSdk = 34
         versionCode = 1
-        versionName = "1.01"
+        versionName = "1.02"
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -53,6 +53,13 @@ android {
             buildConfigField("String", "WS_SECRET", "\"\"")
             dimension = "api"
         }
+        create("prodip") {
+            buildConfigField("String", "ENV", "\"\"")
+            buildConfigField("String", "BASE_URL", "\"http://47.204.0.63:92/api/v1\"")
+            buildConfigField("String", "WS_BASE_URL", "\"ws://47.204.0.63:8000/connection/websocket\"")
+            buildConfigField("String", "WS_SECRET", "\"940e1175-d3ec-45ee-adb2-3508272074f3\"")
+            dimension = "api"
+        }
         create("desa") {
             buildConfigField("String", "ENV", "\"Dev\"")
             buildConfigField("String", "BASE_URL", "\"\"")
@@ -63,13 +70,13 @@ android {
         create("devdesa") {
             buildConfigField("String", "ENV", "\"\"")
             buildConfigField("String", "BASE_URL",
-                "\"http://192.168.1.181/screen-server/public/api/v1\""
+                "\"http://47.204.0.63:82/api/v1\""
             )
             buildConfigField("String", "WS_BASE_URL",
-                "\"ws://192.168.1.181:8000/connection/websocket\""
+                "\"ws://47.204.0.63:8000/connection/websocket\""
             )
             buildConfigField("String", "WS_SECRET",
-                "\"MEcvUw7o5RpJsgeF9Ay\""
+                "\"940e1175-d3ec-45ee-adb2-3508272074f3\""
             )
             dimension = "api"
         }

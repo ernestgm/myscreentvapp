@@ -31,6 +31,8 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.Text
+import com.geniusdevelop.playmyscreens.BuildConfig
 import com.geniusdevelop.playmyscreens.app.api.response.Images
 import com.geniusdevelop.playmyscreens.app.components.Marquee
 import com.geniusdevelop.playmyscreens.app.session.SessionManager
@@ -42,6 +44,7 @@ import com.google.jetstream.presentation.common.Loading
 import kotlinx.coroutines.launch
 
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun PlayerPage(
     goToHomePage: () -> Unit,
@@ -193,6 +196,10 @@ fun PlayerPage(
                 verticalArrangement = Arrangement.Center
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    if (BuildConfig.ENV != "Prod") {
+                        Text(text = "DESA")
+                    }
+
                     CustomButton(
                         text = "Close App"
                     ) {

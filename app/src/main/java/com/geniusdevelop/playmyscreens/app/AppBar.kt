@@ -35,6 +35,7 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
+import com.geniusdevelop.playmyscreens.BuildConfig
 import com.geniusdevelop.playmyscreens.R
 import com.geniusdevelop.playmyscreens.app.session.SessionManager
 import com.geniusdevelop.playmyscreens.ui.theme.navigation.LocalNavController
@@ -52,9 +53,14 @@ fun AppBar(
     val isLoggedIn by sessionManager.isLoggedIn.collectAsState(initial = false)
     val username by sessionManager.name.collectAsState(initial = "")
     var showLoading by remember { mutableStateOf(false) }
+    val slogan = "Player for the EScreen System"
 
     val title = stringResource(R.string.tv_compose)
-    val description = "Player for the EScreen System"
+    val description = if (BuildConfig.FLAVOR != "prod" && BuildConfig.FLAVOR != "prodip") {
+        "$slogan (DESA)"
+    } else {
+        slogan
+    }
     val isMainIconMagnified = true
 
     Row(

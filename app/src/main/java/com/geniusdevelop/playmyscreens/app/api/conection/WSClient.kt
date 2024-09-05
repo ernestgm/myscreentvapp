@@ -119,14 +119,12 @@ class WSClient private constructor(
             }
         }
 
-
         fun init(): WSClient {
             opts.token = generateToken(userId, secret)
             opts.tokenGetter = refreshToken
-
+            opts.timeout = 60000
 
             val client = Client(baseUrl, opts, listener)
-
             return WSClient(client)
         }
     }

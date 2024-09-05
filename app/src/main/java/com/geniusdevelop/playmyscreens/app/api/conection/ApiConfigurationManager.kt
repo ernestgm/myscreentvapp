@@ -13,7 +13,6 @@ class ApiConfigurationManager internal constructor(
 
     override suspend fun getConfiguration(env: String): ConfigFields? {
         var config: ConfigFields? = null
-        val result:Array<ConfigResponse> = client.get("/screen_api_server_configurations")
 
         if (env.isEmpty()) {
             config = ConfigFields()
@@ -21,6 +20,7 @@ class ApiConfigurationManager internal constructor(
             config.centrifugue_base_url = BuildConfig.WS_BASE_URL
             config.centrifuge_pass_secret = BuildConfig.WS_SECRET
         } else {
+            val result:Array<ConfigResponse> = client.get("/screen_api_server_configurations")
             result.forEach { response ->
                 if (response.slug.lowercase() == env.lowercase()) {
                     config = response.acf
