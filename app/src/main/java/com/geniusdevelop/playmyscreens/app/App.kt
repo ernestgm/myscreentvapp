@@ -40,13 +40,6 @@ fun App() {
     val context = LocalContext.current
     Repository.initializeApiConfig(context)
 
-    LaunchedEffect(key1 = Unit) {
-//        Repository.initializeWs(context){ msg ->
-//            error = msg
-//        }
-//        ProcessLifecycleOwner.get().lifecycle.addObserver(AppLifecycleObserver())
-    }
-
     AppProviders(
         seedColor = seedColor,
         themeMode = themeMode,

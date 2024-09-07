@@ -68,6 +68,7 @@ fun SplashScreen(
                 Log.d("ERROR", msg)
             }
             ProcessLifecycleOwner.get().lifecycle.addObserver(AppLifecycleObserver())
+            splashScreeViewModel.setAppOnline()
             val startDestination = if (isLoggedIn) {
                 NavGraph.Home.routeName
             } else {
