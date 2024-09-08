@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -48,9 +49,18 @@ fun HomePage(
 
     val uiState by homeScreeViewModel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(key1 = true) {
+//    LaunchedEffect(key1 = true) {
+//
+//    }
+
+    DisposableEffect(Unit) {
+        // Effect is triggered when HomeScreen is displayed
         coroutineScope.launch {
             homeScreeViewModel.setDeviceCode(userId.toString())
+        }
+
+        onDispose {
+            homeScreeViewModel.removeAllSubscriptions()
         }
     }
 
@@ -64,7 +74,6 @@ fun HomePage(
             }
         }
         is HomeScreenUiState.ExistScreen -> {
-            val a = s.exist
             if (s.exist) {
                 goToPlayerPage()
             }

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -77,10 +78,14 @@ fun PlayerPage(
         }
     }
 
-    LaunchedEffect(key1 = Unit) {
+    DisposableEffect(Unit) {
+        // Effect is triggered when HomeScreen is displayed
         coroutineScope.launch {
-            playerPageViewModel.initSubscriptions(code.toString())
             playerPageViewModel.getMarquee(code.toString())
+        }
+
+        onDispose {
+            playerPageViewModel.removeAllSubscriptions()
         }
     }
 
@@ -107,6 +112,7 @@ fun PlayerPage(
         is PlayerUiState.Ready -> {
             images = s.images
             initialSizeImages = images.size
+            playerPageViewModel.initSubscriptions(code.toString())
         }
 
         is PlayerUiState.Loading -> {

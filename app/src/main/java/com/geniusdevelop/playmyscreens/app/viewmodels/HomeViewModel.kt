@@ -78,8 +78,8 @@ class HomeScreeViewModel() : ViewModel() {
                     "user_$deviceCode" -> {
                         when (data.message) {
                             "logout" -> {
-                                Repository.wsManager.removeSubscription(screenSubscription)
-                                Repository.wsManager.removeSubscription(userSubscription)
+                                //Repository.wsManager.removeSubscription(screenSubscription)
+                                //Repository.wsManager.removeSubscription(userSubscription)
                                 _uiState.value = HomeScreenUiState.LogoutUser
                             }
                         }
@@ -121,6 +121,13 @@ class HomeScreeViewModel() : ViewModel() {
         }
     }
 
+    fun removeAllSubscriptions() {
+        if (::screenSubscription.isInitialized && ::userSubscription.isInitialized) {
+            Repository.wsManager.removeSubscription(screenSubscription)
+            Repository.wsManager.removeSubscription(userSubscription)
+        }
+    }
+
     fun checkExistScreenForDevice(code: String) {
         viewModelScope.launch {
             try {
@@ -129,8 +136,6 @@ class HomeScreeViewModel() : ViewModel() {
                     _uiState.value = HomeScreenUiState.ExistScreen(result.success.toBoolean())
                 } else {
                     if (result.screen != null && result.screen.isEnable()) {
-                        Repository.wsManager.removeSubscription(screenSubscription)
-                        Repository.wsManager.removeSubscription(userSubscription)
                         _uiState.value = HomeScreenUiState.ExistScreen(result.success.toBoolean())
                     } else {
                         _uiState.value = HomeScreenUiState.DisabledScreen

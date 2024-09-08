@@ -95,13 +95,6 @@ class PlayerViewModel : ViewModel() {
         }
     }
 
-    fun removeAllSubcription() {
-        Repository.wsManager.removeSubscription(imagesSubscription)
-        Repository.wsManager.removeSubscription(marqueeSubscription)
-        Repository.wsManager.removeSubscription(screenSubscription)
-        Repository.wsManager.removeSubscription(userSubscription)
-    }
-
     fun initSubscriptions(deviceCode: String) {
         System.out.println("init subscribed to")
 
@@ -129,7 +122,6 @@ class PlayerViewModel : ViewModel() {
                     "player_screen_$deviceCode" -> {
                         when (data.message) {
                             "check_screen_update" -> {
-                                removeAllSubcription()
                                 _uiState.value = PlayerUiState.GotoHome
                             }
                         }
@@ -155,7 +147,6 @@ class PlayerViewModel : ViewModel() {
                     "user_$deviceCode" -> {
                         when (data.message) {
                             "logout" -> {
-                                removeAllSubcription()
                                 _uiState.value = PlayerUiState.GotoLogout
                             }
                         }
@@ -188,6 +179,20 @@ class PlayerViewModel : ViewModel() {
             screenSubscription.subscribe()
             marqueeSubscription.subscribe()
             userSubscription.subscribe()
+        }
+    }
+
+    fun removeAllSubscriptions() {
+        if (
+            ::userSubscription.isInitialized &&
+            ::marqueeSubscription.isInitialized &&
+            ::screenSubscription.isInitialized &&
+            ::userSubscription.isInitialized
+            ) {
+            Repository.wsManager.removeSubscription(imagesSubscription)
+            Repository.wsManager.removeSubscription(marqueeSubscription)
+            Repository.wsManager.removeSubscription(screenSubscription)
+            Repository.wsManager.removeSubscription(userSubscription)
         }
     }
 }

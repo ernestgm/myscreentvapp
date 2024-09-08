@@ -17,7 +17,7 @@ android {
         minSdk = 21
         targetSdk = 34
         versionCode = 1
-        versionName = "1.02"
+        versionName = "1.03"
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -67,13 +67,13 @@ android {
             buildConfigField("String", "WS_SECRET", "\"\"")
             dimension="api"
         }
-        create("devdesa") {
+        create("desaip") {
             buildConfigField("String", "ENV", "\"\"")
             buildConfigField("String", "BASE_URL",
                 "\"http://47.204.0.63:82/api/v1\""
             )
             buildConfigField("String", "WS_BASE_URL",
-                "\"ws://47.204.0.63:8000/connection/websocket\""
+                "\"ws://47.204.0.63:8001/connection/websocket\""
             )
             buildConfigField("String", "WS_SECRET",
                 "\"940e1175-d3ec-45ee-adb2-3508272074f3\""
