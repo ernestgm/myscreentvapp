@@ -110,9 +110,10 @@ fun PlayerCarousel(
                     }
             )
         } else {
+            currentIndex = 0
             CarouselItemBackground(
-                image = imagesBitmaps[0],
-                description = descriptions[0],
+                image = imagesBitmaps[currentIndex],
+                description = descriptions[currentIndex],
                 modifier = Modifier
                     .fillMaxSize()
                     .clickable {
