@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.jetstream.data.util
+package com.geniusdevelop.playmyscreens.app.util
 
 import android.content.Context
 import java.io.IOException

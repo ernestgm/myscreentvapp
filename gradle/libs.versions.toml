@@ -1,9 +1,10 @@
 [versions]
 agp = "8.5.1"
-gms = "4.4.1"
-crashlytics = "2.9.9"
+commonsNet = "3.8.0"
+gms = "4.4.2"
+crashlytics = "3.0.2"
 centrifugeJava = "0.4.1"
-firebaseBom = "33.2.0"
+firebaseBom = "33.3.0"
 kotlin = "1.9.0"
 lifecycleExtensions = "2.2.0"
 serialization = "1.6.0"
@@ -37,6 +38,7 @@ androidx-tv-foundation = { group = "androidx.tv", name = "tv-foundation", versio
 androidx-tv-material = { group = "androidx.tv", name = "tv-material", version.ref = "tvMaterial" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 centrifuge-java = { module = "io.github.centrifugal:centrifuge-java", version.ref = "centrifugeJava" }
+commons-net = { module = "commons-net:commons-net", version.ref = "commonsNet" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }

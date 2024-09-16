@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.geniusdevelop.playmyscreens.app.api.conection.Repository
 import com.geniusdevelop.playmyscreens.app.api.response.LoginSuccess
+import com.geniusdevelop.playmyscreens.app.util.AppLog
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,8 +28,10 @@ class LoginViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 if ( e is UnresolvedAddressException ) {
+                    AppLog.manager.logToFile("", "Login: Network Error:" + e.message.toString())
                     _uiState.value = LoginUiState.Error("Network Error: Check your internet connection.")
                 } else {
+                    AppLog.manager.logToFile("", "Login: Error: " + e.message.toString())
                     _uiState.value = LoginUiState.Error("Error: " + e.message.toString())
                 }
             }
@@ -42,8 +45,10 @@ class LoginViewModel : ViewModel() {
                 _uiState.value = LoginUiState.Ready()
             } catch (e: Exception) {
                 if ( e is UnresolvedAddressException ) {
+                    AppLog.manager.logToFile("", "Login: Network Error:" + e.message.toString())
                     _uiState.value = LoginUiState.Error("Network Error: Check your internet connection.")
                 } else {
+                    AppLog.manager.logToFile("", "Login: Error:" + e.message.toString())
                     _uiState.value = LoginUiState.Error("Error: " + e.message.toString())
                 }
             }

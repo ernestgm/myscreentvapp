@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.geniusdevelop.playmyscreens.app.api.conection.Repository
 import com.geniusdevelop.playmyscreens.app.api.response.WSMessage
+import com.geniusdevelop.playmyscreens.app.util.AppLog
 import io.github.centrifugal.centrifuge.DuplicateSubscriptionException
 import io.github.centrifugal.centrifuge.JoinEvent
 import io.github.centrifugal.centrifuge.LeaveEvent
@@ -44,8 +45,10 @@ class HomeScreeViewModel() : ViewModel() {
                 }
             } catch (e: Exception) {
                 if ( e is UnresolvedAddressException ) {
+                    AppLog.manager.logToFile("", "Home: Network Error: Check your internet connection.")
                     _uiState.value = HomeScreenUiState.Error("Network Error: Check your internet connection.")
                 } else {
+                    AppLog.manager.logToFile("", e.message.toString())
                     _uiState.value = HomeScreenUiState.Error("Error: " + e.message.toString())
                 }
             }
@@ -69,6 +72,7 @@ class HomeScreeViewModel() : ViewModel() {
 
             override fun onError(sub: Subscription, event: SubscriptionErrorEvent) {
                 System.out.println(("subscription error " + sub.channel) + " " + event.error.toString())
+                AppLog.manager.logToFile("", ("subscription error " + sub.channel) + " " + event.error.toString())
             }
 
             override fun onPublication(sub: Subscription, event: PublicationEvent) {
@@ -110,6 +114,7 @@ class HomeScreeViewModel() : ViewModel() {
             userSubscription = Repository.wsManager.newSubscription("user_$deviceCode", subListener)
         } catch (e: DuplicateSubscriptionException) {
             println("duplicado ${e.message}")
+            AppLog.manager.logToFile("", "Home: duplicado ${e.message}")
             e.printStackTrace()
             return
         }
@@ -143,8 +148,10 @@ class HomeScreeViewModel() : ViewModel() {
                 }
             } catch (e: Exception) {
                 if ( e is UnresolvedAddressException ) {
+                    AppLog.manager.logToFile("", "Home: Network error")
                     _uiState.value = HomeScreenUiState.Error("Network Error: Check your internet connection.")
                 } else {
+                    AppLog.manager.logToFile("", "Home: Error: " + e.message.toString())
                     _uiState.value = HomeScreenUiState.Error("Error: " + e.message.toString())
                 }
             }

@@ -17,7 +17,7 @@ android {
         minSdk = 21
         targetSdk = 34
         versionCode = 1
-        versionName = "1.03"
+        versionName = "1.06"
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -169,4 +169,6 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.crashlytics)
+
+    implementation (libs.commons.net)
 }

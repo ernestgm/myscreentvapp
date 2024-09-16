@@ -1,10 +1,12 @@
 package com.geniusdevelop.playmyscreens.app.util
 
+import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import com.geniusdevelop.playmyscreens.app.api.conection.Repository
+import com.geniusdevelop.playmyscreens.app.service.BackgroundService
 
 class AppLifecycleObserver : LifecycleObserver {
 
