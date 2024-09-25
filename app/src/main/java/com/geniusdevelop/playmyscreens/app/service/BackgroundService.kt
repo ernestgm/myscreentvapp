@@ -58,8 +58,7 @@ class BackgroundService : Service() {
         // Your background task logic here
         doBackgroundWork()
 
-        // If the system kills the service, do not restart it automatically
-        return START_NOT_STICKY
+        return START_REDELIVER_INTENT
     }
 
     private fun createNotificationChannel() {
