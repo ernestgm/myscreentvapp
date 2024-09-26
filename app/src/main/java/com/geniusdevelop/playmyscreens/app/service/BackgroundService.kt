@@ -19,6 +19,7 @@ import com.geniusdevelop.playmyscreens.R
 import com.geniusdevelop.playmyscreens.app.api.conection.Repository
 import com.geniusdevelop.playmyscreens.app.util.AppLog
 import com.geniusdevelop.playmyscreens.app.util.DeviceUtils
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -58,7 +59,7 @@ class BackgroundService : Service() {
         // Your background task logic here
         doBackgroundWork()
 
-        return START_REDELIVER_INTENT
+        return START_STICKY
     }
 
     private fun createNotificationChannel() {
@@ -130,6 +131,7 @@ class BackgroundService : Service() {
 
                 client.newCall(request).enqueue(object : Callback {
                     override fun onFailure(call: Call, e: IOException) {
+                        FirebaseCrashlytics.getInstance().recordException(e)
                         e.printStackTrace() // Manejo del error
                     }
 
@@ -160,11 +162,12 @@ class BackgroundService : Service() {
         }
     }
 
-    fun isAppInstalled(packageManager: PackageManager, packageName: String): Boolean {
+    private fun isAppInstalled(packageManager: PackageManager, packageName: String): Boolean {
         return try {
             packageManager.getPackageInfo(packageName, 0)
             true
         } catch (e: PackageManager.NameNotFoundException) {
+            FirebaseCrashlytics.getInstance().recordException(e)
             false
         }
     }
@@ -223,6 +226,7 @@ class BackgroundService : Service() {
                 println("Response: ${response.isSuccessful}")
                 response.isSuccessful
             } catch (e: IOException) {
+                FirebaseCrashlytics.getInstance().recordException(e)
                 e.printStackTrace()
                 false
             }

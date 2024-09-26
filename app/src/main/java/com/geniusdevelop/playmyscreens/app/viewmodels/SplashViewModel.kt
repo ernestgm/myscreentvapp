@@ -9,6 +9,7 @@ import com.geniusdevelop.playmyscreens.app.api.conection.Repository
 import com.geniusdevelop.playmyscreens.app.api.response.ConfigFields
 import com.geniusdevelop.playmyscreens.app.api.response.WSMessage
 import com.geniusdevelop.playmyscreens.app.util.AppLog
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.github.centrifugal.centrifuge.DuplicateSubscriptionException
 import io.github.centrifugal.centrifuge.JoinEvent
 import io.github.centrifugal.centrifuge.LeaveEvent
@@ -69,6 +70,7 @@ class SplashViewModel() : ViewModel() {
         try {
             onlineStatusSubscription = Repository.wsManager.newSubscription("status:appOnline", subListener)
         } catch (e: DuplicateSubscriptionException) {
+            FirebaseCrashlytics.getInstance().recordException(e)
             AppLog.manager.logToFile("", "Splash - Duplicate: " + e.message.toString())
             println("duplicado ${e.message}")
             e.printStackTrace()
@@ -94,6 +96,7 @@ class SplashViewModel() : ViewModel() {
                     }
                 }
             } catch (e: Exception) {
+                FirebaseCrashlytics.getInstance().recordException(e)
                 if ( e is UnresolvedAddressException ) {
                     AppLog.manager.logToFile("", "Splash Network Error: Check your internet connection.")
                     _uiState.value = SplashScreenUiState.Error("Network Error: Check your internet connection.")

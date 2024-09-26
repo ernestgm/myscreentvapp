@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.geniusdevelop.playmyscreens.app.api.conection.Repository
 import com.geniusdevelop.playmyscreens.app.api.response.LoginSuccess
 import com.geniusdevelop.playmyscreens.app.util.AppLog
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,6 +28,7 @@ class LoginViewModel : ViewModel() {
                     _uiState.value = LoginUiState.Error(msg.toString())
                 }
             } catch (e: Exception) {
+                FirebaseCrashlytics.getInstance().recordException(e)
                 if ( e is UnresolvedAddressException ) {
                     AppLog.manager.logToFile("", "Login: Network Error:" + e.message.toString())
                     _uiState.value = LoginUiState.Error("Network Error: Check your internet connection.")
@@ -44,6 +46,7 @@ class LoginViewModel : ViewModel() {
                 Repository.user.logout()
                 _uiState.value = LoginUiState.Ready()
             } catch (e: Exception) {
+                FirebaseCrashlytics.getInstance().recordException(e)
                 if ( e is UnresolvedAddressException ) {
                     AppLog.manager.logToFile("", "Login: Network Error:" + e.message.toString())
                     _uiState.value = LoginUiState.Error("Network Error: Check your internet connection.")

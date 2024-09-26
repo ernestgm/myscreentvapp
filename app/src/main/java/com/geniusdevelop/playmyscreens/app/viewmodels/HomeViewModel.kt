@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.geniusdevelop.playmyscreens.app.api.conection.Repository
 import com.geniusdevelop.playmyscreens.app.api.response.WSMessage
 import com.geniusdevelop.playmyscreens.app.util.AppLog
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.github.centrifugal.centrifuge.DuplicateSubscriptionException
 import io.github.centrifugal.centrifuge.JoinEvent
 import io.github.centrifugal.centrifuge.LeaveEvent
@@ -44,6 +45,7 @@ class HomeScreeViewModel() : ViewModel() {
                     _uiState.value = HomeScreenUiState.Error(result.message)
                 }
             } catch (e: Exception) {
+                FirebaseCrashlytics.getInstance().recordException(e)
                 if ( e is UnresolvedAddressException ) {
                     AppLog.manager.logToFile("", "Home: Network Error: Check your internet connection.")
                     _uiState.value = HomeScreenUiState.Error("Network Error: Check your internet connection.")
@@ -113,6 +115,7 @@ class HomeScreeViewModel() : ViewModel() {
             screenSubscription = Repository.wsManager.newSubscription("home_screen_$deviceCode", subListener)
             userSubscription = Repository.wsManager.newSubscription("user_$deviceCode", subListener)
         } catch (e: DuplicateSubscriptionException) {
+            FirebaseCrashlytics.getInstance().recordException(e)
             println("duplicado ${e.message}")
             AppLog.manager.logToFile("", "Home: duplicado ${e.message}")
             e.printStackTrace()
@@ -147,6 +150,7 @@ class HomeScreeViewModel() : ViewModel() {
                     }
                 }
             } catch (e: Exception) {
+                FirebaseCrashlytics.getInstance().recordException(e)
                 if ( e is UnresolvedAddressException ) {
                     AppLog.manager.logToFile("", "Home: Network error")
                     _uiState.value = HomeScreenUiState.Error("Network Error: Check your internet connection.")

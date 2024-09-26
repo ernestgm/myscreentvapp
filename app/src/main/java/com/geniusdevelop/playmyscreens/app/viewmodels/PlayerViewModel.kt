@@ -8,6 +8,7 @@ import com.geniusdevelop.playmyscreens.app.api.response.Images
 import com.geniusdevelop.playmyscreens.app.api.response.Marquee
 import com.geniusdevelop.playmyscreens.app.api.response.WSMessage
 import com.geniusdevelop.playmyscreens.app.util.AppLog
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.github.centrifugal.centrifuge.DuplicateSubscriptionException
 import io.github.centrifugal.centrifuge.JoinEvent
 import io.github.centrifugal.centrifuge.LeaveEvent
@@ -47,6 +48,7 @@ class PlayerViewModel : ViewModel() {
                     }
                 }
             } catch (e: Exception) {
+                FirebaseCrashlytics.getInstance().recordException(e)
                 if ( e is UnresolvedAddressException ) {
                     AppLog.manager.logToFile("", "Player Error Network:" + e.message.toString())
                     _uiState.value = PlayerUiState.Error("Network Error: Check your internet connection.")
@@ -68,6 +70,7 @@ class PlayerViewModel : ViewModel() {
                     _uiState.value = PlayerUiState.HideMarquee(isUpdate)
                 }
             } catch (e: Exception) {
+                FirebaseCrashlytics.getInstance().recordException(e)
                 if ( e is UnresolvedAddressException ) {
                     AppLog.manager.logToFile("", "Player Error Network:" + e.message.toString())
                     _uiState.value = PlayerUiState.Error("Network Error: Check your internet connection.")
@@ -91,6 +94,7 @@ class PlayerViewModel : ViewModel() {
                     _uiState.value = result.screen?.images?.let { PlayerUiState.Update(it) }
                 }
             } catch (e: Exception) {
+                FirebaseCrashlytics.getInstance().recordException(e)
                 if ( e is UnresolvedAddressException ) {
                     AppLog.manager.logToFile("", "Player Error Network:" + e.message.toString())
                     _uiState.value = PlayerUiState.Error("Network Error: Check your internet connection.")
@@ -178,6 +182,7 @@ class PlayerViewModel : ViewModel() {
             marqueeSubscription = Repository.wsManager.newSubscription("player_marquee_$deviceCode", subListener)
             userSubscription = Repository.wsManager.newSubscription("user_$deviceCode", subListener)
         } catch (e: DuplicateSubscriptionException) {
+            FirebaseCrashlytics.getInstance().recordException(e)
             AppLog.manager.logToFile("", "PLayer: Duplicate: " + e.message.toString())
             e.printStackTrace()
             return

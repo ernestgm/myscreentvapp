@@ -17,6 +17,7 @@
 package com.geniusdevelop.playmyscreens.app.util
 
 import android.content.Context
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import java.io.IOException
 
 class AssetsReader (
@@ -27,6 +28,7 @@ class AssetsReader (
             val jsonString = context.assets.open(fileName).bufferedReader().use { it.readText() }
             Result.success(jsonString)
         } catch (e: IOException) {
+            FirebaseCrashlytics.getInstance().recordException(e)
             Result.failure(e)
         }
     }
