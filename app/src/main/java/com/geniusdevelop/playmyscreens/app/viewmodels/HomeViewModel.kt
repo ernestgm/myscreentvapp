@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.geniusdevelop.playmyscreens.app.api.conection.Repository
 import com.geniusdevelop.playmyscreens.app.api.response.WSMessage
-import com.geniusdevelop.playmyscreens.app.util.AppLog
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.github.centrifugal.centrifuge.DuplicateSubscriptionException
 import io.github.centrifugal.centrifuge.JoinEvent
@@ -17,7 +16,6 @@ import io.github.centrifugal.centrifuge.Subscription
 import io.github.centrifugal.centrifuge.SubscriptionErrorEvent
 import io.github.centrifugal.centrifuge.SubscriptionEventListener
 import io.github.centrifugal.centrifuge.UnsubscribedEvent
-import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -47,10 +45,8 @@ class HomeScreeViewModel() : ViewModel() {
             } catch (e: Exception) {
                 FirebaseCrashlytics.getInstance().recordException(e)
                 if ( e is UnresolvedAddressException ) {
-                    AppLog.manager.logToFile("", "Home: Network Error: Check your internet connection.")
                     _uiState.value = HomeScreenUiState.Error("Network Error: Check your internet connection.")
                 } else {
-                    AppLog.manager.logToFile("", e.message.toString())
                     _uiState.value = HomeScreenUiState.Error("Error: " + e.message.toString())
                 }
             }
@@ -74,7 +70,6 @@ class HomeScreeViewModel() : ViewModel() {
 
             override fun onError(sub: Subscription, event: SubscriptionErrorEvent) {
                 System.out.println(("subscription error " + sub.channel) + " " + event.error.toString())
-                AppLog.manager.logToFile("", ("subscription error " + sub.channel) + " " + event.error.toString())
             }
 
             override fun onPublication(sub: Subscription, event: PublicationEvent) {
@@ -117,7 +112,6 @@ class HomeScreeViewModel() : ViewModel() {
         } catch (e: DuplicateSubscriptionException) {
             FirebaseCrashlytics.getInstance().recordException(e)
             println("duplicado ${e.message}")
-            AppLog.manager.logToFile("", "Home: duplicado ${e.message}")
             e.printStackTrace()
             return
         }
@@ -152,10 +146,8 @@ class HomeScreeViewModel() : ViewModel() {
             } catch (e: Exception) {
                 FirebaseCrashlytics.getInstance().recordException(e)
                 if ( e is UnresolvedAddressException ) {
-                    AppLog.manager.logToFile("", "Home: Network error")
                     _uiState.value = HomeScreenUiState.Error("Network Error: Check your internet connection.")
                 } else {
-                    AppLog.manager.logToFile("", "Home: Error: " + e.message.toString())
                     _uiState.value = HomeScreenUiState.Error("Error: " + e.message.toString())
                 }
             }

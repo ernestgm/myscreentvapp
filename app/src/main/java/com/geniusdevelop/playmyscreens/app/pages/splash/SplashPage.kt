@@ -32,6 +32,7 @@ import com.geniusdevelop.playmyscreens.R
 import com.geniusdevelop.playmyscreens.app.api.conection.Repository
 import com.geniusdevelop.playmyscreens.app.session.SessionManager
 import com.geniusdevelop.playmyscreens.app.util.AppLifecycleObserver
+import com.geniusdevelop.playmyscreens.app.util.DeviceUtils
 import com.geniusdevelop.playmyscreens.app.viewmodels.SplashScreenUiState
 import com.geniusdevelop.playmyscreens.app.viewmodels.SplashViewModel
 import com.geniusdevelop.playmyscreens.ui.theme.common.ErrorWithButton
@@ -67,7 +68,8 @@ fun SplashScreen(
             Repository.initializeWs(context, s.config) { msg ->
                 Log.d("ERROR", msg)
             }
-            ProcessLifecycleOwner.get().lifecycle.addObserver(AppLifecycleObserver())
+            val deviceUtils = DeviceUtils(context)
+            ProcessLifecycleOwner.get().lifecycle.addObserver(AppLifecycleObserver(deviceUtils.getDeviceId()))
             splashScreeViewModel.setAppOnline()
             val startDestination = if (isLoggedIn) {
                 NavGraph.Home.routeName

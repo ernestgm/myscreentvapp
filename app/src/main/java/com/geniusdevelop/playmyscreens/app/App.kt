@@ -15,14 +15,10 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import com.geniusdevelop.playmyscreens.app.api.conection.Repository
-import com.geniusdevelop.playmyscreens.app.util.AppLifecycleObserver
-import com.geniusdevelop.playmyscreens.app.util.AppLog
-import com.geniusdevelop.playmyscreens.app.util.DeviceUtils
 import com.geniusdevelop.playmyscreens.ui.theme.BlueSeedColor
 import com.geniusdevelop.playmyscreens.ui.theme.Mode
 import com.geniusdevelop.playmyscreens.ui.theme.colorutils.Scheme.Companion.light
@@ -40,9 +36,7 @@ fun App() {
     val argbColor = seedColor.color.toArgb()
     val colorScheme = light(argbColor)
     val context = LocalContext.current
-    val deviceUtils = DeviceUtils(context)
     Repository.initializeApiConfig(context)
-    AppLog.initialize(context, deviceUtils.getDeviceId())
 
     AppProviders(
         seedColor = seedColor,

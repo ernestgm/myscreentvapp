@@ -7,7 +7,6 @@ import com.geniusdevelop.playmyscreens.app.api.conection.Repository
 import com.geniusdevelop.playmyscreens.app.api.response.Images
 import com.geniusdevelop.playmyscreens.app.api.response.Marquee
 import com.geniusdevelop.playmyscreens.app.api.response.WSMessage
-import com.geniusdevelop.playmyscreens.app.util.AppLog
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.github.centrifugal.centrifuge.DuplicateSubscriptionException
 import io.github.centrifugal.centrifuge.JoinEvent
@@ -50,10 +49,8 @@ class PlayerViewModel : ViewModel() {
             } catch (e: Exception) {
                 FirebaseCrashlytics.getInstance().recordException(e)
                 if ( e is UnresolvedAddressException ) {
-                    AppLog.manager.logToFile("", "Player Error Network:" + e.message.toString())
                     _uiState.value = PlayerUiState.Error("Network Error: Check your internet connection.")
                 } else {
-                    AppLog.manager.logToFile("", "Player Error:" + e.message.toString())
                     _uiState.value = PlayerUiState.Error("Error: " + e.message.toString())
                 }
             }
@@ -72,10 +69,8 @@ class PlayerViewModel : ViewModel() {
             } catch (e: Exception) {
                 FirebaseCrashlytics.getInstance().recordException(e)
                 if ( e is UnresolvedAddressException ) {
-                    AppLog.manager.logToFile("", "Player Error Network:" + e.message.toString())
                     _uiState.value = PlayerUiState.Error("Network Error: Check your internet connection.")
                 } else {
-                    AppLog.manager.logToFile("", "Player Error:" + e.message.toString())
                     _uiState.value = PlayerUiState.Error("Error: " + e.message.toString())
                 }
             }
@@ -96,10 +91,8 @@ class PlayerViewModel : ViewModel() {
             } catch (e: Exception) {
                 FirebaseCrashlytics.getInstance().recordException(e)
                 if ( e is UnresolvedAddressException ) {
-                    AppLog.manager.logToFile("", "Player Error Network:" + e.message.toString())
                     _uiState.value = PlayerUiState.Error("Network Error: Check your internet connection.")
                 } else {
-                    AppLog.manager.logToFile("", "Player Error:" + e.message.toString())
                     _uiState.value = PlayerUiState.Error("Error: " + e.message.toString())
                 }
             }
@@ -123,7 +116,6 @@ class PlayerViewModel : ViewModel() {
             }
 
             override fun onError(sub: Subscription, event: SubscriptionErrorEvent) {
-                AppLog.manager.logToFile("", ("player subscription error " + sub.channel) + " " + event.error.toString())
                 System.out.println(("subscription error " + sub.channel) + " " + event.error.toString())
             }
 
@@ -164,7 +156,6 @@ class PlayerViewModel : ViewModel() {
                         }
                     }
                 }
-
             }
 
             override fun onJoin(sub: Subscription, event: JoinEvent) {
@@ -183,7 +174,6 @@ class PlayerViewModel : ViewModel() {
             userSubscription = Repository.wsManager.newSubscription("user_$deviceCode", subListener)
         } catch (e: DuplicateSubscriptionException) {
             FirebaseCrashlytics.getInstance().recordException(e)
-            AppLog.manager.logToFile("", "PLayer: Duplicate: " + e.message.toString())
             e.printStackTrace()
             return
         }

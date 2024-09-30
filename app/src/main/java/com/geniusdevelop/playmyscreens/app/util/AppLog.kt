@@ -38,7 +38,6 @@ class LogManager internal constructor(
 
     fun logToFile(deviceCode: String,logMessage: String) {
         val logFile = File(context.filesDir, "app_logs_${deviceId}_${deviceCode}.log")
-
         try {
             val fileWriter = FileWriter(logFile, true)  // 'true' para modo append
             val date = Date(System.currentTimeMillis())

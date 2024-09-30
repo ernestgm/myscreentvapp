@@ -17,7 +17,9 @@
 package com.geniusdevelop.playmyscreens.app.util
 
 import android.content.Context
+import android.content.pm.PackageManager
 import android.provider.Settings
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlin.random.Random
 
 class DeviceUtils (
@@ -29,5 +31,15 @@ class DeviceUtils (
 
     fun generateSixDigitRandom(): Int {
         return Random.nextInt(100000, 1000000)
+    }
+
+    fun isAppInstalled(packageManager: PackageManager, packageName: String): Boolean {
+        return try {
+            packageManager.getPackageInfo(packageName, 0)
+            true
+        } catch (e: PackageManager.NameNotFoundException) {
+            FirebaseCrashlytics.getInstance().recordException(e)
+            false
+        }
     }
 }

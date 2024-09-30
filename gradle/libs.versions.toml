@@ -3,6 +3,7 @@ agp = "8.5.1"
 commonsNet = "3.8.0"
 gms = "4.4.2"
 crashlytics = "3.0.2"
+jjwt = "0.7.0"
 perf = "1.4.2"
 centrifugeJava = "0.4.1"
 firebaseBom = "33.3.0"
@@ -22,8 +23,6 @@ coil-compose = "2.5.0"
 material3Android = "1.2.1"
 ktor = "2.3.12"
 datastore = "1.0.0"
-centrifuge = "0.25.0"
-jwt = "3.18.2"
 
 
 [libraries]
@@ -44,6 +43,7 @@ firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 firebase-perf = { module = "com.google.firebase:firebase-perf" }
+jjwt = { module = "io.jsonwebtoken:jjwt", version.ref = "jjwt" }
 navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation-compose" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil-compose" }
 androidx-material3-android = { group = "androidx.compose.material3", name = "material3-android", version.ref = "material3Android" }
@@ -59,7 +59,6 @@ ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negoti
 ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktor" }
 ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
 ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
-kotlin-jwt = { module = "com.auth0:java-jwt", version.ref = "jwt" }
 
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleRuntimeKtx" }
 androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }

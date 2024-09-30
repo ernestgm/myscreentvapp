@@ -49,10 +49,6 @@ fun HomePage(
 
     val uiState by homeScreeViewModel.uiState.collectAsStateWithLifecycle()
 
-//    LaunchedEffect(key1 = true) {
-//
-//    }
-
     DisposableEffect(Unit) {
         // Effect is triggered when HomeScreen is displayed
         coroutineScope.launch {
@@ -82,7 +78,6 @@ fun HomePage(
             Loading(text = "Creating device code", modifier = Modifier.fillMaxSize())
         }
         is HomeScreenUiState.Error -> {
-            homeScreeViewModel.initSubscribeDevice(code.toString())
             ErrorWithButton(text = "${s.msg} ID: (${DeviceUtils(context).getDeviceId()})", modifier = Modifier.fillMaxSize()) {
                 coroutineScope.launch {
                     homeScreeViewModel.setDeviceCode(userId.toString())

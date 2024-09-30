@@ -1,14 +1,11 @@
 package com.geniusdevelop.playmyscreens.app.viewmodels
 
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.geniusdevelop.playmyscreens.BuildConfig
 import com.geniusdevelop.playmyscreens.app.api.conection.Repository
 import com.geniusdevelop.playmyscreens.app.api.response.ConfigFields
-import com.geniusdevelop.playmyscreens.app.api.response.WSMessage
-import com.geniusdevelop.playmyscreens.app.util.AppLog
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.github.centrifugal.centrifuge.DuplicateSubscriptionException
 import io.github.centrifugal.centrifuge.JoinEvent
@@ -21,11 +18,9 @@ import io.github.centrifugal.centrifuge.SubscriptionErrorEvent
 import io.github.centrifugal.centrifuge.SubscriptionEventListener
 import io.github.centrifugal.centrifuge.UnsubscribedEvent
 import io.ktor.util.network.UnresolvedAddressException
-import io.ktor.utils.io.errors.IOException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
 import java.nio.charset.StandardCharsets.UTF_8
 
 
@@ -71,7 +66,6 @@ class SplashViewModel() : ViewModel() {
             onlineStatusSubscription = Repository.wsManager.newSubscription("status:appOnline", subListener)
         } catch (e: DuplicateSubscriptionException) {
             FirebaseCrashlytics.getInstance().recordException(e)
-            AppLog.manager.logToFile("", "Splash - Duplicate: " + e.message.toString())
             println("duplicado ${e.message}")
             e.printStackTrace()
             return
@@ -98,10 +92,8 @@ class SplashViewModel() : ViewModel() {
             } catch (e: Exception) {
                 FirebaseCrashlytics.getInstance().recordException(e)
                 if ( e is UnresolvedAddressException ) {
-                    AppLog.manager.logToFile("", "Splash Network Error: Check your internet connection.")
                     _uiState.value = SplashScreenUiState.Error("Network Error: Check your internet connection.")
                 } else {
-                    AppLog.manager.logToFile("", " Splash Error: " + e.message.toString())
                     _uiState.value = SplashScreenUiState.Error("Error: " + e.message.toString())
                 }
             }

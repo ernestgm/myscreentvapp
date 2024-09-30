@@ -1,5 +1,3 @@
-import java.util.Date
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -18,7 +16,7 @@ android {
         minSdk = 21
         targetSdk = 34
         versionCode = 1
-        versionName = "1.07"
+        versionName = "1.10"
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -157,7 +155,6 @@ dependencies {
     implementation(libs.kotlin.serialization)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.datastore.preferences)
-    implementation(libs.kotlin.jwt)
 
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
@@ -165,6 +162,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     implementation(libs.centrifuge.java)
+    implementation(libs.jjwt)
     implementation (libs.androidx.lifecycle.extensions)
 
     implementation(platform(libs.firebase.bom))

@@ -1,7 +1,5 @@
 package com.geniusdevelop.playmyscreens.app.api.conection
 
-import com.auth0.jwt.JWT
-import com.auth0.jwt.algorithms.Algorithm
 import io.github.centrifugal.centrifuge.Client
 import io.github.centrifugal.centrifuge.ConnectedEvent
 import io.github.centrifugal.centrifuge.ConnectingEvent
@@ -19,6 +17,8 @@ import io.github.centrifugal.centrifuge.ServerSubscribedEvent
 import io.github.centrifugal.centrifuge.ServerSubscribingEvent
 import io.github.centrifugal.centrifuge.ServerUnsubscribedEvent
 import io.github.centrifugal.centrifuge.TokenCallback
+import io.jsonwebtoken.Jwts
+import io.jsonwebtoken.SignatureAlgorithm
 import java.nio.charset.StandardCharsets.UTF_8
 
 class WSClient private constructor(
@@ -41,10 +41,10 @@ class WSClient private constructor(
         private val opts = Options()
 
         private fun generateToken(userId: String, secret: String): String {
-            val algorithm = Algorithm.HMAC256(secret)
-            return JWT.create()
-                .withClaim("sub", userId)
-                .sign(algorithm)
+            return Jwts.builder()
+                .claim("sub",userId)
+                .signWith(SignatureAlgorithm.HS256, secret.toByteArray())
+                .compact()
         }
 
         fun addBaseUrl(baseUrl: String): Builder {
