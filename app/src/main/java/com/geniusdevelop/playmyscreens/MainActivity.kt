@@ -18,6 +18,7 @@ import com.geniusdevelop.playmyscreens.app.App
 import com.geniusdevelop.playmyscreens.app.util.DeviceUtils
 import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.crashlytics.crashlytics
 import com.google.firebase.perf.FirebasePerformance
 import com.google.firebase.perf.performance
 import com.google.firebase.perf.trace
@@ -39,6 +40,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this)
         deviceUtils = DeviceUtils(baseContext)
+        Firebase.crashlytics.setUserId(deviceUtils.getDeviceId())
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 finish()
