@@ -54,7 +54,6 @@ class HomeScreeViewModel() : ViewModel() {
     }
 
     fun initSubscribeDevice(deviceCode: String) {
-        System.out.println("init subscribed to")
         val subListener: SubscriptionEventListener = object : SubscriptionEventListener() {
             override fun onSubscribed(sub: Subscription, event: SubscribedEvent) {
                 System.out.println(("subscribed to " + sub.channel) + ", recovered " + event.recovered)
@@ -107,15 +106,17 @@ class HomeScreeViewModel() : ViewModel() {
 
 
         try {
-            screenSubscription = Repository.wsManager.newSubscription("home_screen_$deviceCode", subListener)
-            userSubscription = Repository.wsManager.newSubscription("user_$deviceCode", subListener)
+            if (!::screenSubscription.isInitialized && !::userSubscription.isInitialized) {
+                println("init subscribe Home")
+                screenSubscription = Repository.wsManager.newSubscription("home_screen_$deviceCode", subListener)
+                userSubscription = Repository.wsManager.newSubscription("user_$deviceCode", subListener)
+            }
         } catch (e: DuplicateSubscriptionException) {
             FirebaseCrashlytics.getInstance().recordException(e)
             println("duplicado ${e.message}")
             e.printStackTrace()
             return
         }
-
 
         viewModelScope.launch {
             screenSubscription.subscribe()

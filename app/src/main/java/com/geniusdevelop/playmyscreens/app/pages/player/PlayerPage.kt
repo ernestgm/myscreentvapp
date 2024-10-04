@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -48,7 +47,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun PlayerPage(
-    goToHomePage: () -> Unit,
+    refreshPlayer: () -> Unit,
     goToLogout: () -> Unit,
     playerPageViewModel: PlayerViewModel = viewModel(),
 ) {
@@ -180,8 +179,8 @@ fun PlayerPage(
             }
         }
 
-        is PlayerUiState.GotoHome -> {
-            goToHomePage()
+        is PlayerUiState.RefreshPlayer -> {
+            refreshPlayer()
         }
 
         is PlayerUiState.GotoLogout -> {

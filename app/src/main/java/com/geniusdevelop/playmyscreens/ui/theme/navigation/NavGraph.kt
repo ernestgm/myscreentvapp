@@ -52,7 +52,7 @@ enum class NavGraph(
             Column {
                 appBar()
                 HomePage(
-                    goToPlayerPage = { navController.navigate(NavGraph.Player.routeName) },
+                    goToPlayerPage = { navController.navigate(Player.routeName) },
                     goToLogoutPage = { navController.navigate(Logout.routeName) }
                 )
             }
@@ -79,8 +79,8 @@ enum class NavGraph(
             val navController = LocalNavController.current
             Column {
                 PlayerPage(
-                    goToHomePage = { navController.navigate(Home.routeName) },
-                    goToLogout = { navController.navigate(NavGraph.Logout.routeName) }
+                    refreshPlayer = { navController.navigate(Player.routeName) },
+                    goToLogout = { navController.navigate(Logout.routeName) }
                 )
             }
         }
@@ -90,7 +90,7 @@ enum class NavGraph(
         composable = {
             val navController = LocalNavController.current
             Column {
-                LogoutPage(goToLogin = { navController.navigate(NavGraph.Login.routeName) })
+                LogoutPage(goToLogin = { navController.navigate(Login.routeName) })
             }
         }
     ),

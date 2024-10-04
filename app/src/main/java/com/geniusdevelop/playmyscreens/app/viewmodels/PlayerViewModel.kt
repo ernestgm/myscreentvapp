@@ -100,8 +100,6 @@ class PlayerViewModel : ViewModel() {
     }
 
     fun initSubscriptions(deviceCode: String) {
-        System.out.println("init subscribed to")
-
         val subListener: SubscriptionEventListener = object : SubscriptionEventListener() {
             override fun onSubscribed(sub: Subscription, event: SubscribedEvent) {
                 System.out.println(("subscribed to " + sub.channel) + ", recovered " + event.recovered)
@@ -126,7 +124,7 @@ class PlayerViewModel : ViewModel() {
                     "player_screen_$deviceCode" -> {
                         when (data.message) {
                             "check_screen_update" -> {
-                                _uiState.value = PlayerUiState.GotoHome
+                                _uiState.value = PlayerUiState.RefreshPlayer
                             }
                         }
                     }
@@ -168,10 +166,18 @@ class PlayerViewModel : ViewModel() {
         }
 
         try {
-            imagesSubscription = Repository.wsManager.newSubscription("player_images_$deviceCode", subListener)
-            screenSubscription = Repository.wsManager.newSubscription("player_screen_$deviceCode", subListener)
-            marqueeSubscription = Repository.wsManager.newSubscription("player_marquee_$deviceCode", subListener)
-            userSubscription = Repository.wsManager.newSubscription("user_$deviceCode", subListener)
+            if (
+                !::imagesSubscription.isInitialized &&
+                !::marqueeSubscription.isInitialized &&
+                !::screenSubscription.isInitialized &&
+                !::userSubscription.isInitialized
+            ) {
+                println("init subscribe Player")
+                imagesSubscription = Repository.wsManager.newSubscription("player_images_$deviceCode", subListener)
+                screenSubscription = Repository.wsManager.newSubscription("player_screen_$deviceCode", subListener)
+                marqueeSubscription = Repository.wsManager.newSubscription("player_marquee_$deviceCode", subListener)
+                userSubscription = Repository.wsManager.newSubscription("user_$deviceCode", subListener)
+            }
         } catch (e: DuplicateSubscriptionException) {
             FirebaseCrashlytics.getInstance().recordException(e)
             e.printStackTrace()
@@ -203,7 +209,7 @@ class PlayerViewModel : ViewModel() {
 
 sealed interface PlayerUiState {
     data object Loading : PlayerUiState
-    data object GotoHome : PlayerUiState
+    data object RefreshPlayer : PlayerUiState
     data object GotoLogout : PlayerUiState
     data class Error(val msg: String = "") : PlayerUiState
     data class Ready(

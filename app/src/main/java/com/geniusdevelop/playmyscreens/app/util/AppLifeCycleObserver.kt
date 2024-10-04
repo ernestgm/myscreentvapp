@@ -16,7 +16,7 @@ class AppLifecycleObserver(private val deviceId: String) : LifecycleObserver {
     fun onEnterForeground() {
         Repository.wsManager.connect()
         println("App Running")
-        Firebase.performance.newTrace("app_lifecycle_start").trace {
+        Firebase.performance.newTrace("app_start_$deviceId").trace {
             // Update scenario.
             putAttribute("deviceId", deviceId)
         }
@@ -26,7 +26,7 @@ class AppLifecycleObserver(private val deviceId: String) : LifecycleObserver {
     fun onEnterBackground() {
         Repository.wsManager.disconnect()
         println("App Stop")
-        Firebase.performance.newTrace("app_lifecycle_stop").trace {
+        Firebase.performance.newTrace("app_stop_$deviceId").trace {
             // Update scenario.
             putAttribute("deviceId", deviceId)
         }
@@ -36,7 +36,7 @@ class AppLifecycleObserver(private val deviceId: String) : LifecycleObserver {
     fun onDestroy() {
         Repository.wsManager.disconnect()
         println("App Destroy")
-        Firebase.performance.newTrace("app_lifecycle_destroy").trace {
+        Firebase.performance.newTrace("app_destroy_$deviceId").trace {
             // Update scenario.
             putAttribute("deviceId", deviceId)
         }
