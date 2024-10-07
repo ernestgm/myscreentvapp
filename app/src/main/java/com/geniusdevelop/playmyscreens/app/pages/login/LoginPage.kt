@@ -23,22 +23,31 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.*
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Icon
+import androidx.tv.material3.MaterialTheme
+import com.geniusdevelop.playmyscreens.BuildConfig
 import com.geniusdevelop.playmyscreens.R
 import com.geniusdevelop.playmyscreens.app.api.conection.Repository
 import com.geniusdevelop.playmyscreens.app.session.SessionManager
+import com.geniusdevelop.playmyscreens.app.util.BitmapUtil
+import com.geniusdevelop.playmyscreens.app.util.DeviceUtils
 import com.geniusdevelop.playmyscreens.app.viewmodels.LoginUiState
 import com.geniusdevelop.playmyscreens.app.viewmodels.LoginViewModel
 import kotlinx.coroutines.launch
@@ -52,12 +61,15 @@ fun LoginPage(
     val context = LocalContext.current
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var code by remember { mutableStateOf("") }
     var showLoading by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     val sessionManager = remember { SessionManager(context) }
     val coroutineScope = rememberCoroutineScope()
+    val configFields = Repository.configurations.getConfigFields()
 
     val uiState by loginPageViewModel.uiState.collectAsStateWithLifecycle()
+    val deviceUtils = DeviceUtils(context)
 
     when (val s = uiState) {
         is LoginUiState.Error -> {
@@ -77,10 +89,28 @@ fun LoginPage(
                 goToHomePage()
             }
         }
+        is LoginUiState.LoginByCode -> {
+            loginPageViewModel.loginByCode(code, deviceUtils.getDeviceId())
+        }
+        is LoginUiState.CodeReady -> {
+            code = s.code.toString()
+        }
         is LoginUiState.Loading -> {
             showLoading = true
         }
         else -> {}
+    }
+
+    DisposableEffect(Unit) {
+        // Effect is triggered when HomeScreen is displayed
+        coroutineScope.launch {
+            loginPageViewModel.initSubscribe(deviceUtils.getDeviceId())
+            loginPageViewModel.generateLoginCode(deviceUtils.getDeviceId())
+        }
+
+        onDispose {
+            loginPageViewModel.removeAllSubscriptions()
+        }
     }
 
     Box(
@@ -89,29 +119,58 @@ fun LoginPage(
         contentAlignment = Alignment.Center
     ) {
         Row(
-            modifier = Modifier
-                .padding(30.dp, 0.dp),
-
+            horizontalArrangement = Arrangement.Center
             ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth(0.5f)
                     .padding(30.dp, 0.dp),
-                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Welcome Back")
+                Text(
+                    text = "Scan the QR or write the url in your browser for login.",
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 1f)
+                )
+                Spacer(
+                    modifier = Modifier
+                        .padding(5.dp)
+                )
+                if (configFields != null) {
+                    Text(
+                        text = configFields.activate_url,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 1f)
+                    )
+                }
+                Spacer(
+                    modifier = Modifier
+                        .padding(5.dp)
+                )
+                if (configFields != null) {
+                    Image(
+                        bitmap = BitmapUtil.generateQRCode(configFields.activate_url).asImageBitmap(),
+                        contentDescription = "",
+                        modifier = Modifier.width(250.dp).height(250.dp),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+
                 Spacer(
                     modifier = Modifier
                         .padding(10.dp)
                 )
-                Image(
-                    painter = painterResource(id = R.drawable.illustration_login),
-                    contentDescription = "",
+                Text(
+                    text = code,
+                    fontSize = 36.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 1f)
                 )
             }
             Column(
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth(1f).padding(60.dp, 0.dp),
                 verticalArrangement = Arrangement.Center,
             ) {
                 Row(
@@ -127,7 +186,7 @@ fun LoginPage(
                         modifier = Modifier
                             .padding(12.dp),
                     ) {
-                        Text("Sign in to EScreen")
+                        Text("Sign in to PlayAds")
                     }
                 }
                 OutlinedTextField(

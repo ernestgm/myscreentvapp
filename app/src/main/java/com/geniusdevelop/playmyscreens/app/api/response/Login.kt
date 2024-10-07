@@ -11,6 +11,11 @@ data class LoginResponse (
 )
 
 @Serializable
+data class GenerateLoginCodeResponse (
+    val code : String? = null,
+)
+
+@Serializable
 data class LogoutResponse (
     val success : String? = null,
     val message : String? = null

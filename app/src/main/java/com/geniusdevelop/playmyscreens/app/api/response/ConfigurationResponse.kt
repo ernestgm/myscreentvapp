@@ -13,5 +13,6 @@ data class ConfigResponse (
 data class ConfigFields (
     var screen_server_api_endpoint: String = "",
     var centrifugue_base_url: String = "",
-    var centrifuge_pass_secret: String = ""
+    var centrifuge_pass_secret: String = "",
+    var activate_url: String = ""
 )

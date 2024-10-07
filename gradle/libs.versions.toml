@@ -1,6 +1,7 @@
 [versions]
 agp = "8.5.1"
 commonsNet = "3.8.0"
+zxing-core = "3.5.1"
 gms = "4.4.2"
 crashlytics = "3.0.2"
 jjwt = "0.7.0"
@@ -39,6 +40,7 @@ androidx-tv-material = { group = "androidx.tv", name = "tv-material", version.re
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 centrifuge-java = { module = "io.github.centrifugal:centrifuge-java", version.ref = "centrifugeJava" }
 commons-net = { module = "commons-net:commons-net", version.ref = "commonsNet" }
+zxing-core = { module = "com.google.zxing:core", version.ref = "zxing-core" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }

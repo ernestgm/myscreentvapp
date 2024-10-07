@@ -17,13 +17,13 @@ fun Marquee(
     val context = LocalContext.current
 
     val htmlContent = """
+        <!DOCTYPE html>
+        <html>
         <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         html,body {
             margin:0;
             padding: 0;
-            overflow: hidden;
         }
         
         body {
@@ -34,18 +34,16 @@ fun Marquee(
             display: block;
             height: 100%;
             width: 100%;
-            padding: 10px;
             color: ${textColor};
             background-color: ${bgColor};
-            font-size: 38px;
+            font-size: 50px;
             font-height: bold;
             text-transform: uppercase;
         }
     </style>
 </head>
-        <html>
             <body>
-                <marquee id="marquee">${text}</marquee>
+                <marquee id="marquee" scrollamount="10" scrolldelay="50">${text}</marquee>
             </body>
         </html>
     """

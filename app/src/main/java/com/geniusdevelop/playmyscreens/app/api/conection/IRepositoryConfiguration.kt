@@ -4,4 +4,5 @@ import com.geniusdevelop.playmyscreens.app.api.response.ConfigFields
 
 interface IRepositoryConfiguration {
     suspend fun getConfiguration(env: String): ConfigFields?
+    fun getConfigFields(): ConfigFields?
 }

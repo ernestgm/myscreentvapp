@@ -16,7 +16,7 @@ android {
         minSdk = 21
         targetSdk = 34
         versionCode = 1
-        versionName = "1.10"
+        versionName = "1.11"
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -50,6 +50,7 @@ android {
             buildConfigField("String", "BASE_URL", "\"\"")
             buildConfigField("String", "WS_BASE_URL", "\"\"")
             buildConfigField("String", "WS_SECRET", "\"\"")
+            buildConfigField("String", "ACTIVATE_URL", "\"\"")
             dimension = "api"
         }
         create("prodip") {
@@ -57,6 +58,7 @@ android {
             buildConfigField("String", "BASE_URL", "\"http://47.204.0.63:92/api/v1\"")
             buildConfigField("String", "WS_BASE_URL", "\"ws://47.204.0.63:8000/connection/websocket\"")
             buildConfigField("String", "WS_SECRET", "\"940e1175-d3ec-45ee-adb2-3508272074f3\"")
+            buildConfigField("String", "ACTIVATE_URL", "\"http://47.204.0.63:91/dashboard/activate\"")
             dimension = "api"
         }
         create("desa") {
@@ -64,12 +66,16 @@ android {
             buildConfigField("String", "BASE_URL", "\"\"")
             buildConfigField("String", "WS_BASE_URL", "\"\"")
             buildConfigField("String", "WS_SECRET", "\"\"")
+            buildConfigField("String", "ACTIVATE_URL", "\"\"")
             dimension="api"
         }
         create("desaip") {
             buildConfigField("String", "ENV", "\"\"")
             buildConfigField("String", "BASE_URL",
                 "\"http://47.204.0.63:82/api/v1\""
+            )
+            buildConfigField("String", "ACTIVATE_URL",
+                "\"http://47.204.0.63:81/dashboard/activate\""
             )
             buildConfigField("String", "WS_BASE_URL",
                 "\"ws://47.204.0.63:8001/connection/websocket\""
@@ -83,6 +89,9 @@ android {
             buildConfigField("String", "ENV", "\"\"")
             buildConfigField("String", "BASE_URL",
                 "\"http://10.0.2.2/screen-server/public/api/v1\""
+            )
+            buildConfigField("String", "ACTIVATE_URL",
+                "\"http://localhost:3000/dashboard/activate\""
             )
             buildConfigField("String", "WS_BASE_URL",
                 "\"ws://10.0.2.2:8000/connection/websocket\""
@@ -170,4 +179,6 @@ dependencies {
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.perf)
     implementation (libs.commons.net)
+
+    implementation (libs.zxing.core)
 }

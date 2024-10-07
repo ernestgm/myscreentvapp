@@ -3,7 +3,10 @@ package com.geniusdevelop.playmyscreens.app.pages.player
 
 import android.app.Activity
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.MarqueeSpacing
 import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
@@ -25,7 +29,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -44,7 +51,7 @@ import com.google.jetstream.presentation.common.Loading
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalTvMaterial3Api::class)
+@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun PlayerPage(
     refreshPlayer: () -> Unit,
@@ -80,6 +87,7 @@ fun PlayerPage(
     DisposableEffect(Unit) {
         // Effect is triggered when HomeScreen is displayed
         coroutineScope.launch {
+            playerPageViewModel.getContents(code.toString())
             playerPageViewModel.getMarquee(code.toString())
         }
 
@@ -165,18 +173,11 @@ fun PlayerPage(
                 maxHeightImagesBox = 1f
                 maxHeightMarqueeBox = 0f
             }
-
-            if (!s.isUpdate) {
-                playerPageViewModel.getContents(code.toString())
-            }
         }
 
         is PlayerUiState.HideMarquee -> {
             maxHeightImagesBox = 1f
             maxHeightMarqueeBox = 0f
-            if (!s.isUpdate) {
-                playerPageViewModel.getContents(code.toString())
-            }
         }
 
         is PlayerUiState.RefreshPlayer -> {
@@ -252,14 +253,22 @@ fun PlayerPage(
                         end.linkTo(parent.end)
                         bottom.linkTo(parent.bottom)
                     }
+                    .background(Color(android.graphics.Color.parseColor(marqueeBgColor)))
                     .fillMaxWidth(1f)
                     .fillMaxHeight(maxHeightMarqueeBox)
-                    .zIndex(1f)
+                    .zIndex(1f),
             ) {
-                Marquee(
-                    text = marqueeMessage,
-                    textColor = marqueeTextColor,
-                    bgColor = marqueeBgColor,
+                Text(
+                    modifier = Modifier.basicMarquee(
+                        delayMillis = 500,
+                        iterations = Int.MAX_VALUE,
+                        spacing = MarqueeSpacing.fractionOfContainer(1f / 6f),
+                        velocity = 60.dp
+                    ),
+                    text = marqueeMessage.uppercase(),
+                    color = Color(android.graphics.Color.parseColor(marqueeTextColor)),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 55.sp,
                 )
             }
         }

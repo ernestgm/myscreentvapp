@@ -1,10 +1,13 @@
 package com.geniusdevelop.playmyscreens.app.api.conection
 
 import android.content.Context
+import com.geniusdevelop.playmyscreens.app.api.request.GenerateCodeRequest
+import com.geniusdevelop.playmyscreens.app.api.request.LoginByCodeRequest
 import com.geniusdevelop.playmyscreens.app.api.request.LoginRequest
 import com.geniusdevelop.playmyscreens.app.api.request.SetIdRequest
 import com.geniusdevelop.playmyscreens.app.api.response.CheckMarqueeUpdateResponse
 import com.geniusdevelop.playmyscreens.app.api.response.CheckScreenUpdateResponse
+import com.geniusdevelop.playmyscreens.app.api.response.GenerateLoginCodeResponse
 import com.geniusdevelop.playmyscreens.app.api.response.GetCodeResponse
 import com.geniusdevelop.playmyscreens.app.api.response.GetImagesResponse
 import com.geniusdevelop.playmyscreens.app.api.response.LoginResponse
@@ -19,6 +22,13 @@ class ApiManager internal constructor(
     private val context: Context,
     var client: Client
 ) : IRepositoryUser, IRepositoryContent {
+    override suspend fun generateLoginCode(deviceId: String): GenerateLoginCodeResponse {
+        return client.post("/generate-login-code", GenerateCodeRequest(deviceId))
+    }
+
+    override suspend fun loginByCode(code: String, deviceId: String): LoginResponse {
+        return client.post("/login-with-code", LoginByCodeRequest(code, deviceId))
+    }
 
     override suspend fun authenticate(email: String, password: String): LoginResponse {
         return client.post("/login", LoginRequest(email, password))
@@ -45,6 +55,8 @@ class ApiManager internal constructor(
                     setDeviceID(userId)
                 } else if(!response.data?.device_id.isNullOrEmpty()) {
                     return SetDeviceIDResponse(error = true, message = response.data?.device_id?.first().toString())
+                } else if(response.success.toString() == "limit_device") {
+                    return SetDeviceIDResponse(error = true, message = "You have exceeded the device limit")
                 } else {
                     return SetDeviceIDResponse(error = true, message = "Error creating the device code")
                 }

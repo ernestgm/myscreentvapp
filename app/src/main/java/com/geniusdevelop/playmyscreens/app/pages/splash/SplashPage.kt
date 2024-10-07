@@ -108,7 +108,7 @@ fun SplashScreen(
                 painter = painterResource(id = R.drawable.ic_logo),
                 contentDescription = "")
             Text(
-                text = "Welcome to PlayMyScreens",
+                text = "Welcome to PlayAds",
                 fontSize = 32.sp,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
             )
