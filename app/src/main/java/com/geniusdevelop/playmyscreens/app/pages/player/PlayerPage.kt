@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
@@ -294,7 +295,7 @@ private fun PlayerLayout(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(55.dp) // Fixed height for the bottom box
+                        .height(60.dp) // Fixed height for the bottom box
                         .background(Color(android.graphics.Color.parseColor(marqueeBgColor)))
                 ) {
                     Text(
@@ -303,7 +304,7 @@ private fun PlayerLayout(
                             iterations = Int.MAX_VALUE,
                             spacing = MarqueeSpacing.fractionOfContainer(1f / 6f),
                             velocity = 60.dp
-                        ),
+                        ).padding(5.dp),
                         text = marqueeMessage.uppercase(),
                         color = Color(android.graphics.Color.parseColor(marqueeTextColor)),
                         fontWeight = FontWeight.Bold,
