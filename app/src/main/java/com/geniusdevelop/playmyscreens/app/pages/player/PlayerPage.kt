@@ -15,7 +15,9 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
@@ -28,20 +30,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Text
 import com.geniusdevelop.playmyscreens.BuildConfig
 import com.geniusdevelop.playmyscreens.app.api.response.Images
-import com.geniusdevelop.playmyscreens.app.components.Marquee
 import com.geniusdevelop.playmyscreens.app.session.SessionManager
 import com.geniusdevelop.playmyscreens.app.viewmodels.PlayerUiState
 import com.geniusdevelop.playmyscreens.app.viewmodels.PlayerViewModel
@@ -71,12 +75,13 @@ fun PlayerPage(
     val uiState by playerPageViewModel.uiState.collectAsStateWithLifecycle()
     val activity = LocalContext.current as? Activity
 
-    var maxHeightImagesBox by remember { mutableStateOf(1f) }
-    var maxHeightMarqueeBox by remember { mutableStateOf(0f) }
+    var showMarquees by remember { mutableStateOf(false) }
 
     var marqueeMessage by remember { mutableStateOf("") }
     var marqueeBgColor by remember { mutableStateOf("#000000") }
     var marqueeTextColor by remember { mutableStateOf("#FFFFFF") }
+
+    var isPortrait by remember { mutableStateOf(true) }
 
     BackHandler {
         coroutineScope.launch {
@@ -117,6 +122,7 @@ fun PlayerPage(
 
     when (val s = uiState) {
         is PlayerUiState.Ready -> {
+            isPortrait = s.isPortrait
             images = s.images
             initialSizeImages = images.size
             playerPageViewModel.initSubscriptions(code.toString())
@@ -151,8 +157,6 @@ fun PlayerPage(
         }
 
         is PlayerUiState.ShowMarquee -> {
-            maxHeightImagesBox = 0.90f
-            maxHeightMarqueeBox = 0.10f
 
             marqueeMessage = ""
             marqueeBgColor = s.marquee.bg_color.toString()
@@ -161,6 +165,7 @@ fun PlayerPage(
             val ads = s.marquee.ads?.filter { ad -> ad.isEnable() }
 
             if (!ads.isNullOrEmpty()) {
+                showMarquees = true
                 ads.forEachIndexed{ idx, ad ->
                     if (ad.isEnable()) {
                         marqueeMessage = "$marqueeMessage ${ad.message}"
@@ -170,14 +175,12 @@ fun PlayerPage(
                     }
                 }
             } else {
-                maxHeightImagesBox = 1f
-                maxHeightMarqueeBox = 0f
+                showMarquees = false
             }
         }
 
         is PlayerUiState.HideMarquee -> {
-            maxHeightImagesBox = 1f
-            maxHeightMarqueeBox = 0f
+            showMarquees = false
         }
 
         is PlayerUiState.RefreshPlayer -> {
@@ -190,6 +193,8 @@ fun PlayerPage(
 
         else -> {}
     }
+
+
 
     if (images.isNotEmpty()) {
         if (showButtonPause) {
@@ -220,61 +225,92 @@ fun PlayerPage(
             }
         }
 
-        ConstraintLayout(
-            modifier = Modifier.fillMaxSize()
+        PlayerLayout(
+            images = images,
+            updateCurrentIndex = updateCurrentIndex,
+            updating = updatingImagesData,
+            marqueeBgColor = marqueeBgColor,
+            marqueeTextColor = marqueeTextColor,
+            marqueeMessage = marqueeMessage,
+            isPortrait = isPortrait,
+            showMarquees = showMarquees
         ) {
-            // Create references for the composables to constrain
-            val (topBox, bottomBox) = createRefs()
-            Box(
-                modifier = Modifier
-                    .constrainAs(topBox) {
-                        top.linkTo(parent.top)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                        bottom.linkTo(bottomBox.top)
-                    }
-                    .fillMaxHeight(maxHeightImagesBox)
-                    .fillMaxWidth()
-                    .zIndex(2f)
-            ) {
-                PlayerCarousel(
-                    images = images,
-                    updateCurrentIndex = updateCurrentIndex,
-                    updating = updatingImagesData
-                ) {
-                    showButtonPause = true
-                }
-            }
-            Box(
-                modifier = Modifier
-                    .constrainAs(bottomBox) {
-                        top.linkTo(topBox.bottom)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                        bottom.linkTo(parent.bottom)
-                    }
-                    .background(Color(android.graphics.Color.parseColor(marqueeBgColor)))
-                    .fillMaxWidth(1f)
-                    .fillMaxHeight(maxHeightMarqueeBox)
-                    .zIndex(1f),
-            ) {
-                Text(
-                    modifier = Modifier.basicMarquee(
-                        delayMillis = 500,
-                        iterations = Int.MAX_VALUE,
-                        spacing = MarqueeSpacing.fractionOfContainer(1f / 6f),
-                        velocity = 60.dp
-                    ),
-                    text = marqueeMessage.uppercase(),
-                    color = Color(android.graphics.Color.parseColor(marqueeTextColor)),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 50.sp,
-                )
-            }
+            showButtonPause = true
         }
     } else {
         Loading(text = "Waiting images for this screen", modifier = Modifier.fillMaxSize())
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalFoundationApi::class)
+@Composable
+private fun PlayerLayout(
+    images: Array<Images>,
+    updateCurrentIndex: Boolean = false,
+    updating: Boolean = false,
+    showMarquees: Boolean = false,
+    marqueeBgColor: String = "#000",
+    marqueeTextColor: String = "#FFF",
+    marqueeMessage: String = "",
+    isPortrait: Boolean = false,
+    onClick: () -> Unit
+){
+    val configuration = LocalConfiguration.current
+    val screenWidthPx = configuration.screenWidthDp.dp
 
+    val modifier = if (isPortrait) {
+        Modifier.requiredHeight(screenWidthPx).graphicsLayer { rotationZ = 90F }
+    } else {
+        Modifier.fillMaxSize()
+    }
+
+    Box(
+        modifier = modifier
+            //.graphicsLayer { rotationZ = 90F } // Rotating the entire layout
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                //.requiredHeight(screenWidthPx)
+        ) {
+            // Top Box takes up the remaining space (using weight)
+            Box(
+                modifier = Modifier
+                    .weight(1f) // Take up all the remaining space
+                    .fillMaxWidth()
+            ) {
+                Player(
+                    images = images,
+                    updateCurrentIndex = updateCurrentIndex,
+                    updating = updating,
+                    portrait = isPortrait
+                ) {
+                    onClick()
+                }
+            }
+
+            if (showMarquees) {
+                // Bottom Box with a fixed height
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(55.dp) // Fixed height for the bottom box
+                        .background(Color(android.graphics.Color.parseColor(marqueeBgColor)))
+                ) {
+                    Text(
+                        modifier = Modifier.basicMarquee(
+                            delayMillis = 500,
+                            iterations = Int.MAX_VALUE,
+                            spacing = MarqueeSpacing.fractionOfContainer(1f / 6f),
+                            velocity = 60.dp
+                        ),
+                        text = marqueeMessage.uppercase(),
+                        color = Color(android.graphics.Color.parseColor(marqueeTextColor)),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 50.sp,
+                    )
+                }
+            }
+        }
+    }
+}

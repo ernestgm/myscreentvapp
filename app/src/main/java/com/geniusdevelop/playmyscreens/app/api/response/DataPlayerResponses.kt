@@ -67,10 +67,15 @@ data class Screen (
     val id: Int? = null,
     val name: String? = null,
     val enabled: Int? = null,
+    val portrait: Int? = null,
     val images: Array<Images>? = null
 ) {
     fun isEnable(): Boolean {
         return enabled == 1
+    }
+
+    fun isPortrait(): Boolean {
+        return portrait == 1
     }
 }
 

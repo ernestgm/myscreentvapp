@@ -23,6 +23,15 @@ object BitmapUtil {
         return kotlin.math.abs(aspectRatio - targetRatio) < tolerance
     }
 
+    fun isAspectRatio9x16(width: Int, height: Int): Boolean {
+        val aspectRatio = width.toDouble() / height.toDouble()
+        val targetRatio = 9.0 / 16.0
+
+        // Compara la relación de aspecto con 16:9 con un margen de tolerancia
+        val tolerance = 0.01
+        return kotlin.math.abs(aspectRatio - targetRatio) < tolerance
+    }
+
     fun generateQRCode(text: String): Bitmap {
         val width = 500 // Width of the QR code
         val height = 500 // Height of the QR code
