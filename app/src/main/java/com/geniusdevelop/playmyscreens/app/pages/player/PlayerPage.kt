@@ -268,7 +268,7 @@ fun PlayerPage(
                     text = marqueeMessage.uppercase(),
                     color = Color(android.graphics.Color.parseColor(marqueeTextColor)),
                     fontWeight = FontWeight.Bold,
-                    fontSize = 55.sp,
+                    fontSize = 50.sp,
                 )
             }
         }
