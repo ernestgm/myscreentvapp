@@ -18,8 +18,16 @@ package com.geniusdevelop.playmyscreens.app.util
 
 import android.content.Context
 import android.content.pm.PackageManager
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
 import android.provider.Settings
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import java.io.IOException
 import kotlin.random.Random
 
 class DeviceUtils (
@@ -40,6 +48,47 @@ class DeviceUtils (
         } catch (e: PackageManager.NameNotFoundException) {
             FirebaseCrashlytics.getInstance().recordException(e)
             false
+        }
+    }
+
+    suspend fun isInternetAvailable(): Boolean {
+        return (isNetworkAvailable(context) && hasInternetAccess())
+    }
+
+    private fun isNetworkAvailable(context: Context): Boolean {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val network = connectivityManager.activeNetwork ?: return false
+            val networkCapabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+
+            return when {
+                networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+                networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+                networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+                else -> false
+            }
+        } else {
+            // For devices below Android M (API level 23)
+            val activeNetworkInfo = connectivityManager.activeNetworkInfo
+            return activeNetworkInfo?.isConnected == true
+        }
+    }
+
+    private suspend fun hasInternetAccess(): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                val client = OkHttpClient()
+                val request = Request.Builder()
+                    .url("https://www.google.com") // Known reliable server
+                    .build()
+                val response = client.newCall(request).execute()
+                println("Response: ${response.isSuccessful}")
+                response.isSuccessful
+            } catch (e: IOException) {
+                e.printStackTrace()
+                false
+            }
         }
     }
 }

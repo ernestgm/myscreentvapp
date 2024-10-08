@@ -27,14 +27,17 @@ class WSClient private constructor(
 
     companion object {
         // Builder para configurar el cliente
-        fun builder(onError: (msg: String) -> Unit): Builder {
-            return Builder() { msg ->
-                onError(msg)
-            }
+        fun builder(onFinish: () -> Unit, onError: (msg: String) -> Unit): Builder {
+            return Builder(
+                onFinish = { onFinish() },
+                onError = { msg ->
+                    onError(msg)
+                }
+            )
         }
     }
 
-    class Builder(onError: (msg: String) -> Unit) {
+    class Builder(onFinish: () -> Unit, onError: (msg: String) -> Unit) {
         private lateinit var baseUrl: String
         private lateinit var secret: String
         private lateinit var userId: String
@@ -66,6 +69,7 @@ class WSClient private constructor(
         private val listener: EventListener = object : EventListener() {
             override fun onConnected(client: Client?, event: ConnectedEvent) {
                 System.out.printf("connected with client id %s%n", event.client)
+                onFinish()
             }
 
             override fun onConnecting(client: Client?, event: ConnectingEvent) {

@@ -1,5 +1,6 @@
 package com.geniusdevelop.playmyscreens.app
 
+import android.os.Bundle
 import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,6 +25,7 @@ import com.geniusdevelop.playmyscreens.ui.theme.Mode
 import com.geniusdevelop.playmyscreens.ui.theme.colorutils.Scheme.Companion.light
 import com.geniusdevelop.playmyscreens.ui.theme.colorutils.toColorScheme
 import com.geniusdevelop.playmyscreens.ui.theme.navigation.NavigationGraph
+import com.google.firebase.analytics.FirebaseAnalytics
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -37,6 +39,7 @@ fun App() {
     val colorScheme = light(argbColor)
     val context = LocalContext.current
     Repository.initializeApiConfig(context)
+
 
     AppProviders(
         seedColor = seedColor,

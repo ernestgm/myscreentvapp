@@ -30,9 +30,12 @@ object Repository {
         RepositoryInjector.initializeConfigRepository(context)
     }
 
-    fun initializeWs(context: Context, configFields: ConfigFields, onError: (msg: String) -> Unit) {
-        RepositoryInjector.initializeWs(context, configFields) { msg ->
-            onError(msg)
-        }
+    fun initializeWs(context: Context, configFields: ConfigFields, onFinish: () -> Unit = {}, onError: (msg: String) -> Unit) {
+        RepositoryInjector.initializeWs(
+            context,
+            configFields,
+            onFinish = { onFinish() },
+            onError = { msg -> onError(msg) }
+        )
     }
 }

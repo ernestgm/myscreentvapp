@@ -2,6 +2,7 @@ package com.geniusdevelop.playmyscreens.app.pages.player
 
 
 import android.app.Activity
+import android.os.Bundle
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MarqueeSpacing
@@ -52,6 +53,9 @@ import com.geniusdevelop.playmyscreens.app.viewmodels.PlayerUiState
 import com.geniusdevelop.playmyscreens.app.viewmodels.PlayerViewModel
 import com.geniusdevelop.playmyscreens.ui.theme.common.Error
 import com.geniusdevelop.playmyscreens.ui.theme.component.CustomButton
+import com.google.firebase.Firebase
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.analytics
 import com.google.jetstream.presentation.common.Loading
 import kotlinx.coroutines.launch
 
@@ -64,6 +68,9 @@ fun PlayerPage(
     playerPageViewModel: PlayerViewModel = viewModel(),
 ) {
     val context = LocalContext.current
+    val bundle = Bundle()
+    bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, "Player")
+    Firebase.analytics.logEvent("screen_view", bundle)
     val sessionManager = remember { SessionManager(context) }
     var images: Array<Images> by remember { mutableStateOf(emptyArray()) }
     var showButtonPause by remember { mutableStateOf(false) }
@@ -72,7 +79,6 @@ fun PlayerPage(
     var initialSizeImages by remember { mutableIntStateOf(0) }
     val coroutineScope = rememberCoroutineScope()
     val code by sessionManager.deviceCode.collectAsState(initial = "")
-    val userId by sessionManager.userId.collectAsState(initial = "")
     val uiState by playerPageViewModel.uiState.collectAsStateWithLifecycle()
     val activity = LocalContext.current as? Activity
 

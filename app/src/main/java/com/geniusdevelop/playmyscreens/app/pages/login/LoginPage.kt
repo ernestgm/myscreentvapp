@@ -1,5 +1,6 @@
 package com.geniusdevelop.playmyscreens.app.pages.login
 
+import android.os.Bundle
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -50,6 +51,9 @@ import com.geniusdevelop.playmyscreens.app.util.BitmapUtil
 import com.geniusdevelop.playmyscreens.app.util.DeviceUtils
 import com.geniusdevelop.playmyscreens.app.viewmodels.LoginUiState
 import com.geniusdevelop.playmyscreens.app.viewmodels.LoginViewModel
+import com.google.firebase.Firebase
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.analytics
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -59,6 +63,9 @@ fun LoginPage(
     loginPageViewModel: LoginViewModel = viewModel()
 ) {
     val context = LocalContext.current
+    val bundle = Bundle()
+    bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, "Login")
+    Firebase.analytics.logEvent("screen_view", bundle)
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var code by remember { mutableStateOf("") }

@@ -1,5 +1,6 @@
 package com.geniusdevelop.playmyscreens.app.pages.logout
 
+import android.os.Bundle
 import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -16,6 +17,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.geniusdevelop.playmyscreens.app.session.SessionManager
 import com.geniusdevelop.playmyscreens.app.viewmodels.LoginUiState
 import com.geniusdevelop.playmyscreens.app.viewmodels.LoginViewModel
+import com.google.firebase.Firebase
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.analytics
 import com.google.jetstream.presentation.common.Loading
 import kotlinx.coroutines.launch
 
@@ -26,6 +30,9 @@ fun LogoutPage(
     loginPageViewModel: LoginViewModel = viewModel()
 ) {
     val context = LocalContext.current
+    val bundle = Bundle()
+    bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, "Logout")
+    Firebase.analytics.logEvent("screen_view", bundle)
     val sessionManager = remember { SessionManager(context) }
     val coroutineScope = rememberCoroutineScope()
 

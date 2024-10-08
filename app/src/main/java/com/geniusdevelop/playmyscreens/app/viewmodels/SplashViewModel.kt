@@ -30,10 +30,10 @@ class SplashViewModel() : ViewModel() {
     val uiState: StateFlow<HomeScreenUiState?> = _uiState
 
     fun setAppOnline() {
-        System.out.println("init subscribed to")
+        println("init subscribed Status Online")
         val subListener: SubscriptionEventListener = object : SubscriptionEventListener() {
             override fun onSubscribed(sub: Subscription, event: SubscribedEvent) {
-                System.out.println(("subscribed to " + sub.channel) + ", recovered " + event.recovered)
+                println(("subscribed to " + sub.channel) + ", recovered " + event.recovered)
             }
 
             override fun onSubscribing(sub: Subscription?, event: SubscribingEvent) {
@@ -41,16 +41,16 @@ class SplashViewModel() : ViewModel() {
             }
 
             override fun onUnsubscribed(sub: Subscription, event: UnsubscribedEvent) {
-                System.out.println(("unsubscribed " + sub.channel) + ", reason: " + event.reason)
+                println(("unsubscribed " + sub.channel) + ", reason: " + event.reason)
             }
 
             override fun onError(sub: Subscription, event: SubscriptionErrorEvent) {
-                System.out.println(("subscription error " + sub.channel) + " " + event.error.toString())
+                println(("subscription error " + sub.channel) + " " + event.error.toString())
             }
 
             override fun onPublication(sub: Subscription, event: PublicationEvent) {
                 // val data = Json.decodeFromString<WSMessage>(String(event.data, UTF_8))
-                System.out.println(("message from " + sub.channel) + " " + String(event.data, UTF_8))
+                println(("message from " + sub.channel) + " " + String(event.data, UTF_8))
             }
 
             override fun onJoin(sub: Subscription, event: JoinEvent) {

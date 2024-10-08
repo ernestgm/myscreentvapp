@@ -15,10 +15,15 @@ internal object RepositoryInjector {
         Factory.refreshTokenApiClient(token, ApiManager.getInstance())
     }
 
-    fun initializeWs(context: Context, config: ConfigFields,onError: (msg: String) -> Unit) {
-        Factory.newWSClient(context, config) { msg ->
-            onError(msg)
-        }
+    fun initializeWs(context: Context, config: ConfigFields, onFinish: () -> Unit , onError: (msg: String) -> Unit) {
+        Factory.newWSClient(
+            context,
+            config,
+            onFinish = { onFinish() },
+            onError = { msg ->
+                onError(msg)
+            }
+        )
     }
 
     fun initializeConfigRepository(context: Context) {
@@ -56,11 +61,14 @@ internal object RepositoryInjector {
             apiManager.refreshClientToken(token)
         }
 
-        fun newWSClient(context: Context, config: ConfigFields, onError: (msg: String) -> Unit): WSManager {
+        fun newWSClient(context: Context, config: ConfigFields, onFinish: () -> Unit, onError: (msg: String) -> Unit): WSManager {
             val deviceID = DeviceUtils(context).getDeviceId()
-            val client  = WSClient.builder { msg ->
-                    onError(msg)
-                }
+            val client  = WSClient.builder(
+                    onFinish = { onFinish() },
+                    onError = { msg ->
+                        onError(msg)
+                    }
+                )
                 .addBaseUrl(config.centrifugue_base_url)
                 .addSecret(config.centrifuge_pass_secret)
                 .addUserId(deviceID)

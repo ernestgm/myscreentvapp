@@ -18,8 +18,8 @@ import com.geniusdevelop.playmyscreens.app.App
 import com.geniusdevelop.playmyscreens.app.util.DeviceUtils
 import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.analytics
 import com.google.firebase.crashlytics.crashlytics
-import com.google.firebase.perf.FirebasePerformance
 import com.google.firebase.perf.performance
 import com.google.firebase.perf.trace
 import kotlinx.coroutines.CoroutineScope
@@ -33,13 +33,14 @@ import java.net.Socket
 class MainActivity : ComponentActivity() {
     private var mFirebaseAnalytics: FirebaseAnalytics? = null
     private lateinit var deviceUtils: DeviceUtils
+    private lateinit var serverSocket: ServerSocket
     private val serviceScope = CoroutineScope(Dispatchers.IO)
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this)
         deviceUtils = DeviceUtils(baseContext)
+        Firebase.analytics.setUserId(deviceUtils.getDeviceId())
         Firebase.crashlytics.setUserId(deviceUtils.getDeviceId())
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -107,6 +108,9 @@ class MainActivity : ComponentActivity() {
             // Update scenario.
             putAttribute("deviceId", deviceUtils.getDeviceId())
         }
+        if (::serverSocket.isInitialized) {
+            serverSocket.close()
+        }
         super.onDestroy()
     }
 
@@ -126,8 +130,12 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun isWatchDogRunning(): Boolean {
+        return isPortOpen(9998)
+    }
+
+    private fun isPortOpen(port: Int): Boolean {
         return try {
-            Socket("localhost", 9998).use { true } // Try to open a connection to the port
+            Socket("localhost", port).use { true } // Try to open a connection to the port
         } catch (e: IOException) {
             false // If it fails, the port is not open
         }
@@ -154,35 +162,20 @@ class MainActivity : ComponentActivity() {
 
     private fun openPortForWatchDog() {
         serviceScope.launch {
-            val serverSocket = ServerSocket(9999) // Example port 12345
-            try {
-                while (true) {
-                    val socket = serverSocket.accept() // Wait for a client connection
-                    // Handle socket connection if needed
+            if (!isPortOpen(9999)) {
+                serverSocket = ServerSocket(9999) // Example port 12345
+                try {
+                    while (true) {
+                        val socket = serverSocket.accept() // Wait for a client connection
+                        // Handle socket connection if needed
+                    }
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                } finally {
+                    serverSocket.close()
                 }
-            } catch (e: IOException) {
-                e.printStackTrace()
-            } finally {
-                serverSocket.close()
             }
         }
-    }
-
-    private fun logMemoryUsage() {
-        // Obtener la información de memoria
-        val activityManager = getSystemService(ACTIVITY_SERVICE) as ActivityManager
-        val memoryInfo = ActivityManager.MemoryInfo()
-        activityManager.getMemoryInfo(memoryInfo)
-
-        // Obtener memoria disponible en MB
-        val availableMegs = memoryInfo.availMem / 1048576L
-
-        // Crear un bundle para enviar datos
-        val bundle = Bundle()
-        bundle.putLong("available_memory_mb", availableMegs)
-
-        // Registrar el evento en Firebase Analytics
-        mFirebaseAnalytics!!.logEvent("memory_usage_event", bundle)
     }
 
     override fun onTrimMemory(level: Int) {

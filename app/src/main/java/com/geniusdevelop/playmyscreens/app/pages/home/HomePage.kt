@@ -1,5 +1,6 @@
 package com.geniusdevelop.playmyscreens.app.pages.home
 
+import android.os.Bundle
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -31,6 +32,9 @@ import com.geniusdevelop.playmyscreens.app.viewmodels.HomeScreeViewModel
 import com.geniusdevelop.playmyscreens.app.viewmodels.HomeScreenUiState
 import com.geniusdevelop.playmyscreens.ui.theme.common.Error
 import com.geniusdevelop.playmyscreens.ui.theme.common.ErrorWithButton
+import com.google.firebase.Firebase
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.analytics
 import com.google.jetstream.presentation.common.Loading
 import kotlinx.coroutines.launch
 
@@ -41,6 +45,9 @@ fun HomePage(
     homeScreeViewModel: HomeScreeViewModel = viewModel()
 ) {
     val context = LocalContext.current
+    val bundle = Bundle()
+    bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, "Home")
+    Firebase.analytics.logEvent("screen_view", bundle)
     val sessionManager = remember { SessionManager(context) }
     var showLoading by remember { mutableStateOf(false) }
     val userId by sessionManager.userId.collectAsState(initial = "")
