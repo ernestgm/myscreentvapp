@@ -175,6 +175,10 @@ fun PlayerPage(
                         }
                     }
                 }
+
+                if (marqueeMessage.length < 100) {
+                    marqueeMessage = marqueeMessage.padStart(30).padEnd(100)
+                }
             } else {
                 showMarquees = false
             }
