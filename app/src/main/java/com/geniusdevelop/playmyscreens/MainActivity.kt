@@ -15,6 +15,8 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import com.geniusdevelop.playmyscreens.app.App
+import com.geniusdevelop.playmyscreens.app.provider.AppStateProvider
+import com.geniusdevelop.playmyscreens.app.util.AppLog
 import com.geniusdevelop.playmyscreens.app.util.DeviceUtils
 import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -31,7 +33,6 @@ import java.net.Socket
 
 
 class MainActivity : ComponentActivity() {
-    private var mFirebaseAnalytics: FirebaseAnalytics? = null
     private lateinit var deviceUtils: DeviceUtils
     private lateinit var serverSocket: ServerSocket
     private val serviceScope = CoroutineScope(Dispatchers.IO)
@@ -40,6 +41,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         deviceUtils = DeviceUtils(baseContext)
+        AppStateProvider.setAppRunning()
         Firebase.analytics.setUserId(deviceUtils.getDeviceId())
         Firebase.crashlytics.setUserId(deviceUtils.getDeviceId())
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
@@ -55,7 +57,6 @@ class MainActivity : ComponentActivity() {
 
         enableActiveScreen()
         startWDService()
-        openPortForWatchDog()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             checkPermissionOverlay()
@@ -103,6 +104,7 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
+        AppStateProvider.setAppStopped()
         disableActiveScreen()
         Firebase.performance.newTrace("app_destroy").trace {
             // Update scenario.
@@ -129,23 +131,11 @@ class MainActivity : ComponentActivity() {
         super.onPause()
     }
 
-    private fun isWatchDogRunning(): Boolean {
-        return isPortOpen(9998)
-    }
-
-    private fun isPortOpen(port: Int): Boolean {
-        return try {
-            Socket("localhost", port).use { true } // Try to open a connection to the port
-        } catch (e: IOException) {
-            false // If it fails, the port is not open
-        }
-    }
-
     private fun startWDService() {
         serviceScope.launch {
             val wdPackageName = "com.geniusdevelop.watchdog.${BuildConfig.BUILD_TYPE}"
             if (deviceUtils.isAppInstalled(packageManager, wdPackageName)) {
-                if (!isWatchDogRunning()) {
+                if (!deviceUtils.checkWDStatus()) {
                     val intent = Intent("com.geniusdevelop.watchdog.START_FOREGROUND_SERVICE")
                     intent.setPackage(wdPackageName)  // The package name of App A
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -156,24 +146,6 @@ class MainActivity : ComponentActivity() {
                 }
             } else {
                 println("WatchDog Not installed")
-            }
-        }
-    }
-
-    private fun openPortForWatchDog() {
-        serviceScope.launch {
-            if (!isPortOpen(9999)) {
-                serverSocket = ServerSocket(9999) // Example port 12345
-                try {
-                    while (true) {
-                        val socket = serverSocket.accept() // Wait for a client connection
-                        // Handle socket connection if needed
-                    }
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                } finally {
-                    serverSocket.close()
-                }
             }
         }
     }

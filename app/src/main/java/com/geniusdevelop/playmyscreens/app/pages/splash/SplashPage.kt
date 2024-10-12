@@ -77,7 +77,7 @@ fun SplashScreen(
                 while (true) {
                     println("Waiting for connection")
                     waitingForConnection = true
-                    delay(5000)
+                    delay(15000)
                     if (deviceUtils.isInternetAvailable()) {
                         waitingForConnection = false
                         splashScreeViewModel.getConfigurationByEnv()
@@ -98,7 +98,7 @@ fun SplashScreen(
                     Log.d("ERROR", msg)
                 }
             )
-            ProcessLifecycleOwner.get().lifecycle.addObserver(AppLifecycleObserver(deviceUtils.getDeviceId()))
+            ProcessLifecycleOwner.get().lifecycle.addObserver(AppLifecycleObserver(deviceUtils.getDeviceId(), context))
             splashScreeViewModel.setAppOnline()
             val startDestination = if (isLoggedIn) {
                 NavGraph.Home.routeName

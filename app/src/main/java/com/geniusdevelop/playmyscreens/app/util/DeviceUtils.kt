@@ -20,6 +20,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -90,5 +91,24 @@ class DeviceUtils (
                 false
             }
         }
+    }
+
+    fun checkWDStatus(): Boolean {
+        var running = false
+        val uri = Uri.parse("content://com.geniusdevelop.watchdog.provider/app_a_state")
+        val cursor = context.contentResolver.query(uri, null, null, null, null)
+
+        cursor?.let {
+            if (it.moveToFirst()) {
+                val appState = it.getInt(it.getColumnIndexOrThrow("appState"))
+                if (appState == 1) {
+                    running = true
+                }
+            }
+            it.close()
+        } ?: run {
+            println("I can verify player state")
+        }
+        return running
     }
 }

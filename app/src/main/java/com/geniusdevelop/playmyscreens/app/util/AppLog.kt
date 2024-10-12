@@ -26,8 +26,8 @@ object AppLog  {
     val manager: LogManager
         get() = LogManager.getInstance()
 
-    fun initialize(context: Context, deviceId: String) {
-        LogInjector.initialize(context, deviceId)
+    fun initialize(context: Context) {
+        LogInjector.initialize(context)
     }
 }
 
@@ -35,6 +35,11 @@ class LogManager internal constructor(
     private val context: Context,
     private val deviceId: String
 ){
+
+    fun writeAppStateToFile(isRunning: Boolean) {
+        val file = File(context.filesDir, "app_state.txt")
+        file.writeText(if (isRunning) "running" else "stopped")
+    }
 
     fun logToFile(deviceCode: String,logMessage: String) {
         val logFile = File(context.filesDir, "app_logs_${deviceId}_${deviceCode}.log")
@@ -53,11 +58,11 @@ class LogManager internal constructor(
         private const val LOG_NOT_INITIALIZED = "Log not initialized"
 
         fun initialize(
-            context: Context,
-            deviceId: String
+            context: Context
         ): LogManager {
+            val deviceUtils = DeviceUtils(context)
             synchronized(LogManager::class.java) {
-                instance = LogManager(context, deviceId)
+                instance = LogManager(context, deviceUtils.getDeviceId())
             }
             return instance
         }
@@ -73,16 +78,15 @@ class LogManager internal constructor(
 }
 
 internal object LogInjector {
-    fun initialize(context: Context, deviceId: String) {
-        Factory.new(context, deviceId)
+    fun initialize(context: Context) {
+        Factory.new(context)
     }
 
     private object Factory {
         fun new(
-            context: Context,
-            deviceId: String
+            context: Context
         ): LogManager {
-            return LogManager.initialize(context, deviceId)
+            return LogManager.initialize(context)
         }
     }
 }
