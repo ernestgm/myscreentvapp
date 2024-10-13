@@ -16,6 +16,7 @@ import io.github.centrifugal.centrifuge.Subscription
 import io.github.centrifugal.centrifuge.SubscriptionErrorEvent
 import io.github.centrifugal.centrifuge.SubscriptionEventListener
 import io.github.centrifugal.centrifuge.UnsubscribedEvent
+import io.ktor.client.call.NoTransformationFoundException
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -41,12 +42,7 @@ class LoginViewModel : ViewModel() {
                     _uiState.value = LoginUiState.Error(msg.toString())
                 }
             } catch (e: Exception) {
-                FirebaseCrashlytics.getInstance().recordException(e)
-                if ( e is UnresolvedAddressException ) {
-                    _uiState.value = LoginUiState.Error("Network Error: Check your internet connection.")
-                } else {
-                    _uiState.value = LoginUiState.Error("Error: " + e.message.toString())
-                }
+                showException(e)
             }
         }
     }
@@ -59,12 +55,7 @@ class LoginViewModel : ViewModel() {
                     _uiState.value = LoginUiState.CodeReady(response.code)
                 }
             } catch (e: Exception) {
-                FirebaseCrashlytics.getInstance().recordException(e)
-                if ( e is UnresolvedAddressException ) {
-                    _uiState.value = LoginUiState.Error("Network Error: Check your internet connection.")
-                } else {
-                    _uiState.value = LoginUiState.Error("Error: " + e.message.toString())
-                }
+                showException(e)
             }
         }
     }
@@ -81,12 +72,7 @@ class LoginViewModel : ViewModel() {
                     _uiState.value = LoginUiState.Error(msg.toString())
                 }
             } catch (e: Exception) {
-                FirebaseCrashlytics.getInstance().recordException(e)
-                if ( e is UnresolvedAddressException ) {
-                    _uiState.value = LoginUiState.Error("Network Error: Check your internet connection.")
-                } else {
-                    _uiState.value = LoginUiState.Error("Error: " + e.message.toString())
-                }
+                showException(e)
             }
         }
     }
@@ -97,12 +83,22 @@ class LoginViewModel : ViewModel() {
                 Repository.user.logout()
                 _uiState.value = LoginUiState.Ready()
             } catch (e: Exception) {
-                FirebaseCrashlytics.getInstance().recordException(e)
-                if ( e is UnresolvedAddressException ) {
-                    _uiState.value = LoginUiState.Error("Network Error: Check your internet connection.")
-                } else {
-                    _uiState.value = LoginUiState.Error("Error: " + e.message.toString())
-                }
+                showException(e)
+            }
+        }
+    }
+
+    private fun showException(e: Exception) {
+        FirebaseCrashlytics.getInstance().recordException(e)
+        when(e) {
+            is UnresolvedAddressException -> {
+                _uiState.value = LoginUiState.Error("Network Error: Check your internet connection.")
+            }
+            is NoTransformationFoundException -> {
+                _uiState.value = LoginUiState.Error("Network Error: Load Data Failed.")
+            }
+            else -> {
+                _uiState.value = LoginUiState.Error("Error: " + e.message.toString())
             }
         }
     }

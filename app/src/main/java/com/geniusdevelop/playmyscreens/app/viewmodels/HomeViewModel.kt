@@ -16,6 +16,7 @@ import io.github.centrifugal.centrifuge.Subscription
 import io.github.centrifugal.centrifuge.SubscriptionErrorEvent
 import io.github.centrifugal.centrifuge.SubscriptionEventListener
 import io.github.centrifugal.centrifuge.UnsubscribedEvent
+import io.ktor.client.call.NoTransformationFoundException
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,7 +25,7 @@ import kotlinx.serialization.json.Json
 import java.nio.charset.StandardCharsets.UTF_8
 
 
-class HomeScreeViewModel() : ViewModel() {
+class HomeScreeViewModel : ViewModel() {
 
     private lateinit var screenSubscription: Subscription
     private lateinit var userSubscription: Subscription
@@ -43,12 +44,7 @@ class HomeScreeViewModel() : ViewModel() {
                     _uiState.value = HomeScreenUiState.Error(result.message)
                 }
             } catch (e: Exception) {
-                FirebaseCrashlytics.getInstance().recordException(e)
-                if ( e is UnresolvedAddressException ) {
-                    _uiState.value = HomeScreenUiState.Error("Network Error: Check your internet connection.")
-                } else {
-                    _uiState.value = HomeScreenUiState.Error("Error: " + e.message.toString())
-                }
+                showException(e)
             }
         }
     }
@@ -78,8 +74,6 @@ class HomeScreeViewModel() : ViewModel() {
                     "user_$deviceCode" -> {
                         when (data.message) {
                             "logout" -> {
-                                //Repository.wsManager.removeSubscription(screenSubscription)
-                                //Repository.wsManager.removeSubscription(userSubscription)
                                 _uiState.value = HomeScreenUiState.LogoutUser
                             }
                         }
@@ -145,12 +139,22 @@ class HomeScreeViewModel() : ViewModel() {
                     }
                 }
             } catch (e: Exception) {
-                FirebaseCrashlytics.getInstance().recordException(e)
-                if ( e is UnresolvedAddressException ) {
-                    _uiState.value = HomeScreenUiState.Error("Network Error: Check your internet connection.")
-                } else {
-                    _uiState.value = HomeScreenUiState.Error("Error: " + e.message.toString())
-                }
+                showException(e)
+            }
+        }
+    }
+
+    private fun showException(e: Exception) {
+        FirebaseCrashlytics.getInstance().recordException(e)
+        when(e) {
+            is UnresolvedAddressException -> {
+                _uiState.value = HomeScreenUiState.Error("Network Error: Check your internet connection.")
+            }
+            is NoTransformationFoundException -> {
+                _uiState.value = HomeScreenUiState.Error("Network Error: Load Data Failed.")
+            }
+            else -> {
+                _uiState.value = HomeScreenUiState.Error("Error: " + e.message.toString())
             }
         }
     }

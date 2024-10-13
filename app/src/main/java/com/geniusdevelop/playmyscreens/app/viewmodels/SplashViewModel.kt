@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 import java.nio.charset.StandardCharsets.UTF_8
 
 
-class SplashViewModel() : ViewModel() {
+class SplashViewModel : ViewModel() {
     private lateinit var onlineStatusSubscription: Subscription
     private val _uiState = MutableStateFlow<HomeScreenUiState?>(null)
     val uiState: StateFlow<HomeScreenUiState?> = _uiState
@@ -91,14 +91,22 @@ class SplashViewModel() : ViewModel() {
                     }
                 }
             } catch (e: Exception) {
-                FirebaseCrashlytics.getInstance().recordException(e)
-                if ( e is UnresolvedAddressException ) {
-                    _uiState.value = SplashScreenUiState.Error("Network Error: Check your internet connection.")
-                } else if (e is NoTransformationFoundException) {
-                    _uiState.value = SplashScreenUiState.Error("Network Error: Load Configuration Failed.")
-                } else {
-                    _uiState.value = SplashScreenUiState.Error("Error: " + e.message.toString())
-                }
+                showException(e)
+            }
+        }
+    }
+
+    private fun showException(e: Exception) {
+        FirebaseCrashlytics.getInstance().recordException(e)
+        when(e) {
+            is UnresolvedAddressException -> {
+                _uiState.value = SplashScreenUiState.Error("Network Error: Check your internet connection.")
+            }
+            is NoTransformationFoundException -> {
+                _uiState.value = SplashScreenUiState.Error("Network Error: Load Configuration Failed.")
+            }
+            else -> {
+                _uiState.value = SplashScreenUiState.Error("Error: " + e.message.toString())
             }
         }
     }

@@ -18,6 +18,7 @@ import io.github.centrifugal.centrifuge.Subscription
 import io.github.centrifugal.centrifuge.SubscriptionErrorEvent
 import io.github.centrifugal.centrifuge.SubscriptionEventListener
 import io.github.centrifugal.centrifuge.UnsubscribedEvent
+import io.ktor.client.call.NoTransformationFoundException
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -48,12 +49,7 @@ class PlayerViewModel : ViewModel() {
                     }
                 }
             } catch (e: Exception) {
-                FirebaseCrashlytics.getInstance().recordException(e)
-                if ( e is UnresolvedAddressException ) {
-                    _uiState.value = PlayerUiState.Error("Network Error: Check your internet connection.")
-                } else {
-                    _uiState.value = PlayerUiState.Error("Error: " + e.message.toString())
-                }
+                showException(e)
             }
         }
     }
@@ -68,12 +64,7 @@ class PlayerViewModel : ViewModel() {
                     _uiState.value = PlayerUiState.HideMarquee(isUpdate)
                 }
             } catch (e: Exception) {
-                FirebaseCrashlytics.getInstance().recordException(e)
-                if ( e is UnresolvedAddressException ) {
-                    _uiState.value = PlayerUiState.Error("Network Error: Check your internet connection.")
-                } else {
-                    _uiState.value = PlayerUiState.Error("Error: " + e.message.toString())
-                }
+                showException(e)
             }
         }
     }
@@ -90,12 +81,7 @@ class PlayerViewModel : ViewModel() {
                     _uiState.value = result.screen?.images?.let { PlayerUiState.Update(it) }
                 }
             } catch (e: Exception) {
-                FirebaseCrashlytics.getInstance().recordException(e)
-                if ( e is UnresolvedAddressException ) {
-                    _uiState.value = PlayerUiState.Error("Network Error: Check your internet connection.")
-                } else {
-                    _uiState.value = PlayerUiState.Error("Error: " + e.message.toString())
-                }
+                showException(e)
             }
         }
     }
@@ -204,6 +190,21 @@ class PlayerViewModel : ViewModel() {
             Repository.wsManager.removeSubscription(marqueeSubscription)
             Repository.wsManager.removeSubscription(screenSubscription)
             Repository.wsManager.removeSubscription(userSubscription)
+        }
+    }
+
+    private fun showException(e: Exception) {
+        FirebaseCrashlytics.getInstance().recordException(e)
+        when(e) {
+            is UnresolvedAddressException -> {
+                _uiState.value = PlayerUiState.Error("Network Error: Check your internet connection.")
+            }
+            is NoTransformationFoundException -> {
+                _uiState.value = PlayerUiState.Error("Network Error: Load Data Failed.")
+            }
+            else -> {
+                _uiState.value = PlayerUiState.Error("Error: " + e.message.toString())
+            }
         }
     }
 }
