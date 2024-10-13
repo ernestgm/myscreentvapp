@@ -17,6 +17,7 @@ import io.github.centrifugal.centrifuge.Subscription
 import io.github.centrifugal.centrifuge.SubscriptionErrorEvent
 import io.github.centrifugal.centrifuge.SubscriptionEventListener
 import io.github.centrifugal.centrifuge.UnsubscribedEvent
+import io.ktor.client.call.NoTransformationFoundException
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -93,6 +94,8 @@ class SplashViewModel() : ViewModel() {
                 FirebaseCrashlytics.getInstance().recordException(e)
                 if ( e is UnresolvedAddressException ) {
                     _uiState.value = SplashScreenUiState.Error("Network Error: Check your internet connection.")
+                } else if (e is NoTransformationFoundException) {
+                    _uiState.value = SplashScreenUiState.Error("Network Error: Load Configuration Failed.")
                 } else {
                     _uiState.value = SplashScreenUiState.Error("Error: " + e.message.toString())
                 }
