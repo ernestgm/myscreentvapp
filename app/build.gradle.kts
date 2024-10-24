@@ -58,7 +58,7 @@ android {
             buildConfigField("String", "BASE_URL", "\"http://47.204.0.63:92/api/v1\"")
             buildConfigField("String", "WS_BASE_URL", "\"ws://47.204.0.63:8000/connection/websocket\"")
             buildConfigField("String", "WS_SECRET", "\"940e1175-d3ec-45ee-adb2-3508272074f3\"")
-            buildConfigField("String", "ACTIVATE_URL", "\"http://47.204.0.63:91/dashboard/activate\"")
+            buildConfigField("String", "ACTIVATE_URL", "\"https://screenfrontend.geniusdevelops.com/dashboard/activate\"")
             dimension = "api"
         }
         create("desa") {
