@@ -57,6 +57,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.analytics
 import com.google.jetstream.presentation.common.Loading
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
@@ -164,7 +165,6 @@ fun PlayerPage(
         }
 
         is PlayerUiState.ShowMarquee -> {
-
             marqueeMessage = ""
             marqueeBgColor = s.marquee.bg_color.toString()
             marqueeTextColor = s.marquee.text_color.toString()

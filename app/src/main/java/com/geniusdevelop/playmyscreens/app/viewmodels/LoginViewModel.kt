@@ -148,18 +148,19 @@ class LoginViewModel : ViewModel() {
 
         try {
             if (!::linkSubscription.isInitialized) {
-                println("init subscribe Home")
+                println("init subscribe Login")
                 linkSubscription = Repository.wsManager.newSubscription("link_device_$deviceId", subListener)
             }
         } catch (e: DuplicateSubscriptionException) {
             FirebaseCrashlytics.getInstance().recordException(e)
-            println("duplicado ${e.message}")
+            FirebaseCrashlytics.getInstance().log("Login Link Suscription Duplicate")
             e.printStackTrace()
-            return
         }
 
         viewModelScope.launch {
-            linkSubscription.subscribe()
+            if (::linkSubscription.isInitialized) {
+                linkSubscription.subscribe()
+            }
         }
     }
 
