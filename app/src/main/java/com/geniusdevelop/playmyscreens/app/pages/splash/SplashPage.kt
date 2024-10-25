@@ -77,12 +77,13 @@ fun SplashScreen(
                 while (true) {
                     println("Waiting for connection")
                     waitingForConnection = true
-                    delay(15000)
+                    delay(10000)
                     if (deviceUtils.isInternetAvailable()) {
                         waitingForConnection = false
-                        splashScreeViewModel.getConfigurationByEnv()
+                        break
                     }
                 }
+                splashScreeViewModel.getConfigurationByEnv()
             }
         }
     }

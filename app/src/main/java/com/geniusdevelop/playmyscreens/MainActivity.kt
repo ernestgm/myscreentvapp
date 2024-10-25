@@ -34,7 +34,6 @@ import java.net.Socket
 
 class MainActivity : ComponentActivity() {
     private lateinit var deviceUtils: DeviceUtils
-    private lateinit var serverSocket: ServerSocket
     private val serviceScope = CoroutineScope(Dispatchers.IO)
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -107,11 +106,7 @@ class MainActivity : ComponentActivity() {
         AppStateProvider.setAppStopped()
         disableActiveScreen()
         Firebase.performance.newTrace("app_destroy").trace {
-            // Update scenario.
             putAttribute("deviceId", deviceUtils.getDeviceId())
-        }
-        if (::serverSocket.isInitialized) {
-            serverSocket.close()
         }
         super.onDestroy()
     }

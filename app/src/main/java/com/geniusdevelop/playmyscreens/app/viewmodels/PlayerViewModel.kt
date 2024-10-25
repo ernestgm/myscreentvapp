@@ -127,7 +127,6 @@ class PlayerViewModel : ViewModel() {
                             "check_marquee_update" -> {
                                 _uiState.value = PlayerUiState.UpdateMarquee
                                 viewModelScope.launch {
-                                    delay(2000)
                                     _uiState.value = PlayerUiState.ReadyToUpdate
                                 }
                             }
