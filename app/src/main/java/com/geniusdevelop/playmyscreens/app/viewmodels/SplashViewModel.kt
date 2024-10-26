@@ -64,17 +64,21 @@ class SplashViewModel : ViewModel() {
         }
 
         try {
-            onlineStatusSubscription = Repository.wsManager.newSubscription("status:appOnline", subListener)
+            if (!::onlineStatusSubscription.isInitialized) {
+                println("init subscribe Splash Status")
+                onlineStatusSubscription = Repository.wsManager.newSubscription("status:appOnline", subListener)
+            }
         } catch (e: DuplicateSubscriptionException) {
             FirebaseCrashlytics.getInstance().recordException(e)
-            println("duplicado ${e.message}")
+            FirebaseCrashlytics.getInstance().log("Splash Status duplicate")
             e.printStackTrace()
-            return
         }
 
 
         viewModelScope.launch {
-            onlineStatusSubscription.subscribe()
+            if (::onlineStatusSubscription.isInitialized) {
+                onlineStatusSubscription.subscribe()
+            }
         }
     }
 

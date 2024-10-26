@@ -100,28 +100,43 @@ class HomeScreeViewModel : ViewModel() {
 
 
         try {
-            if (!::screenSubscription.isInitialized && !::userSubscription.isInitialized) {
-                println("init subscribe Home")
-                screenSubscription = Repository.wsManager.newSubscription("home_screen_$deviceCode", subListener)
+            if (!::userSubscription.isInitialized) {
+                println("init subscribe Home userSubscription")
                 userSubscription = Repository.wsManager.newSubscription("user_$deviceCode", subListener)
             }
         } catch (e: DuplicateSubscriptionException) {
             FirebaseCrashlytics.getInstance().recordException(e)
-            println("duplicado ${e.message}")
+            FirebaseCrashlytics.getInstance().log("Duplicado Home userSubscription")
             e.printStackTrace()
-            return
+        }
+
+        try {
+            if (!::screenSubscription.isInitialized) {
+                println("init subscribe Home screenSubscription")
+                screenSubscription = Repository.wsManager.newSubscription("home_screen_$deviceCode", subListener)
+            }
+        } catch (e: DuplicateSubscriptionException) {
+            FirebaseCrashlytics.getInstance().recordException(e)
+            FirebaseCrashlytics.getInstance().log("Duplicado Home screenSubscription")
+            e.printStackTrace()
         }
 
         viewModelScope.launch {
-            screenSubscription.subscribe()
-            userSubscription.subscribe()
+            if (::userSubscription.isInitialized) {
+                userSubscription.subscribe()
+            }
+            if (::screenSubscription.isInitialized) {
+                screenSubscription.subscribe()
+            }
         }
     }
 
     fun removeAllSubscriptions() {
-        if (::screenSubscription.isInitialized && ::userSubscription.isInitialized) {
-            Repository.wsManager.removeSubscription(screenSubscription)
+        if (::userSubscription.isInitialized) {
             Repository.wsManager.removeSubscription(userSubscription)
+        }
+        if (::screenSubscription.isInitialized) {
+            Repository.wsManager.removeSubscription(screenSubscription)
         }
     }
 

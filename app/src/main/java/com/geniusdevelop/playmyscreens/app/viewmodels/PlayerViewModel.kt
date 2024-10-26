@@ -127,7 +127,7 @@ class PlayerViewModel : ViewModel() {
                             "check_marquee_update" -> {
                                 _uiState.value = PlayerUiState.UpdateMarquee
                                 viewModelScope.launch {
-                                    delay(2000)
+                                    delay(3000)
                                     _uiState.value = PlayerUiState.ReadyToUpdate
                                 }
                             }
@@ -153,42 +153,76 @@ class PlayerViewModel : ViewModel() {
         }
 
         try {
-            if (
-                !::imagesSubscription.isInitialized &&
-                !::marqueeSubscription.isInitialized &&
-                !::screenSubscription.isInitialized &&
-                !::userSubscription.isInitialized
-            ) {
-                println("init subscribe Player")
-                imagesSubscription = Repository.wsManager.newSubscription("player_images_$deviceCode", subListener)
-                screenSubscription = Repository.wsManager.newSubscription("player_screen_$deviceCode", subListener)
-                marqueeSubscription = Repository.wsManager.newSubscription("player_marquee_$deviceCode", subListener)
+            println("init subscribe userSubscription")
+            if (!::userSubscription.isInitialized) {
                 userSubscription = Repository.wsManager.newSubscription("user_$deviceCode", subListener)
             }
         } catch (e: DuplicateSubscriptionException) {
             FirebaseCrashlytics.getInstance().recordException(e)
+            FirebaseCrashlytics.getInstance().log("Duplicate userSubscription")
             e.printStackTrace()
-            return
+        }
+
+        try {
+            println("init subscribe screenSubscription")
+            if (!::screenSubscription.isInitialized) {
+                screenSubscription = Repository.wsManager.newSubscription("player_screen_$deviceCode", subListener)
+            }
+        } catch (e: DuplicateSubscriptionException) {
+            FirebaseCrashlytics.getInstance().recordException(e)
+            FirebaseCrashlytics.getInstance().log("Duplicate screenSubscription")
+            e.printStackTrace()
+        }
+
+        try {
+            if (!::imagesSubscription.isInitialized) {
+                println("init subscribe imagesSubscription")
+                imagesSubscription = Repository.wsManager.newSubscription("player_images_$deviceCode", subListener)
+            }
+        } catch (e: DuplicateSubscriptionException) {
+            FirebaseCrashlytics.getInstance().recordException(e)
+            FirebaseCrashlytics.getInstance().log("Duplicate imagesSubscription")
+            e.printStackTrace()
+        }
+
+        try {
+            if (!::marqueeSubscription.isInitialized) {
+                println("init subscribe marqueeSubscription")
+                marqueeSubscription = Repository.wsManager.newSubscription("player_marquee_$deviceCode", subListener)
+            }
+        } catch (e: DuplicateSubscriptionException) {
+            FirebaseCrashlytics.getInstance().recordException(e)
+            FirebaseCrashlytics.getInstance().log("Duplicate marqueeSubscription")
+            e.printStackTrace()
         }
 
         viewModelScope.launch {
-            imagesSubscription.subscribe()
-            screenSubscription.subscribe()
-            marqueeSubscription.subscribe()
-            userSubscription.subscribe()
+            if (::imagesSubscription.isInitialized) {
+                imagesSubscription.subscribe()
+            }
+            if (::screenSubscription.isInitialized) {
+                screenSubscription.subscribe()
+            }
+            if (::marqueeSubscription.isInitialized) {
+                marqueeSubscription.subscribe()
+            }
+            if (::userSubscription.isInitialized) {
+                userSubscription.subscribe()
+            }
         }
     }
 
     fun removeAllSubscriptions() {
-        if (
-            ::imagesSubscription.isInitialized &&
-            ::marqueeSubscription.isInitialized &&
-            ::screenSubscription.isInitialized &&
-            ::userSubscription.isInitialized
-            ) {
+        if (::imagesSubscription.isInitialized) {
             Repository.wsManager.removeSubscription(imagesSubscription)
-            Repository.wsManager.removeSubscription(marqueeSubscription)
+        }
+        if (::screenSubscription.isInitialized) {
             Repository.wsManager.removeSubscription(screenSubscription)
+        }
+        if (::marqueeSubscription.isInitialized) {
+            Repository.wsManager.removeSubscription(marqueeSubscription)
+        }
+        if (::userSubscription.isInitialized) {
             Repository.wsManager.removeSubscription(userSubscription)
         }
     }
