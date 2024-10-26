@@ -67,7 +67,7 @@ fun SplashScreen(
     val deviceUtils = DeviceUtils(context)
     val bundle = Bundle()
     bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, "Splash")
-    Firebase.analytics.logEvent("screen_view", bundle)
+    Firebase.analytics.logEvent("splash_view", bundle)
 
     LaunchedEffect(Unit) {
         coroutineScope.launch {

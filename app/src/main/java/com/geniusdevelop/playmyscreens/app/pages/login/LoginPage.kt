@@ -65,7 +65,7 @@ fun LoginPage(
     val context = LocalContext.current
     val bundle = Bundle()
     bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, "Login")
-    Firebase.analytics.logEvent("screen_view", bundle)
+    Firebase.analytics.logEvent("login_view", bundle)
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var code by remember { mutableStateOf("") }

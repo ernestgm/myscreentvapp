@@ -71,7 +71,7 @@ fun PlayerPage(
     val context = LocalContext.current
     val bundle = Bundle()
     bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, "Player")
-    Firebase.analytics.logEvent("screen_view", bundle)
+    Firebase.analytics.logEvent("player_view", bundle)
     val sessionManager = remember { SessionManager(context) }
     var images: Array<Images> by remember { mutableStateOf(emptyArray()) }
     var showButtonPause by remember { mutableStateOf(false) }
