@@ -32,7 +32,7 @@ fun LogoutPage(
     val context = LocalContext.current
     val bundle = Bundle()
     bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, "Logout")
-    Firebase.analytics.logEvent("screen_view", bundle)
+    Firebase.analytics.logEvent("logout_view", bundle)
     val sessionManager = remember { SessionManager(context) }
     val coroutineScope = rememberCoroutineScope()
 

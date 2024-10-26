@@ -47,7 +47,7 @@ fun HomePage(
     val context = LocalContext.current
     val bundle = Bundle()
     bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, "Home")
-    Firebase.analytics.logEvent("screen_view", bundle)
+    Firebase.analytics.logEvent("home_view", bundle)
     val sessionManager = remember { SessionManager(context) }
     var showLoading by remember { mutableStateOf(false) }
     val userId by sessionManager.userId.collectAsState(initial = "")
