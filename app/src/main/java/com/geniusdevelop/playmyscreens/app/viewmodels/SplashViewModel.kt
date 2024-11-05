@@ -18,6 +18,8 @@ import io.github.centrifugal.centrifuge.SubscriptionErrorEvent
 import io.github.centrifugal.centrifuge.SubscriptionEventListener
 import io.github.centrifugal.centrifuge.UnsubscribedEvent
 import io.ktor.client.call.NoTransformationFoundException
+import io.ktor.client.network.sockets.ConnectTimeoutException
+import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -109,6 +111,14 @@ class SplashViewModel : ViewModel() {
             is NoTransformationFoundException -> {
                 _uiState.value = SplashScreenUiState.Error("Network Error: Load Configuration Failed.")
             }
+            is HttpRequestTimeoutException -> {
+                FirebaseCrashlytics.getInstance().log("HttpRequestTimeoutException")
+                _uiState.value = SplashScreenUiState.ReloadPage
+            }
+            is ConnectTimeoutException -> {
+                FirebaseCrashlytics.getInstance().log("ConnectTimeoutException")
+                _uiState.value = SplashScreenUiState.ReloadPage
+            }
             else -> {
                 _uiState.value = SplashScreenUiState.Error("Error: " + e.message.toString())
             }
@@ -117,6 +127,7 @@ class SplashViewModel : ViewModel() {
 }
 
 sealed interface SplashScreenUiState {
+    data object ReloadPage : HomeScreenUiState
     data object Loading : HomeScreenUiState
     data class Error(val msg: String = "") : HomeScreenUiState
     data class Ready(

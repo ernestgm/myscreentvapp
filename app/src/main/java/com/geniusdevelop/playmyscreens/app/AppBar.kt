@@ -123,7 +123,7 @@ private fun HeadlineContent(
             Icon(
                 modifier = Modifier
                     .size(if (isMainIconMagnified) 50.dp else 40.dp),
-                painter = painterResource(id = R.drawable.ic_logo),
+                painter = painterResource(id = R.drawable.ic_logo_only_img),
                 contentDescription = null,
                 tint = Color.Unspecified
             )
