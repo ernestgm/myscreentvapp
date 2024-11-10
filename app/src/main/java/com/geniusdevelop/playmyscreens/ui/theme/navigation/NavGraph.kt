@@ -39,8 +39,11 @@ enum class NavGraph(
     Splash(
         routeName = "splash",
         composable = {
+            val navController = LocalNavController.current
             Column {
-                SplashScreen()
+                SplashScreen(
+                    reloadPage = { navController.navigate(Splash.routeName) },
+                )
             }
         }
     ),
@@ -52,6 +55,7 @@ enum class NavGraph(
             Column {
                 appBar()
                 HomePage(
+                    goToSplashPage = { navController.navigate(Splash.routeName) },
                     goToPlayerPage = { navController.navigate(Player.routeName) },
                     goToLogoutPage = { navController.navigate(Logout.routeName) }
                 )
@@ -79,6 +83,7 @@ enum class NavGraph(
             val navController = LocalNavController.current
             Column {
                 PlayerPage(
+                    goToSplashPage = { navController.navigate(Splash.routeName) },
                     refreshPlayer = { navController.navigate(Player.routeName) },
                     goToLogout = { navController.navigate(Logout.routeName) }
                 )

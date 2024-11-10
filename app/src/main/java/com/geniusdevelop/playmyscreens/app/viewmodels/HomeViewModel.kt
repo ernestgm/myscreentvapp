@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.geniusdevelop.playmyscreens.app.api.conection.Repository
 import com.geniusdevelop.playmyscreens.app.api.response.WSMessage
+import com.geniusdevelop.playmyscreens.app.exceptions.ApiManagerUninitializedException
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.github.centrifugal.centrifuge.DuplicateSubscriptionException
 import io.github.centrifugal.centrifuge.JoinEvent
@@ -17,6 +18,8 @@ import io.github.centrifugal.centrifuge.SubscriptionErrorEvent
 import io.github.centrifugal.centrifuge.SubscriptionEventListener
 import io.github.centrifugal.centrifuge.UnsubscribedEvent
 import io.ktor.client.call.NoTransformationFoundException
+import io.ktor.client.network.sockets.ConnectTimeoutException
+import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -168,6 +171,18 @@ class HomeScreeViewModel : ViewModel() {
             is NoTransformationFoundException -> {
                 _uiState.value = HomeScreenUiState.Error("Network Error: Load Data Failed.")
             }
+            is ApiManagerUninitializedException -> {
+                FirebaseCrashlytics.getInstance().log("ApiManager not initialized")
+                _uiState.value = HomeScreenUiState.ReloadApp
+            }
+            is HttpRequestTimeoutException -> {
+                FirebaseCrashlytics.getInstance().log("HttpRequestTimeoutException")
+                _uiState.value = HomeScreenUiState.ReloadApp
+            }
+            is ConnectTimeoutException -> {
+                FirebaseCrashlytics.getInstance().log("ConnectTimeoutException")
+                _uiState.value = HomeScreenUiState.ReloadApp
+            }
             else -> {
                 _uiState.value = HomeScreenUiState.Error("Error: " + e.message.toString())
             }
@@ -184,6 +199,7 @@ sealed interface HomeScreenUiState {
     data class ExistScreen(val exist: Boolean): HomeScreenUiState
     data object DisabledScreen: HomeScreenUiState
     data object LogoutUser: HomeScreenUiState
+    data object ReloadApp : HomeScreenUiState
 }
 
 

@@ -186,7 +186,8 @@ fun LoginPage(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.ic_logo),
+                        modifier = Modifier.width(100.dp),
+                        painter = painterResource(id = R.drawable.ic_logo_only_img),
                         contentDescription = "Artist image",
                     )
                     Column(

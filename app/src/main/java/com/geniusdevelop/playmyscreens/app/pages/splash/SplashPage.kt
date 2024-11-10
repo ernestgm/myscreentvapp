@@ -52,6 +52,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SplashScreen(
+    reloadPage: () -> Unit,
     splashScreeViewModel: SplashViewModel = viewModel()
 ) {
 
@@ -111,6 +112,9 @@ fun SplashScreen(
             }
         }
         is SplashScreenUiState.Loading -> {}
+        is SplashScreenUiState.ReloadPage -> {
+            reloadPage()
+        }
         is SplashScreenUiState.Error -> {
             ErrorWithButton(text = s.msg, modifier = Modifier.fillMaxSize()) {
                 coroutineScope.launch {
@@ -132,10 +136,9 @@ fun SplashScreen(
         ) {
             Image(
                 modifier = Modifier
-                    .width(100.dp)
-                    .height(100.dp)
+                    .width(300.dp)
                     .padding(all = 20.dp),
-                painter = painterResource(id = R.drawable.ic_logo),
+                painter = painterResource(id = R.drawable.ic_logo_only_img),
                 contentDescription = "")
 
             val welcomeText = if (waitingForConnection) {

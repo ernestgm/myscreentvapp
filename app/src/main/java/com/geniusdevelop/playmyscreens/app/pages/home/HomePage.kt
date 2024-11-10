@@ -3,14 +3,10 @@ package com.geniusdevelop.playmyscreens.app.pages.home
 import android.os.Bundle
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,14 +16,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.geniusdevelop.playmyscreens.app.session.SessionManager
 import com.geniusdevelop.playmyscreens.app.util.DeviceUtils
-import com.geniusdevelop.playmyscreens.app.util.Padding
 import com.geniusdevelop.playmyscreens.app.viewmodels.HomeScreeViewModel
 import com.geniusdevelop.playmyscreens.app.viewmodels.HomeScreenUiState
 import com.geniusdevelop.playmyscreens.ui.theme.common.Error
@@ -40,6 +33,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun HomePage(
+    goToSplashPage: () -> Unit,
     goToPlayerPage: () -> Unit,
     goToLogoutPage: () -> Unit,
     homeScreeViewModel: HomeScreeViewModel = viewModel()
@@ -80,6 +74,9 @@ fun HomePage(
             if (s.exist) {
                 goToPlayerPage()
             }
+        }
+        is HomeScreenUiState.ReloadApp -> {
+            goToSplashPage()
         }
         is HomeScreenUiState.Loading -> {
             Loading(text = "Creating device code", modifier = Modifier.fillMaxSize())

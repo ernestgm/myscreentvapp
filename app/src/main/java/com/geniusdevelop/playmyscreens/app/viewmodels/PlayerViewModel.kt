@@ -7,6 +7,7 @@ import com.geniusdevelop.playmyscreens.app.api.conection.Repository
 import com.geniusdevelop.playmyscreens.app.api.response.Images
 import com.geniusdevelop.playmyscreens.app.api.response.Marquee
 import com.geniusdevelop.playmyscreens.app.api.response.WSMessage
+import com.geniusdevelop.playmyscreens.app.exceptions.ApiManagerUninitializedException
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.github.centrifugal.centrifuge.DuplicateSubscriptionException
 import io.github.centrifugal.centrifuge.JoinEvent
@@ -19,6 +20,8 @@ import io.github.centrifugal.centrifuge.SubscriptionErrorEvent
 import io.github.centrifugal.centrifuge.SubscriptionEventListener
 import io.github.centrifugal.centrifuge.UnsubscribedEvent
 import io.ktor.client.call.NoTransformationFoundException
+import io.ktor.client.network.sockets.ConnectTimeoutException
+import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -236,6 +239,18 @@ class PlayerViewModel : ViewModel() {
             is NoTransformationFoundException -> {
                 _uiState.value = PlayerUiState.Error("Network Error: Load Data Failed.")
             }
+            is ApiManagerUninitializedException -> {
+                FirebaseCrashlytics.getInstance().log("ApiManager not initialized")
+                _uiState.value = PlayerUiState.ReloadApp
+            }
+            is HttpRequestTimeoutException -> {
+                FirebaseCrashlytics.getInstance().log("HttpRequestTimeoutException")
+                _uiState.value = PlayerUiState.ReloadApp
+            }
+            is ConnectTimeoutException -> {
+                FirebaseCrashlytics.getInstance().log("ConnectTimeoutException")
+                _uiState.value = PlayerUiState.ReloadApp
+            }
             else -> {
                 _uiState.value = PlayerUiState.Error("Error: " + e.message.toString())
             }
@@ -246,6 +261,7 @@ class PlayerViewModel : ViewModel() {
 sealed interface PlayerUiState {
     data object Loading : PlayerUiState
     data object RefreshPlayer : PlayerUiState
+    data object ReloadApp : PlayerUiState
     data object GotoLogout : PlayerUiState
     data class Error(val msg: String = "") : PlayerUiState
     data class Ready(

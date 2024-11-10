@@ -14,6 +14,7 @@ import com.geniusdevelop.playmyscreens.app.api.response.LoginResponse
 import com.geniusdevelop.playmyscreens.app.api.response.LogoutResponse
 import com.geniusdevelop.playmyscreens.app.api.response.SetDeviceIDResponse
 import com.geniusdevelop.playmyscreens.app.api.response.SetIdResponse
+import com.geniusdevelop.playmyscreens.app.exceptions.ApiManagerUninitializedException
 import com.geniusdevelop.playmyscreens.app.util.DeviceUtils
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -104,7 +105,6 @@ class ApiManager internal constructor(
 
     companion object {
         private lateinit var instance: ApiManager
-        private const val CLIENT_NOT_INITIALIZED = "ApiManager not initialized"
 
         fun initialize(
             context: Context,
@@ -118,7 +118,7 @@ class ApiManager internal constructor(
 
         fun getInstance(): ApiManager {
             if (!Companion::instance.isInitialized) {
-                throw Exception(CLIENT_NOT_INITIALIZED)
+                throw ApiManagerUninitializedException()
             } else {
                 return instance
             }
