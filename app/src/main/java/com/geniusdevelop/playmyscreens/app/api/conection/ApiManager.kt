@@ -9,15 +9,12 @@ import com.geniusdevelop.playmyscreens.app.api.response.CheckMarqueeUpdateRespon
 import com.geniusdevelop.playmyscreens.app.api.response.CheckScreenUpdateResponse
 import com.geniusdevelop.playmyscreens.app.api.response.GenerateLoginCodeResponse
 import com.geniusdevelop.playmyscreens.app.api.response.GetCodeResponse
-import com.geniusdevelop.playmyscreens.app.api.response.GetImagesResponse
 import com.geniusdevelop.playmyscreens.app.api.response.LoginResponse
 import com.geniusdevelop.playmyscreens.app.api.response.LogoutResponse
 import com.geniusdevelop.playmyscreens.app.api.response.SetDeviceIDResponse
 import com.geniusdevelop.playmyscreens.app.api.response.SetIdResponse
 import com.geniusdevelop.playmyscreens.app.exceptions.ApiManagerUninitializedException
 import com.geniusdevelop.playmyscreens.app.util.DeviceUtils
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 
 class ApiManager internal constructor(
     private val context: Context,
@@ -65,18 +62,6 @@ class ApiManager internal constructor(
         }
 
         return SetDeviceIDResponse(success = true, code = code)
-    }
-
-    override suspend fun getImagesByScreenCode(deviceCode: String): GetImagesResponse {
-        return client.get<GetImagesResponse>("/images/byScreen?code=$deviceCode")
-    }
-
-    override suspend fun checkScreenUpdated(
-        screenCode: String,
-        updatedAt: String
-    ): CheckScreenUpdateResponse {
-        val encodeUpdateAt = URLEncoder.encode(updatedAt, StandardCharsets.UTF_8.toString())
-        return client.get<CheckScreenUpdateResponse>("/screens/checkUpdatedAt?udpated_time=$encodeUpdateAt&code=$screenCode")
     }
 
     override suspend fun getDataScreenByDeviceCode(code: String): CheckScreenUpdateResponse {

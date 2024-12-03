@@ -16,7 +16,7 @@ android {
         minSdk = 21
         targetSdk = 34
         versionCode = 1
-        versionName = "1.14"
+        versionName = "2.0"
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -164,6 +164,7 @@ dependencies {
     implementation(libs.kotlin.serialization)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.constraintlayout)
 
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)

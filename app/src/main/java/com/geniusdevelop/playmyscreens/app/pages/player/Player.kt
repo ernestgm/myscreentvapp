@@ -25,6 +25,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -46,17 +50,23 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.Icon
+import androidx.tv.material3.IconButton
 import androidx.tv.material3.MaterialTheme
 import com.geniusdevelop.playmyscreens.app.api.response.Images
 import com.geniusdevelop.playmyscreens.app.util.BitmapUtil
+import com.geniusdevelop.playmyscreens.app.util.PortraitUtils
+import com.geniusdevelop.playmyscreens.app.util.handleDPadKeyEvents
 import kotlinx.coroutines.delay
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun Player(
     images: Array<Images>,
     updateCurrentIndex: Boolean = false,
     updating: Boolean = false,
     portrait: Boolean = false,
+    slide: Boolean = false,
     onClick: () -> Unit
 ) {
     val durations = images.map {
@@ -67,6 +77,10 @@ fun Player(
         it.description
     }
 
+    val descriptionPositions = images.map {
+        it.description_position
+    }
+
     val imagesBitmaps = images.map {
         it.getImageBitmap()?.asImageBitmap()
     }
@@ -74,30 +88,66 @@ fun Player(
     var currentIndex by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(key1 = updateCurrentIndex) {
-        if (images.isNotEmpty()) {
-            if (updateCurrentIndex) {
-                if (images.size > 1) {
-                    currentIndex = (currentIndex + 1) % images.size
+        if (!slide) {
+            if (images.isNotEmpty()) {
+                if (updateCurrentIndex) {
+                    if (images.size > 1) {
+                        currentIndex = (currentIndex + 1) % images.size
+                    }
                 }
             }
         }
     }
 
     LaunchedEffect(currentIndex) {
-        if (durations.isNotEmpty()) {
-            if (currentIndex in durations.indices) {
-                delay(durations[currentIndex])
-                Log.d("CAROUSEL", "Index $currentIndex")
-                currentIndex = (currentIndex + 1) % images.size
+        if (!slide) {
+            if (durations.isNotEmpty()) {
+                if (currentIndex in durations.indices) {
+                    delay(durations[currentIndex])
+                    Log.d("CAROUSEL", "Index $currentIndex")
+                    currentIndex = (currentIndex + 1) % images.size
+                }
             }
         }
     }
 
-    if (images.isNotEmpty()) {
-        if (currentIndex in images.indices && !updating) {
+    fun nextSlide() {
+        if (currentIndex < images.lastIndex) currentIndex++
+    }
+
+    fun previousSlide() {
+        if (currentIndex > 0) currentIndex--
+    }
+
+    val boxModifier = if (slide) {
+        Modifier.handleDPadKeyEvents (
+            onLeft = {
+                previousSlide()
+            },
+            onRight = {
+                nextSlide()
+            }
+        )
+    } else {
+        Modifier
+    }
+
+
+
+    Box(
+        modifier = boxModifier.fillMaxSize()
+    ) {
+        if (images.isNotEmpty()) {
+            val activeIndex = if (currentIndex in images.indices && !updating) {
+                currentIndex
+            } else {
+                0
+            }
+
             CarouselItemBackground(
-                image = imagesBitmaps[currentIndex],
-                description = descriptions[currentIndex],
+                image = imagesBitmaps[activeIndex],
+                description = descriptions[activeIndex],
+                descriptionPosition = descriptionPositions[activeIndex],
                 portrait = portrait,
                 modifier = Modifier
                     .fillMaxSize()
@@ -105,18 +155,50 @@ fun Player(
                         onClick()
                     }
             )
-        } else {
-            currentIndex = 0
-            CarouselItemBackground(
-                image = imagesBitmaps[currentIndex],
-                description = descriptions[currentIndex],
-                portrait = portrait,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clickable {
-                        onClick()
-                    }
-            )
+
+            if (slide) {
+                val bPadding = if (portrait) {
+                    PortraitUtils.getBorderPadding()
+                } else {
+                    5.dp
+                }
+                IconButton(
+                    onClick = {
+                        previousSlide()
+                    },
+                    modifier = Modifier
+                        .padding(bPadding)
+                        .clickable {
+                            previousSlide()
+                        }
+                        .align(Alignment.CenterStart)
+                        .size(48.dp) // Adjust size as needed
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Previous",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+                IconButton(
+                    onClick = {
+                        nextSlide()
+                    },
+                    modifier = Modifier
+                        .padding(bPadding)
+                        .clickable {
+                            nextSlide()
+                        }
+                        .align(Alignment.CenterEnd)
+                        .size(48.dp) // Adjust size as needed
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = "Next",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
         }
     }
 }
@@ -126,6 +208,7 @@ fun Player(
 private fun CarouselItemBackground(
     image: ImageBitmap?,
     description: String?,
+    descriptionPosition: String?,
     portrait: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -179,11 +262,67 @@ private fun CarouselItemBackground(
             }
 
 
+
             if (!description.isNullOrBlank()) {
+
+                var position = Alignment.BottomCenter
+                var sPadding = 5.dp
+                var tPadding = 5.dp
+                var ePadding = 5.dp
+                var bPadding = 5.dp
+
+                when (descriptionPosition) {
+                    "tl" -> {
+                        position = Alignment.TopStart
+                        if (portrait) {
+                            sPadding = PortraitUtils.getBorderPadding()
+                        }
+                    }
+                    "tc" -> {
+                        position = Alignment.TopCenter
+                    }
+                    "tr" -> {
+                        position = Alignment.TopEnd
+                        if (portrait) {
+                            ePadding = PortraitUtils.getBorderPadding()
+                        }
+                    }
+                    "cl" -> {
+                        position = Alignment.CenterStart
+                        if (portrait) {
+                            sPadding = PortraitUtils.getBorderPadding()
+                        }
+                    }
+                    "cc" -> {
+                        position = Alignment.Center
+                    }
+                    "cr" -> {
+                        position = Alignment.CenterEnd
+                        if (portrait) {
+                            ePadding = PortraitUtils.getBorderPadding()
+                        }
+                    }
+                    "bl" -> {
+                        position = Alignment.BottomStart
+                        if (portrait) {
+                            sPadding = PortraitUtils.getBorderPadding()
+                        }
+                    }
+                    "bc" -> {
+                        position = Alignment.BottomCenter
+                    }
+                    "br" -> {
+                        position = Alignment.BottomEnd
+                        if (portrait) {
+                            ePadding = PortraitUtils.getBorderPadding()
+                        }
+                    }
+                }
+
                 Box( modifier = Modifier
                     .height(100.dp)
-                    .align(Alignment.BottomCenter)
-                    .padding(5.dp)) {
+                    .align(position)
+                    .padding(start = sPadding, top = tPadding, bottom = bPadding, end = ePadding)) {
                     Text(
                         text = description,
                         modifier = Modifier

@@ -47,8 +47,9 @@ class PlayerViewModel : ViewModel() {
                 val result = Repository.api.getDataScreenByDeviceCode(deviceCode)
                 if (result.success.toBoolean()) {
                     val isPortrait = result.screen?.isPortrait() != null && result.screen.isPortrait()
+                    val isSlide = result.screen?.isSlide() != null && result.screen.isSlide()
                     _uiState.value = result.screen?.images?.let {
-                        PlayerUiState.Ready(isPortrait, it)
+                        PlayerUiState.Ready(isPortrait, isSlide, it)
                     }
                 }
             } catch (e: Exception) {
@@ -266,6 +267,7 @@ sealed interface PlayerUiState {
     data class Error(val msg: String = "") : PlayerUiState
     data class Ready(
         val isPortrait: Boolean,
+        val isSlide: Boolean,
         val images: Array<Images>
     ) : PlayerUiState
 

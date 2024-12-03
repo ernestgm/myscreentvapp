@@ -25,11 +25,12 @@ import com.geniusdevelop.playmyscreens.R
 fun CustomButton(
     text: String = "",
     icon: Int? = null,
+    modifier: Modifier = Modifier,
     onCLick: () -> Unit
 ) {
     Button(
         onClick = { onCLick() },
-        modifier = Modifier.clickable {
+        modifier = modifier.clickable {
             onCLick()
         },
         colors = ButtonDefaults.colors(

@@ -83,6 +83,7 @@ fun PlayerPage(
     var marqueeTextColor by remember { mutableStateOf("#FFFFFF") }
 
     var isPortrait by remember { mutableStateOf(true) }
+    var isSlide by remember { mutableStateOf(false) }
 
     BackHandler {
         coroutineScope.launch {
@@ -123,6 +124,7 @@ fun PlayerPage(
 
     when (val s = uiState) {
         is PlayerUiState.Ready -> {
+            isSlide = s.isSlide
             isPortrait = s.isPortrait
             images = s.images
             initialSizeImages = images.size
@@ -241,6 +243,7 @@ fun PlayerPage(
             marqueeTextColor = marqueeTextColor,
             marqueeMessage = marqueeMessage,
             isPortrait = isPortrait,
+            isSlide = isSlide,
             showMarquees = showMarquees
         ) {
             showButtonPause = true
@@ -261,20 +264,22 @@ private fun PlayerLayout(
     marqueeTextColor: String = "#FFF",
     marqueeMessage: String = "",
     isPortrait: Boolean = false,
+    isSlide: Boolean = false,
     onClick: () -> Unit
 ){
     val configuration = LocalConfiguration.current
     val screenWidthPx = configuration.screenWidthDp.dp
 
     val modifier = if (isPortrait) {
-        Modifier.requiredHeight(screenWidthPx).graphicsLayer { rotationZ = 90F }
+        Modifier
+            .requiredHeight(screenWidthPx)
+            .graphicsLayer { rotationZ = 90F }
     } else {
         Modifier.fillMaxSize()
     }
 
     Box(
         modifier = modifier
-            //.graphicsLayer { rotationZ = 90F } // Rotating the entire layout
     ) {
         Column(
             modifier = Modifier
@@ -291,7 +296,8 @@ private fun PlayerLayout(
                     images = images,
                     updateCurrentIndex = updateCurrentIndex,
                     updating = updating,
-                    portrait = isPortrait
+                    portrait = isPortrait,
+                    slide = isSlide
                 ) {
                     onClick()
                 }
@@ -306,12 +312,14 @@ private fun PlayerLayout(
                         .background(Color(android.graphics.Color.parseColor(marqueeBgColor)))
                 ) {
                     Text(
-                        modifier = Modifier.basicMarquee(
-                            delayMillis = 500,
-                            iterations = Int.MAX_VALUE,
-                            spacing = MarqueeSpacing.fractionOfContainer(1f / 6f),
-                            velocity = 60.dp
-                        ).padding(5.dp),
+                        modifier = Modifier
+                            .basicMarquee(
+                                delayMillis = 500,
+                                iterations = Int.MAX_VALUE,
+                                spacing = MarqueeSpacing.fractionOfContainer(1f / 6f),
+                                velocity = 60.dp
+                            )
+                            .padding(5.dp),
                         text = marqueeMessage.uppercase(),
                         color = Color(android.graphics.Color.parseColor(marqueeTextColor)),
                         fontWeight = FontWeight.Bold,
