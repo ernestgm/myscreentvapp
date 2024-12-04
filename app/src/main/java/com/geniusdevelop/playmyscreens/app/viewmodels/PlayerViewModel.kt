@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.geniusdevelop.playmyscreens.app.api.conection.Repository
 import com.geniusdevelop.playmyscreens.app.api.response.Images
 import com.geniusdevelop.playmyscreens.app.api.response.Marquee
+import com.geniusdevelop.playmyscreens.app.api.response.QR
 import com.geniusdevelop.playmyscreens.app.api.response.WSMessage
 import com.geniusdevelop.playmyscreens.app.exceptions.ApiManagerUninitializedException
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -73,8 +74,19 @@ class PlayerViewModel : ViewModel() {
         }
     }
 
-    fun updateImages(images: Array<Images>) {
-        PlayerUiState.Update(images)
+    fun getQr(deviceCode: String) {
+        viewModelScope.launch {
+            try {
+                val result = Repository.api.getQrByDeviceCode(deviceCode)
+                if (result.success != null && result.success.toBoolean()) {
+                    _uiState.value = result.qr?.let { PlayerUiState.ShowQR(it) }
+                } else {
+                    _uiState.value = PlayerUiState.HideQR
+                }
+            } catch (e: Exception) {
+                showException(e)
+            }
+        }
     }
 
     fun updatePlayer(deviceCode: String) {
@@ -279,7 +291,11 @@ sealed interface PlayerUiState {
         val marquee: Marquee,
         val isUpdate: Boolean
     ) : PlayerUiState
+    data class ShowQR(
+        val qr: QR
+    ) : PlayerUiState
     data object UpdateMarquee : PlayerUiState
     data class UpdateError(val msg: String = "") : PlayerUiState
     data class HideMarquee (val isUpdate: Boolean) : PlayerUiState
+    data object HideQR : PlayerUiState
 }

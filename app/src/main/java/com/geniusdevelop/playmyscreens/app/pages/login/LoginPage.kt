@@ -1,7 +1,9 @@
 package com.geniusdevelop.playmyscreens.app.pages.login
 
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -24,7 +26,6 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.*
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -43,7 +44,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
-import com.geniusdevelop.playmyscreens.BuildConfig
 import com.geniusdevelop.playmyscreens.R
 import com.geniusdevelop.playmyscreens.app.api.conection.Repository
 import com.geniusdevelop.playmyscreens.app.session.SessionManager
@@ -56,6 +56,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.analytics
 import kotlinx.coroutines.launch
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun LoginPage(
@@ -157,7 +158,7 @@ fun LoginPage(
                 )
                 if (configFields != null) {
                     Image(
-                        bitmap = BitmapUtil.generateQRCode(configFields.activate_url).asImageBitmap(),
+                        bitmap = BitmapUtil.generateQRCode(configFields.activate_url, 500, 500).asImageBitmap(),
                         contentDescription = "",
                         modifier = Modifier.width(250.dp).height(250.dp),
                         contentScale = ContentScale.Crop

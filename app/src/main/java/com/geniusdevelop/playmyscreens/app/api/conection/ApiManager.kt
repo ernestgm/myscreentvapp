@@ -6,6 +6,7 @@ import com.geniusdevelop.playmyscreens.app.api.request.LoginByCodeRequest
 import com.geniusdevelop.playmyscreens.app.api.request.LoginRequest
 import com.geniusdevelop.playmyscreens.app.api.request.SetIdRequest
 import com.geniusdevelop.playmyscreens.app.api.response.CheckMarqueeUpdateResponse
+import com.geniusdevelop.playmyscreens.app.api.response.CheckQrUpdateResponse
 import com.geniusdevelop.playmyscreens.app.api.response.CheckScreenUpdateResponse
 import com.geniusdevelop.playmyscreens.app.api.response.GenerateLoginCodeResponse
 import com.geniusdevelop.playmyscreens.app.api.response.GetCodeResponse
@@ -70,6 +71,10 @@ class ApiManager internal constructor(
 
     override suspend fun getMarqueeByDeviceCode(code: String): CheckMarqueeUpdateResponse {
         return client.get<CheckMarqueeUpdateResponse>("/devices/getMarquee?code=$code")
+    }
+
+    override suspend fun getQrByDeviceCode(code: String): CheckQrUpdateResponse {
+        return client.get<CheckQrUpdateResponse>("/devices/getQr?code=$code")
     }
 
     fun refreshClientToken(token: String?) {

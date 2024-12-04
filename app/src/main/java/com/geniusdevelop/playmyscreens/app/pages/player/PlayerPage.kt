@@ -2,9 +2,12 @@ package com.geniusdevelop.playmyscreens.app.pages.player
 
 
 import android.app.Activity
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.compose.BackHandler
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.MarqueeSpacing
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
@@ -12,11 +15,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.absolutePadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
@@ -29,7 +34,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -42,6 +49,7 @@ import androidx.tv.material3.Text
 import com.geniusdevelop.playmyscreens.BuildConfig
 import com.geniusdevelop.playmyscreens.app.api.response.Images
 import com.geniusdevelop.playmyscreens.app.session.SessionManager
+import com.geniusdevelop.playmyscreens.app.util.BitmapUtil
 import com.geniusdevelop.playmyscreens.app.viewmodels.PlayerUiState
 import com.geniusdevelop.playmyscreens.app.viewmodels.PlayerViewModel
 import com.geniusdevelop.playmyscreens.ui.theme.common.Error
@@ -77,10 +85,13 @@ fun PlayerPage(
     val activity = LocalContext.current as? Activity
 
     var showMarquees by remember { mutableStateOf(false) }
-
     var marqueeMessage by remember { mutableStateOf("") }
     var marqueeBgColor by remember { mutableStateOf("#000000") }
     var marqueeTextColor by remember { mutableStateOf("#FFFFFF") }
+
+    var showQR by remember { mutableStateOf(false) }
+    var positionQR by remember { mutableStateOf("br") }
+    var infoQR by remember { mutableStateOf("") }
 
     var isPortrait by remember { mutableStateOf(true) }
     var isSlide by remember { mutableStateOf(false) }
@@ -96,6 +107,7 @@ fun PlayerPage(
         coroutineScope.launch {
             playerPageViewModel.getContents(code.toString())
             playerPageViewModel.getMarquee(code.toString())
+            playerPageViewModel.getQr(code.toString())
         }
 
         onDispose {
@@ -189,6 +201,16 @@ fun PlayerPage(
             showMarquees = false
         }
 
+        is PlayerUiState.ShowQR -> {
+            showQR = true
+            positionQR = s.qr.position.toString()
+            infoQR = s.qr.info.toString()
+        }
+
+        is PlayerUiState.HideQR -> {
+            showQR = false
+        }
+
         is PlayerUiState.RefreshPlayer -> {
             refreshPlayer()
         }
@@ -244,7 +266,10 @@ fun PlayerPage(
             marqueeMessage = marqueeMessage,
             isPortrait = isPortrait,
             isSlide = isSlide,
-            showMarquees = showMarquees
+            showMarquees = showMarquees,
+            showQR = showQR,
+            infoQR = infoQR,
+            positionQR = positionQR
         ) {
             showButtonPause = true
         }
@@ -253,6 +278,7 @@ fun PlayerPage(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun PlayerLayout(
@@ -263,6 +289,9 @@ private fun PlayerLayout(
     marqueeBgColor: String = "#000",
     marqueeTextColor: String = "#FFF",
     marqueeMessage: String = "",
+    showQR: Boolean = false,
+    infoQR: String = "",
+    positionQR: String = "br",
     isPortrait: Boolean = false,
     isSlide: Boolean = false,
     onClick: () -> Unit
@@ -326,6 +355,20 @@ private fun PlayerLayout(
                         fontSize = 50.sp,
                     )
                 }
+            }
+        }
+        if (showQR && infoQR.isNotEmpty()) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .background(Color(android.graphics.Color.parseColor(marqueeBgColor)))
+            ){
+                Image(
+                    bitmap = BitmapUtil.generateQRCode(infoQR, 180, 180, margin = 15).asImageBitmap(),
+                    contentDescription = "",
+                    modifier = Modifier.width(150.dp).height(150.dp).padding(0.dp),
+                    contentScale = ContentScale.Crop
+                )
             }
         }
     }

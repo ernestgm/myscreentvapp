@@ -36,6 +36,12 @@ data class CheckMarqueeUpdateResponse(
 )
 
 @Serializable
+data class CheckQrUpdateResponse(
+    val success: String? = null,
+    val qr: QR? = null
+)
+
+@Serializable
 data class Screen (
     val id: Int? = null,
     val name: String? = null,
@@ -64,6 +70,15 @@ data class Marquee (
     val bg_color: String? = null,
     val text_color: String? = null,
     val ads: Array<Ad>? = null
+)
+
+@Serializable
+data class QR (
+    val id: Int? = null,
+    val name: String? = null,
+    val message: String? = null,
+    val info: String? = null,
+    val position: String? = null
 )
 
 @Serializable

@@ -2,7 +2,10 @@ package com.geniusdevelop.playmyscreens.app.util
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
+import android.os.Build
 import android.util.Base64
+import androidx.annotation.RequiresApi
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.MultiFormatWriter
 import com.google.zxing.common.BitMatrix
@@ -32,15 +35,14 @@ object BitmapUtil {
         return kotlin.math.abs(aspectRatio - targetRatio) < tolerance
     }
 
-    fun generateQRCode(text: String): Bitmap {
-        val width = 500 // Width of the QR code
-        val height = 500 // Height of the QR code
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun generateQRCode(text: String, width: Int, height: Int, margin: Int = 0): Bitmap {
         val bitMatrix: BitMatrix = MultiFormatWriter().encode(text, BarcodeFormat.QR_CODE, width, height)
 
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
-        for (x in 0 until width) {
-            for (y in 0 until height) {
-                bitmap.setPixel(x, y, if (bitMatrix[x, y]) android.graphics.Color.BLACK else android.graphics.Color.WHITE)
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGBA_F16)
+        for (x in margin until width - margin) {
+            for (y in margin until height - margin) {
+                bitmap.setPixel(x, y, if (bitMatrix[x, y]) Color.BLACK else Color.WHITE)
             }
         }
 
