@@ -34,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -54,7 +55,9 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.IconButton
 import androidx.tv.material3.MaterialTheme
 import com.geniusdevelop.playmyscreens.app.api.response.Images
+import com.geniusdevelop.playmyscreens.app.pages.player.video.VideoPlayer
 import com.geniusdevelop.playmyscreens.app.util.BitmapUtil
+import com.geniusdevelop.playmyscreens.app.util.LayoutUtils
 import com.geniusdevelop.playmyscreens.app.util.PortraitUtils
 import com.geniusdevelop.playmyscreens.app.util.handleDPadKeyEvents
 import kotlinx.coroutines.delay
@@ -67,7 +70,8 @@ fun Player(
     updating: Boolean = false,
     portrait: Boolean = false,
     slide: Boolean = false,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onChangeQr: (info: String?) -> Unit,
 ) {
     val durations = images.map {
         ((it.duration?.toLong() ?: 1) * 1000)
@@ -81,11 +85,16 @@ fun Player(
         it.description_position
     }
 
+    val qrs = images.map {
+        it.qr_info
+    }
+
     val imagesBitmaps = images.map {
         it.getImageBitmap()?.asImageBitmap()
     }
 
     var currentIndex by remember { mutableIntStateOf(0) }
+    var isVideoPlaying by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = updateCurrentIndex) {
         if (!slide) {
@@ -103,9 +112,10 @@ fun Player(
         if (!slide) {
             if (durations.isNotEmpty()) {
                 if (currentIndex in durations.indices) {
-                    delay(durations[currentIndex])
-                    Log.d("CAROUSEL", "Index $currentIndex")
-                    currentIndex = (currentIndex + 1) % images.size
+                    if (!isVideoPlaying) {
+                        delay(durations[currentIndex])
+                        currentIndex = (currentIndex + 1) % images.size
+                    }
                 }
             }
         }
@@ -144,17 +154,35 @@ fun Player(
                 0
             }
 
-            CarouselItemBackground(
-                image = imagesBitmaps[activeIndex],
-                description = descriptions[activeIndex],
-                descriptionPosition = descriptionPositions[activeIndex],
-                portrait = portrait,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clickable {
-                        onClick()
+            if (images[activeIndex].isVideo()) {
+                isVideoPlaying = true
+                VideoPlayer(
+                    slide = slide,
+                    uri = images[activeIndex].video.toString(),
+                    onFinish = {
+                        isVideoPlaying = false
+                        if (!slide) {
+                            currentIndex = (currentIndex + 1) % images.size
+                        }
                     }
-            )
+                )
+            } else {
+                CarouselItemBackground(
+                    image = imagesBitmaps[activeIndex],
+                    description = descriptions[activeIndex],
+                    descriptionPosition = descriptionPositions[activeIndex],
+                    qrInfo = qrs[activeIndex],
+                    portrait = portrait,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clickable {
+                            onClick()
+                        },
+                    onChangeQr = { info ->
+                        onChangeQr(info)
+                    }
+                )
+            }
 
             if (slide) {
                 val bPadding = if (portrait) {
@@ -209,10 +237,15 @@ private fun CarouselItemBackground(
     image: ImageBitmap?,
     description: String?,
     descriptionPosition: String?,
+    qrInfo: String?,
     portrait: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onChangeQr: (info: String?) -> Unit,
 ) {
 
+    LaunchedEffect(key1 = qrInfo) {
+        onChangeQr(qrInfo)
+    }
         Box(
             modifier = modifier
         ) {
@@ -264,65 +297,17 @@ private fun CarouselItemBackground(
 
 
             if (!description.isNullOrBlank()) {
-
-                var position = Alignment.BottomCenter
-                var sPadding = 5.dp
-                var tPadding = 5.dp
-                var ePadding = 5.dp
-                var bPadding = 5.dp
-
-                when (descriptionPosition) {
-                    "tl" -> {
-                        position = Alignment.TopStart
-                        if (portrait) {
-                            sPadding = PortraitUtils.getBorderPadding()
-                        }
-                    }
-                    "tc" -> {
-                        position = Alignment.TopCenter
-                    }
-                    "tr" -> {
-                        position = Alignment.TopEnd
-                        if (portrait) {
-                            ePadding = PortraitUtils.getBorderPadding()
-                        }
-                    }
-                    "cl" -> {
-                        position = Alignment.CenterStart
-                        if (portrait) {
-                            sPadding = PortraitUtils.getBorderPadding()
-                        }
-                    }
-                    "cc" -> {
-                        position = Alignment.Center
-                    }
-                    "cr" -> {
-                        position = Alignment.CenterEnd
-                        if (portrait) {
-                            ePadding = PortraitUtils.getBorderPadding()
-                        }
-                    }
-                    "bl" -> {
-                        position = Alignment.BottomStart
-                        if (portrait) {
-                            sPadding = PortraitUtils.getBorderPadding()
-                        }
-                    }
-                    "bc" -> {
-                        position = Alignment.BottomCenter
-                    }
-                    "br" -> {
-                        position = Alignment.BottomEnd
-                        if (portrait) {
-                            ePadding = PortraitUtils.getBorderPadding()
-                        }
-                    }
-                }
+                val position = LayoutUtils.getAlignByPosition(position = descriptionPosition.toString(), portrait = portrait)
 
                 Box( modifier = Modifier
                     .height(100.dp)
-                    .align(position)
-                    .padding(start = sPadding, top = tPadding, bottom = bPadding, end = ePadding)) {
+                    .align(position.align)
+                    .padding(
+                        start = position.sPadding,
+                        top = position.tPadding,
+                        bottom = position.bPadding,
+                        end = position.ePadding
+                    )) {
                     Text(
                         text = description,
                         modifier = Modifier

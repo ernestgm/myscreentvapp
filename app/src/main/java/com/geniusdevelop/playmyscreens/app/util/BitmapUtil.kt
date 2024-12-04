@@ -7,8 +7,8 @@ import android.os.Build
 import android.util.Base64
 import androidx.annotation.RequiresApi
 import com.google.zxing.BarcodeFormat
-import com.google.zxing.MultiFormatWriter
-import com.google.zxing.common.BitMatrix
+import com.google.zxing.EncodeHintType
+import com.google.zxing.qrcode.QRCodeWriter
 
 object BitmapUtil {
     fun getImageByBase64(image: String): Bitmap? {
@@ -36,12 +36,17 @@ object BitmapUtil {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun generateQRCode(text: String, width: Int, height: Int, margin: Int = 0): Bitmap {
-        val bitMatrix: BitMatrix = MultiFormatWriter().encode(text, BarcodeFormat.QR_CODE, width, height)
+    fun generateQRCode(text: String, size: Int, margin: Int = 0): Bitmap {
+        val qrCodeWriter = QRCodeWriter()
+        val hints = mapOf(
+            EncodeHintType.MARGIN to margin // Control the margin size
+        )
+        val bitMatrix = qrCodeWriter.encode(text, BarcodeFormat.QR_CODE, size, size, hints)
+        val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
 
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGBA_F16)
-        for (x in margin until width - margin) {
-            for (y in margin until height - margin) {
+        //val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.RGBA_F16)
+        for (x in 0 until size - margin) {
+            for (y in 0 until size - margin) {
                 bitmap.setPixel(x, y, if (bitMatrix[x, y]) Color.BLACK else Color.WHITE)
             }
         }

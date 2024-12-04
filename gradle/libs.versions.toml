@@ -25,6 +25,8 @@ material3Android = "1.2.1"
 ktor = "2.3.12"
 datastore = "1.0.0"
 constraintlayout = "2.2.0"
+media3Ui = "1.5.0"
+media3Exoplayer = "1.5.0"
 
 
 [libraries]
@@ -69,6 +71,8 @@ androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-
 
 kotlin-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+androidx-media3-ui = { group = "androidx.media3", name = "media3-ui", version.ref = "media3Ui" }
+androidx-media3-exoplayer = { group = "androidx.media3", name = "media3-exoplayer", version.ref = "media3Exoplayer" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

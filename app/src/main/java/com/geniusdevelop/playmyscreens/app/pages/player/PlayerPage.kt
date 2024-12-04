@@ -50,6 +50,7 @@ import com.geniusdevelop.playmyscreens.BuildConfig
 import com.geniusdevelop.playmyscreens.app.api.response.Images
 import com.geniusdevelop.playmyscreens.app.session.SessionManager
 import com.geniusdevelop.playmyscreens.app.util.BitmapUtil
+import com.geniusdevelop.playmyscreens.app.util.LayoutUtils
 import com.geniusdevelop.playmyscreens.app.viewmodels.PlayerUiState
 import com.geniusdevelop.playmyscreens.app.viewmodels.PlayerViewModel
 import com.geniusdevelop.playmyscreens.ui.theme.common.Error
@@ -61,6 +62,7 @@ import com.google.jetstream.presentation.common.Loading
 import kotlinx.coroutines.launch
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun PlayerPage(
@@ -163,6 +165,12 @@ fun PlayerPage(
         is PlayerUiState.UpdateMarquee -> {
             coroutineScope.launch {
                 playerPageViewModel.getMarquee(code.toString(), true)
+            }
+        }
+
+        is PlayerUiState.UpdateQR -> {
+            coroutineScope.launch {
+                playerPageViewModel.getQr(code.toString())
             }
         }
 
@@ -298,6 +306,7 @@ private fun PlayerLayout(
 ){
     val configuration = LocalConfiguration.current
     val screenWidthPx = configuration.screenWidthDp.dp
+    var imageQrInfo by remember { mutableStateOf("") }
 
     val modifier = if (isPortrait) {
         Modifier
@@ -326,10 +335,18 @@ private fun PlayerLayout(
                     updateCurrentIndex = updateCurrentIndex,
                     updating = updating,
                     portrait = isPortrait,
-                    slide = isSlide
-                ) {
-                    onClick()
-                }
+                    slide = isSlide,
+                    onClick = {
+                        onClick()
+                    },
+                    onChangeQr = { info ->
+                        if (!info.isNullOrEmpty()) {
+                            imageQrInfo = info
+                        } else {
+                            imageQrInfo = ""
+                        }
+                    }
+                )
             }
 
             if (showMarquees) {
@@ -357,14 +374,27 @@ private fun PlayerLayout(
                 }
             }
         }
-        if (showQR && infoQR.isNotEmpty()) {
+        if (showQR || imageQrInfo.isNotEmpty()) {
+
+            val qrImage = if (imageQrInfo.isNotEmpty()) {
+                BitmapUtil.generateQRCode(imageQrInfo, 150, 1).asImageBitmap()
+            } else {
+                BitmapUtil.generateQRCode(infoQR, 150, 1).asImageBitmap()
+            }
+
+            val position = if (imageQrInfo.isNotEmpty() && !showQR) {
+                LayoutUtils.getAlignByPosition(position = "", portrait = isPortrait)
+            } else {
+                LayoutUtils.getAlignByPosition(position = positionQR, portrait = isPortrait)
+            }
+
             Box(
                 modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .background(Color(android.graphics.Color.parseColor(marqueeBgColor)))
+                    .align(position.align)
+                    .padding(start = position.sPadding, top = position.tPadding, bottom = position.bPadding, end = position.ePadding)
             ){
                 Image(
-                    bitmap = BitmapUtil.generateQRCode(infoQR, 180, 180, margin = 15).asImageBitmap(),
+                    bitmap = qrImage,
                     contentDescription = "",
                     modifier = Modifier.width(150.dp).height(150.dp).padding(0.dp),
                     contentScale = ContentScale.Crop

@@ -36,6 +36,7 @@ class PlayerViewModel : ViewModel() {
     private lateinit var imagesSubscription: Subscription
     private lateinit var screenSubscription: Subscription
     private lateinit var marqueeSubscription: Subscription
+    private lateinit var qrSubscription: Subscription
     private lateinit var userSubscription: Subscription
     private val _uiState = MutableStateFlow<PlayerUiState?>(null)
     val uiState: StateFlow<PlayerUiState?> = _uiState
@@ -149,6 +150,13 @@ class PlayerViewModel : ViewModel() {
                             }
                         }
                     }
+                    "player_qr_$deviceCode" -> {
+                        when (data.message) {
+                            "check_qr_update" -> {
+                                _uiState.value = PlayerUiState.UpdateQR
+                            }
+                        }
+                    }
                     "user_$deviceCode" -> {
                         when (data.message) {
                             "logout" -> {
@@ -212,6 +220,17 @@ class PlayerViewModel : ViewModel() {
             e.printStackTrace()
         }
 
+        try {
+            if (!::qrSubscription.isInitialized) {
+                println("init subscribe qrSubscription")
+                qrSubscription = Repository.wsManager.newSubscription("player_qr_$deviceCode", subListener)
+            }
+        } catch (e: DuplicateSubscriptionException) {
+            FirebaseCrashlytics.getInstance().recordException(e)
+            FirebaseCrashlytics.getInstance().log("Duplicate qrSubscription")
+            e.printStackTrace()
+        }
+
         viewModelScope.launch {
             if (::imagesSubscription.isInitialized) {
                 imagesSubscription.subscribe()
@@ -221,6 +240,9 @@ class PlayerViewModel : ViewModel() {
             }
             if (::marqueeSubscription.isInitialized) {
                 marqueeSubscription.subscribe()
+            }
+            if (::qrSubscription.isInitialized) {
+                qrSubscription.subscribe()
             }
             if (::userSubscription.isInitialized) {
                 userSubscription.subscribe()
@@ -237,6 +259,9 @@ class PlayerViewModel : ViewModel() {
         }
         if (::marqueeSubscription.isInitialized) {
             Repository.wsManager.removeSubscription(marqueeSubscription)
+        }
+        if (::qrSubscription.isInitialized) {
+            Repository.wsManager.removeSubscription(qrSubscription)
         }
         if (::userSubscription.isInitialized) {
             Repository.wsManager.removeSubscription(userSubscription)
@@ -295,6 +320,7 @@ sealed interface PlayerUiState {
         val qr: QR
     ) : PlayerUiState
     data object UpdateMarquee : PlayerUiState
+    data object UpdateQR : PlayerUiState
     data class UpdateError(val msg: String = "") : PlayerUiState
     data class HideMarquee (val isUpdate: Boolean) : PlayerUiState
     data object HideQR : PlayerUiState

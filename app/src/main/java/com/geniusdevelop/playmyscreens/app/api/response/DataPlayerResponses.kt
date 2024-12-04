@@ -20,7 +20,9 @@ data class Images (
         return BitmapUtil.getImageByBase64(image.toString())
     }
 
-
+    fun isVideo(): Boolean {
+        return image.isNullOrEmpty()
+    }
 }
 
 @Serializable

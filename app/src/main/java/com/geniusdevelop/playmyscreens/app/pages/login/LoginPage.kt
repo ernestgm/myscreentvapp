@@ -158,7 +158,7 @@ fun LoginPage(
                 )
                 if (configFields != null) {
                     Image(
-                        bitmap = BitmapUtil.generateQRCode(configFields.activate_url, 500, 500).asImageBitmap(),
+                        bitmap = BitmapUtil.generateQRCode(configFields.activate_url, 500).asImageBitmap(),
                         contentDescription = "",
                         modifier = Modifier.width(250.dp).height(250.dp),
                         contentScale = ContentScale.Crop
