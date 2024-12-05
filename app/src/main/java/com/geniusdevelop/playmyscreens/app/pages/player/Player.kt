@@ -99,6 +99,7 @@ fun Player(
     LaunchedEffect(key1 = updateCurrentIndex) {
         if (!slide) {
             if (images.isNotEmpty()) {
+                isVideoPlaying = false
                 if (updateCurrentIndex) {
                     if (images.size > 1) {
                         currentIndex = (currentIndex + 1) % images.size
@@ -112,8 +113,8 @@ fun Player(
         if (!slide) {
             if (durations.isNotEmpty()) {
                 if (currentIndex in durations.indices) {
+                    delay(durations[currentIndex])
                     if (!isVideoPlaying) {
-                        delay(durations[currentIndex])
                         currentIndex = (currentIndex + 1) % images.size
                     }
                 }
@@ -158,6 +159,7 @@ fun Player(
                 isVideoPlaying = true
                 VideoPlayer(
                     slide = slide,
+                    repeat = images.size == 1 && !slide,
                     uri = images[activeIndex].video.toString(),
                     onFinish = {
                         isVideoPlaying = false
