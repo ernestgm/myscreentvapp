@@ -31,7 +31,7 @@ fun VideoPlayer(
     val context = LocalContext.current
     val exoPlayer = remember { createExoPlayer(context, uri) }
 
-    var isPlaying by remember { mutableStateOf(true) }
+    val isPlaying by remember { mutableStateOf(true) }
 
     LaunchedEffect(key1 = repeat) {
         exoPlayer.repeatMode = if (repeat) REPEAT_MODE_ONE else REPEAT_MODE_OFF

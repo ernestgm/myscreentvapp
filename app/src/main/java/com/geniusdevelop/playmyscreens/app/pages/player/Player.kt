@@ -16,13 +16,11 @@
 
 package com.geniusdevelop.playmyscreens.app.pages.player
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
@@ -54,6 +52,7 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.IconButton
 import androidx.tv.material3.MaterialTheme
+import com.geniusdevelop.playmyscreens.app.api.models.QRData
 import com.geniusdevelop.playmyscreens.app.api.response.Images
 import com.geniusdevelop.playmyscreens.app.pages.player.video.VideoPlayer
 import com.geniusdevelop.playmyscreens.app.util.BitmapUtil
@@ -69,9 +68,11 @@ fun Player(
     updateCurrentIndex: Boolean = false,
     updating: Boolean = false,
     portrait: Boolean = false,
+    globalDescriptionSize: String,
+    globalDescriptionPosition: String,
     slide: Boolean = false,
     onClick: () -> Unit,
-    onChangeQr: (info: String?) -> Unit,
+    onChangeQr: (qrData: QRData) -> Unit,
 ) {
     val durations = images.map {
         ((it.duration?.toLong() ?: 1) * 1000)
@@ -85,8 +86,16 @@ fun Player(
         it.description_position
     }
 
+    val descriptionSizes = images.map {
+        it.description_size
+    }
+
     val qrs = images.map {
         it.qr_info
+    }
+
+    val qrPositions = images.map {
+        it.qr_position
     }
 
     val imagesBitmaps = images.map {
@@ -131,7 +140,7 @@ fun Player(
     }
 
     val boxModifier = if (slide) {
-        Modifier.handleDPadKeyEvents (
+        Modifier.handleDPadKeyEvents(
             onLeft = {
                 previousSlide()
             },
@@ -169,19 +178,31 @@ fun Player(
                     }
                 )
             } else {
+                val descPosition = if (descriptionPositions[activeIndex].toString() == "none") {
+                    globalDescriptionPosition
+                } else {
+                    descriptionPositions[activeIndex].toString()
+                }
+                val descSize = if (descriptionSizes[activeIndex].toString() == "none") {
+                    globalDescriptionSize
+                } else {
+                    descriptionSizes[activeIndex].toString()
+                }
                 CarouselItemBackground(
                     image = imagesBitmaps[activeIndex],
                     description = descriptions[activeIndex],
-                    descriptionPosition = descriptionPositions[activeIndex],
+                    descriptionPosition = descPosition,
+                    descriptionSize = descSize,
                     qrInfo = qrs[activeIndex],
+                    qrPosition = qrPositions[activeIndex],
                     portrait = portrait,
                     modifier = Modifier
                         .fillMaxSize()
                         .clickable {
                             onClick()
                         },
-                    onChangeQr = { info ->
-                        onChangeQr(info)
+                    onChangeQr = { qrData ->
+                        onChangeQr(qrData)
                     }
                 )
             }
@@ -239,100 +260,124 @@ private fun CarouselItemBackground(
     image: ImageBitmap?,
     description: String?,
     descriptionPosition: String?,
+    descriptionSize: String?,
     qrInfo: String?,
+    qrPosition: String?,
     portrait: Boolean,
     modifier: Modifier = Modifier,
-    onChangeQr: (info: String?) -> Unit,
+    onChangeQr: (qrData: QRData) -> Unit,
 ) {
 
-    LaunchedEffect(key1 = qrInfo) {
-        onChangeQr(qrInfo)
-    }
-        Box(
-            modifier = modifier
-        ) {
-            if (portrait) {
-                val configuration = LocalConfiguration.current
-                val screenHeightPx = configuration.screenHeightDp.dp
+    LaunchedEffect(key1 = qrInfo, key2 = qrPosition) {
+        val info = if (qrInfo.isNullOrEmpty()) { "" } else { qrInfo }
+        val position = if (qrPosition.isNullOrEmpty()) { "" } else { qrPosition }
 
-                image?.let {
-                    var contentScale = ContentScale.Fit
-                    if (it.width < it.height && BitmapUtil.isAspectRatio9x16(it.width, it.height)) {
-                        contentScale = ContentScale.FillBounds
-                    } else {
-                        Image(
-                            bitmap = it,
-                            contentDescription = "",
-                            modifier = modifier.alpha(0.3F),
-                            contentScale = ContentScale.Crop
-                        )
-                    }
+        val qrData = QRData(info , position)
+        onChangeQr(qrData)
+    }
+
+    Box(
+        modifier = modifier
+    ) {
+        if (portrait) {
+            val configuration = LocalConfiguration.current
+            val screenHeightPx = configuration.screenHeightDp.dp
+
+            image?.let {
+                var contentScale = ContentScale.Fit
+                if (it.width < it.height && BitmapUtil.isAspectRatio9x16(it.width, it.height)) {
+                    contentScale = ContentScale.FillBounds
+                } else {
                     Image(
                         bitmap = it,
                         contentDescription = "",
-                        modifier = modifier.requiredWidth(screenHeightPx),
-                        contentScale = contentScale
+                        modifier = modifier.alpha(0.3F),
+                        contentScale = ContentScale.Crop
                     )
                 }
-            } else {
-                image?.let {
-                    var contentScale = ContentScale.Fit
-                    if (it.width > it.height && BitmapUtil.isAspectRatio16x9(it.width, it.height)) {
-                        contentScale = ContentScale.FillBounds
-                    } else {
-                        Image(
-                            bitmap = it,
-                            contentDescription = "",
-                            modifier = modifier.alpha(0.3F),
-                            contentScale = ContentScale.Crop
-                        )
-                    }
+                Image(
+                    bitmap = it,
+                    contentDescription = "",
+                    modifier = modifier.requiredWidth(screenHeightPx),
+                    contentScale = contentScale
+                )
+            }
+        } else {
+            image?.let {
+                var contentScale = ContentScale.Fit
+                if (it.width > it.height && BitmapUtil.isAspectRatio16x9(it.width, it.height)) {
+                    contentScale = ContentScale.FillBounds
+                } else {
                     Image(
                         bitmap = it,
                         contentDescription = "",
-                        modifier = modifier,
-                        contentScale = contentScale
+                        modifier = modifier.alpha(0.3F),
+                        contentScale = ContentScale.Crop
                     )
+                }
+                Image(
+                    bitmap = it,
+                    contentDescription = "",
+                    modifier = modifier,
+                    contentScale = contentScale
+                )
+            }
+        }
+
+
+
+        if (!description.isNullOrBlank()) {
+            val position = LayoutUtils.getAlignByPosition(
+                position = descriptionPosition.toString(),
+                portrait = portrait
+            )
+            var fontSize = 45.sp
+            when (descriptionSize.toString()) {
+                "s" -> {
+                    fontSize = 25.sp
+                }
+
+                "m" -> {
+                    fontSize = 45.sp
+                }
+
+                "l" -> {
+                    fontSize = 65.sp
                 }
             }
-
-
-
-            if (!description.isNullOrBlank()) {
-                val position = LayoutUtils.getAlignByPosition(position = descriptionPosition.toString(), portrait = portrait)
-
-                Box( modifier = Modifier
-                    .height(100.dp)
+            Box(
+                modifier = Modifier
                     .align(position.align)
                     .padding(
                         start = position.sPadding,
                         top = position.tPadding,
                         bottom = position.bPadding,
                         end = position.ePadding
-                    )) {
-                    Text(
-                        text = description,
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .background(Color.Black.copy(alpha = .8f))
-                            .padding(12.dp),
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            color = MaterialTheme.colorScheme.onSurface.copy(
-                                red = 1f,
-                                blue = 1f,
-                                green = 1f,
-                                alpha = 1f
-                            ),
-                            shadow = Shadow(
-                                color = Color.Black.copy(alpha = 0.5f),
-                                offset = Offset(x = 2f, y = 4f),
-                                blurRadius = 2f
-                            ),
-                            fontSize = 45.sp,
-                            textAlign = TextAlign.Center
-                        )
                     )
-                }
+            ) {
+                Text(
+                    text = description,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .background(Color.Black.copy(alpha = .8f))
+                        .padding(12.dp),
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        color = MaterialTheme.colorScheme.onSurface.copy(
+                            red = 1f,
+                            blue = 1f,
+                            green = 1f,
+                            alpha = 1f
+                        ),
+                        shadow = Shadow(
+                            color = Color.Black.copy(alpha = 0.5f),
+                            offset = Offset(x = 2f, y = 4f),
+                            blurRadius = 2f
+                        ),
+                        fontSize = fontSize,
+                        textAlign = TextAlign.Center
+                    )
+                )
             }
         }
+    }
 }

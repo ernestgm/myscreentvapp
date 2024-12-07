@@ -76,7 +76,12 @@ fun PlayerPage(
     bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, "Player")
     Firebase.analytics.logEvent("player_view", bundle)
     val sessionManager = remember { SessionManager(context) }
+
     var images: Array<Images> by remember { mutableStateOf(emptyArray()) }
+    var globalDescriptionPosition by remember { mutableStateOf("bc") }
+    var globalDescriptionSize by remember { mutableStateOf("m") }
+
+
     var showButtonPause by remember { mutableStateOf(false) }
     var updatingImagesData by remember { mutableStateOf(false) }
     var updateCurrentIndex by remember { mutableStateOf(false) }
@@ -141,6 +146,8 @@ fun PlayerPage(
             isSlide = s.isSlide
             isPortrait = s.isPortrait
             images = s.images
+            globalDescriptionSize = s.globlaDescriptionSize
+            globalDescriptionPosition = s.globlaDescriptionPosition
             initialSizeImages = images.size
             playerPageViewModel.initSubscriptions(code.toString())
         }
@@ -277,7 +284,9 @@ fun PlayerPage(
             showMarquees = showMarquees,
             showQR = showQR,
             infoQR = infoQR,
-            positionQR = positionQR
+            positionQR = positionQR,
+            globalDescriptionPosition = globalDescriptionPosition,
+            globalDescriptionSize = globalDescriptionSize
         ) {
             showButtonPause = true
         }
@@ -300,6 +309,8 @@ private fun PlayerLayout(
     showQR: Boolean = false,
     infoQR: String = "",
     positionQR: String = "br",
+    globalDescriptionPosition: String = "bc",
+    globalDescriptionSize: String = "m",
     isPortrait: Boolean = false,
     isSlide: Boolean = false,
     onClick: () -> Unit
@@ -307,6 +318,7 @@ private fun PlayerLayout(
     val configuration = LocalConfiguration.current
     val screenWidthPx = configuration.screenWidthDp.dp
     var imageQrInfo by remember { mutableStateOf("") }
+    var imageQrPosition by remember { mutableStateOf("") }
 
     val modifier = if (isPortrait) {
         Modifier
@@ -336,15 +348,14 @@ private fun PlayerLayout(
                     updating = updating,
                     portrait = isPortrait,
                     slide = isSlide,
+                    globalDescriptionPosition = globalDescriptionPosition,
+                    globalDescriptionSize = globalDescriptionSize,
                     onClick = {
                         onClick()
                     },
-                    onChangeQr = { info ->
-                        if (!info.isNullOrEmpty()) {
-                            imageQrInfo = info
-                        } else {
-                            imageQrInfo = ""
-                        }
+                    onChangeQr = { qrData ->
+                        imageQrInfo = qrData.info
+                        imageQrPosition = qrData.position
                     }
                 )
             }
@@ -382,8 +393,8 @@ private fun PlayerLayout(
                 BitmapUtil.generateQRCode(infoQR, 150, 1).asImageBitmap()
             }
 
-            val position = if (imageQrInfo.isNotEmpty() && !showQR) {
-                LayoutUtils.getAlignByPosition(position = "", portrait = isPortrait)
+            val position = if (imageQrPosition.isNotEmpty() && imageQrInfo.isNotEmpty()) {
+                LayoutUtils.getAlignByPosition(position = imageQrPosition, portrait = isPortrait)
             } else {
                 LayoutUtils.getAlignByPosition(position = positionQR, portrait = isPortrait)
             }

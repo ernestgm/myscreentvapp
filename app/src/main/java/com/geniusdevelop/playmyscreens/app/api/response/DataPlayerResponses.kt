@@ -10,10 +10,12 @@ data class Images (
     val name: String? = null,
     val description: String? = null,
     val description_position: String? = null,
+    val description_size: String? = null,
     val image: String? = null,
     val video: String? = null,
     val screen_id: String? = null,
     val qr_info: String? = null,
+    val qr_position: String? = null,
     val duration: Int? = null,
 ) {
     fun getImageBitmap(): Bitmap? {
@@ -28,7 +30,8 @@ data class Images (
 @Serializable
 data class CheckScreenUpdateResponse(
     val success: String? = null,
-    val screen: Screen? = null
+    val screen: Screen? = null,
+    val device: Device? = null,
 )
 
 @Serializable
@@ -47,21 +50,13 @@ data class CheckQrUpdateResponse(
 data class Screen (
     val id: Int? = null,
     val name: String? = null,
+    val description_position: String? = null,
+    val description_size: String? = null,
     val enabled: Int? = null,
-    val portrait: Int? = null,
-    val slide: Int? = null,
     val images: Array<Images>? = null
 ) {
     fun isEnable(): Boolean {
         return enabled == 1
-    }
-
-    fun isPortrait(): Boolean {
-        return portrait == 1
-    }
-
-    fun isSlide(): Boolean {
-        return slide == 1
     }
 }
 

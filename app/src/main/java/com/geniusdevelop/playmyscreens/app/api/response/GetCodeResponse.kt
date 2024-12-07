@@ -1,5 +1,6 @@
 package com.geniusdevelop.playmyscreens.app.api.response
 
+import com.google.protobuf.BoolValueOrBuilder
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -11,5 +12,15 @@ data class GetCodeResponse (
 @Serializable
 data class Device (
     val code: String? = null,
-    val device_id: String? = null
-)
+    val device_id: String? = null,
+    val portrait: Int? = null,
+    val slide: Int? = null,
+) {
+    fun isPortrait(): Boolean {
+        return portrait == 1
+    }
+
+    fun isSlide(): Boolean {
+        return slide == 1
+    }
+}

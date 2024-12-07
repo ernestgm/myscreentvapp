@@ -48,10 +48,18 @@ class PlayerViewModel : ViewModel() {
             try {
                 val result = Repository.api.getDataScreenByDeviceCode(deviceCode)
                 if (result.success.toBoolean()) {
-                    val isPortrait = result.screen?.isPortrait() != null && result.screen.isPortrait()
-                    val isSlide = result.screen?.isSlide() != null && result.screen.isSlide()
+                    val isPortrait = result.device?.isPortrait() != null && result.device.isPortrait()
+                    val isSlide = result.device?.isSlide() != null && result.device.isSlide()
+                    val gDescriptionPosition = result.screen?.description_position.toString()
+                    val gDescriptionSize = result.screen?.description_size.toString()
+
                     _uiState.value = result.screen?.images?.let {
-                        PlayerUiState.Ready(isPortrait, isSlide, it)
+                        PlayerUiState.Ready(
+                            isPortrait,
+                            isSlide,
+                            gDescriptionPosition,
+                            gDescriptionSize,
+                            it)
                     }
                 }
             } catch (e: Exception) {
@@ -305,6 +313,8 @@ sealed interface PlayerUiState {
     data class Ready(
         val isPortrait: Boolean,
         val isSlide: Boolean,
+        val globlaDescriptionPosition: String,
+        val globlaDescriptionSize: String,
         val images: Array<Images>
     ) : PlayerUiState
 
