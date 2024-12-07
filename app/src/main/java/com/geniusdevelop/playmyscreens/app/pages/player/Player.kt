@@ -107,8 +107,8 @@ fun Player(
 
     LaunchedEffect(key1 = updateCurrentIndex) {
         if (!slide) {
+            isVideoPlaying = false
             if (images.isNotEmpty()) {
-                isVideoPlaying = false
                 if (updateCurrentIndex) {
                     if (images.size > 1) {
                         currentIndex = (currentIndex + 1) % images.size

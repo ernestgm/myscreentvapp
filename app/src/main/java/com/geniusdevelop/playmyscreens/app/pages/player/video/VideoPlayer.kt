@@ -38,6 +38,12 @@ fun VideoPlayer(
         exoPlayer.play()
     }
 
+    LaunchedEffect(key1 = uri) {
+        exoPlayer.setMediaItem(MediaItem.fromUri(Uri.parse(uri)))
+        exoPlayer.prepare()
+        exoPlayer.playWhenReady = isPlaying
+    }
+
     DisposableEffect(Unit) {
         exoPlayer.prepare()
         val listener = object : Player.Listener {
