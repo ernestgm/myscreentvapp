@@ -1,10 +1,13 @@
 package com.geniusdevelop.playmyscreens.app.api.conection
 
 import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.geniusdevelop.playmyscreens.app.api.request.GenerateCodeRequest
 import com.geniusdevelop.playmyscreens.app.api.request.LoginByCodeRequest
 import com.geniusdevelop.playmyscreens.app.api.request.LoginRequest
 import com.geniusdevelop.playmyscreens.app.api.request.SetIdRequest
+import com.geniusdevelop.playmyscreens.app.api.request.SetUpdateDeviceRequest
 import com.geniusdevelop.playmyscreens.app.api.response.CheckMarqueeUpdateResponse
 import com.geniusdevelop.playmyscreens.app.api.response.CheckQrUpdateResponse
 import com.geniusdevelop.playmyscreens.app.api.response.CheckScreenUpdateResponse
@@ -37,6 +40,7 @@ class ApiManager internal constructor(
         return client.post("/logout", null)
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     override suspend fun setDeviceID(userId: String): SetDeviceIDResponse {
         val deviceUtils = DeviceUtils(context)
         val deviceID = deviceUtils.getDeviceId()
@@ -45,7 +49,17 @@ class ApiManager internal constructor(
 
         if (code == "") {
             code = deviceUtils.generateSixDigitRandom().toString()
-            val response = client.post<SetIdResponse>("/device", SetIdRequest(deviceID, code, deviceID, userId))
+            val response = client.post<SetIdResponse>(
+                "/device",
+                SetIdRequest(
+                    deviceID,
+                    code,
+                    deviceID,
+                    userId,
+                    deviceUtils.getAppVersion(),
+                    deviceUtils.getAndroidVersion(),
+                    deviceUtils.hasOverlayPermission()
+                ))
 
             if (response.success.toString() == "success") {
                 return SetDeviceIDResponse(success = true, code = code)
@@ -81,16 +95,29 @@ class ApiManager internal constructor(
         this.client = client.builder.useBearerToken(!token.isNullOrEmpty()).addToken(token.toString()).init()
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     private suspend fun getDeviceCode(deviceID: String, userId: String): String {
         var code = ""
         val response = client.get<GetCodeResponse>("/devices/byId?device_id=$deviceID&user_id=$userId")
-        code = if (response.data != null) {
-            response.data.code.toString()
-        } else {
-            ""
+
+        if (response.data != null) {
+            updateDataDevice(response.data.id.toString())
+            code = response.data.code.toString()
         }
 
         return code
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    private suspend fun updateDataDevice(id: String) {
+        val deviceUtils = DeviceUtils(context)
+        client.put<SetIdResponse>(
+            "/device/update/${id}",
+            SetUpdateDeviceRequest(
+                deviceUtils.getAppVersion(),
+                deviceUtils.getAndroidVersion(),
+                deviceUtils.hasOverlayPermission()
+            ))
     }
 
     companion object {

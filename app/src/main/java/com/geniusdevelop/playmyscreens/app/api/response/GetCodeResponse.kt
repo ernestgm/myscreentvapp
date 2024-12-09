@@ -11,6 +11,7 @@ data class GetCodeResponse (
 
 @Serializable
 data class Device (
+    val id: String? = null,
     val code: String? = null,
     val device_id: String? = null,
     val portrait: Int? = null,

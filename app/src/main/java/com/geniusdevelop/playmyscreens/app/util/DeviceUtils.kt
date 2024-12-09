@@ -23,6 +23,8 @@ import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import androidx.annotation.RequiresApi
+import com.geniusdevelop.playmyscreens.BuildConfig
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -36,6 +38,19 @@ class DeviceUtils (
 ) {
     fun getDeviceId(): String {
         return Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    fun hasOverlayPermission(): String {
+        return if (Settings.canDrawOverlays(context)) { "yes" } else { "no" }
+    }
+
+    fun getAppVersion(): String{
+        return BuildConfig.VERSION_NAME
+    }
+
+    fun getAndroidVersion(): String {
+        return Build.VERSION.SDK_INT.toString()
     }
 
     fun generateSixDigitRandom(): Int {
