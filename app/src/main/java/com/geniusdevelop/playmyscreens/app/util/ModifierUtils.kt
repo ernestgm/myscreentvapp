@@ -20,7 +20,6 @@ import android.view.KeyEvent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -120,14 +119,13 @@ fun Modifier.occupyScreenSize() = this
  * for the first time.
  * */
 @Composable
-fun Modifier.focusOnInitialVisibility(isVisible: MutableState<Boolean>): Modifier {
+fun Modifier.focusOnInitialVisibility(isVisible: Boolean): Modifier {
     val focusRequester = remember { FocusRequester() }
 
     return focusRequester(focusRequester)
         .onPlaced {
-            if (!isVisible.value) {
+            if (!isVisible) {
                 focusRequester.requestFocus()
-                isVisible.value = true
             }
         }
 }

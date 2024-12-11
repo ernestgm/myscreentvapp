@@ -45,6 +45,7 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -54,6 +55,7 @@ import androidx.tv.material3.IconButton
 import androidx.tv.material3.MaterialTheme
 import com.geniusdevelop.playmyscreens.app.api.models.QRData
 import com.geniusdevelop.playmyscreens.app.api.response.Images
+import com.geniusdevelop.playmyscreens.app.pages.player.cache.VideoCacheManager
 import com.geniusdevelop.playmyscreens.app.pages.player.video.VideoPlayer
 import com.geniusdevelop.playmyscreens.app.util.BitmapUtil
 import com.geniusdevelop.playmyscreens.app.util.LayoutUtils
@@ -102,12 +104,18 @@ fun Player(
         it.getImageBitmap()?.asImageBitmap()
     }
 
+    val context = LocalContext.current
     var currentIndex by remember { mutableIntStateOf(0) }
     var isVideoPlaying by remember { mutableStateOf(false) }
+    val videoCacheManager = remember { VideoCacheManager(context) }
+
+    LaunchedEffect(key1 = images) {
+        isVideoPlaying = false
+        videoCacheManager.cleanUp(images.toList())
+    }
 
     LaunchedEffect(key1 = updateCurrentIndex) {
         if (!slide) {
-            isVideoPlaying = false
             if (images.isNotEmpty()) {
                 if (updateCurrentIndex) {
                     if (images.size > 1) {
@@ -125,6 +133,7 @@ fun Player(
                     delay(durations[currentIndex])
                     if (!isVideoPlaying) {
                         currentIndex = (currentIndex + 1) % images.size
+                        println(currentIndex)
                     }
                 }
             }
