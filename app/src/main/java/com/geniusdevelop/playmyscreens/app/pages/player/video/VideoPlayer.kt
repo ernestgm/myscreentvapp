@@ -59,19 +59,20 @@ fun VideoPlayer(
                 isCaching = false
             }
             exoPlayer?.prepare()
-            val listener = object : Player.Listener {
-                override fun onPlaybackStateChanged(state: Int) {
-                    if (state == Player.STATE_ENDED) {
-                        onFinish()
-                    }
-                }
-            }
-            exoPlayer?.addListener(listener)
             exoPlayer?.playWhenReady = true
         }
     }
 
     DisposableEffect(Unit) {
+        exoPlayer?.prepare()
+        val listener = object : Player.Listener {
+            override fun onPlaybackStateChanged(state: Int) {
+                if (state == Player.STATE_ENDED) {
+                    onFinish()
+                }
+            }
+        }
+        exoPlayer?.addListener(listener)
         onDispose {
             if (exoPlayer != null) {
                 exoPlayer?.playWhenReady = false

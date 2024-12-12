@@ -110,7 +110,6 @@ fun Player(
     val videoCacheManager = remember { VideoCacheManager(context) }
 
     LaunchedEffect(key1 = images) {
-        isVideoPlaying = false
         videoCacheManager.cleanUp(images.toList())
     }
 
@@ -118,7 +117,7 @@ fun Player(
         if (!slide) {
             if (images.isNotEmpty()) {
                 if (updateCurrentIndex) {
-                    if (images.size > 1) {
+                    if (images.size > 1 && !isVideoPlaying) {
                         currentIndex = (currentIndex + 1) % images.size
                     }
                 }
@@ -133,7 +132,6 @@ fun Player(
                     delay(durations[currentIndex])
                     if (!isVideoPlaying) {
                         currentIndex = (currentIndex + 1) % images.size
-                        println(currentIndex)
                     }
                 }
             }
@@ -174,6 +172,8 @@ fun Player(
             }
 
             if (images[activeIndex].isVideo()) {
+                val qrData = QRData("" , "")
+                onChangeQr(qrData)
                 isVideoPlaying = true
                 VideoPlayer(
                     slide = slide,
