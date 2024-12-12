@@ -101,7 +101,7 @@ fun VideoPlayer(
                     setShowFastForwardButton(false)
 
                     if (!slide) {
-                        controllerShowTimeoutMs = 1
+                        controllerShowTimeoutMs = 500
                         findViewById<View>(androidx.media3.ui.R.id.exo_play_pause)?.visibility = View.GONE
                     }
                     // Hide specific UI elements
