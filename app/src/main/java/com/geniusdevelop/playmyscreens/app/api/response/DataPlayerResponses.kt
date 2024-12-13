@@ -32,7 +32,15 @@ data class CheckScreenUpdateResponse(
     val success: String? = null,
     val screen: Screen? = null,
     val device: Device? = null,
-)
+) {
+    fun getMedia(): Array<Images> {
+        if (screen != null) {
+            return screen.getMedia()
+        }
+
+        return emptyArray()
+    }
+}
 
 @Serializable
 data class CheckMarqueeUpdateResponse(
@@ -57,6 +65,14 @@ data class Screen (
 ) {
     fun isEnable(): Boolean {
         return enabled == 1
+    }
+
+    fun getMedia(): Array<Images> {
+        if (images != null) {
+            return images
+        }
+
+        return emptyArray()
     }
 }
 

@@ -53,14 +53,13 @@ class PlayerViewModel : ViewModel() {
                     val gDescriptionPosition = result.screen?.description_position.toString()
                     val gDescriptionSize = result.screen?.description_size.toString()
 
-                    _uiState.value = result.screen?.images?.let {
-                        PlayerUiState.Ready(
-                            isPortrait,
-                            isSlide,
-                            gDescriptionPosition,
-                            gDescriptionSize,
-                            it)
-                    }
+                    _uiState.value = PlayerUiState.Ready(
+                        isPortrait,
+                        isSlide,
+                        gDescriptionPosition,
+                        gDescriptionSize,
+                        result.getMedia()
+                    )
                 }
             } catch (e: Exception) {
                 showException(e)
@@ -103,7 +102,7 @@ class PlayerViewModel : ViewModel() {
             try {
                 val result = Repository.api.getDataScreenByDeviceCode(deviceCode)
                 if (result.success != null && result.success.toBoolean()) {
-                    _uiState.value = result.screen?.images?.let { PlayerUiState.Update(it) }
+                    _uiState.value = PlayerUiState.Update(result.getMedia())
                 }
             } catch (e: Exception) {
                 showException(e)

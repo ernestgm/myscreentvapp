@@ -59,7 +59,10 @@ import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.analytics
 import com.google.jetstream.presentation.common.Loading
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -88,7 +91,7 @@ fun PlayerPage(
     var initialSizeImages by remember { mutableIntStateOf(0) }
     val coroutineScope = rememberCoroutineScope()
     val code by sessionManager.deviceCode.collectAsState(initial = "")
-    val uiState by playerPageViewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by playerPageViewModel.uiState.collectAsState()
     val activity = LocalContext.current as? Activity
 
     var showMarquees by remember { mutableStateOf(false) }
@@ -143,13 +146,15 @@ fun PlayerPage(
 
     when (val s = uiState) {
         is PlayerUiState.Ready -> {
-            isSlide = s.isSlide
-            isPortrait = s.isPortrait
-            images = s.images
-            globalDescriptionSize = s.globlaDescriptionSize
-            globalDescriptionPosition = s.globlaDescriptionPosition
-            initialSizeImages = images.size
-            playerPageViewModel.initSubscriptions(code.toString())
+            if (!images.contentEquals(s.images)) {
+                isSlide = s.isSlide
+                isPortrait = s.isPortrait
+                images = s.images
+                initialSizeImages = images.size
+                globalDescriptionSize = s.globlaDescriptionSize
+                globalDescriptionPosition = s.globlaDescriptionPosition
+                playerPageViewModel.initSubscriptions(code.toString())
+            }
         }
 
         is PlayerUiState.Loading -> {
@@ -161,8 +166,10 @@ fun PlayerPage(
         }
 
         is PlayerUiState.Update -> {
-            images = s.images
-            reloadCarrousel()
+            if (!images.contentEquals(s.images)) {
+                images = s.images
+                reloadCarrousel()
+            }
         }
 
         is PlayerUiState.ReadyToUpdate -> {
@@ -170,15 +177,11 @@ fun PlayerPage(
         }
 
         is PlayerUiState.UpdateMarquee -> {
-            coroutineScope.launch {
-                playerPageViewModel.getMarquee(code.toString(), true)
-            }
+            playerPageViewModel.getMarquee(code.toString(), true)
         }
 
         is PlayerUiState.UpdateQR -> {
-            coroutineScope.launch {
-                playerPageViewModel.getQr(code.toString())
-            }
+            playerPageViewModel.getQr(code.toString())
         }
 
         is PlayerUiState.UpdateError -> {
@@ -191,21 +194,13 @@ fun PlayerPage(
             marqueeBgColor = s.marquee.bg_color.toString()
             marqueeTextColor = s.marquee.text_color.toString()
 
-            val ads = s.marquee.ads?.filter { ad -> ad.isEnable() }
-
-            if (!ads.isNullOrEmpty()) {
+            val ads = s.marquee.ads?.first()
+            if ( ads != null ) {
                 showMarquees = true
-                ads.forEachIndexed{ idx, ad ->
-                    if (ad.isEnable()) {
-                        marqueeMessage = "$marqueeMessage ${ad.message}"
-                        if (idx != ads.size - 1) {
-                            marqueeMessage = "$marqueeMessage ***** "
-                        }
-                    }
-                }
-
-                if (marqueeMessage.length < 100) {
-                    marqueeMessage = marqueeMessage.padStart(30).padEnd(100)
+                marqueeMessage = if (ads.message.toString().length < 100) {
+                    "           ${ads.message.toString()}                                                   "
+                } else {
+                    ads.message.toString()
                 }
             } else {
                 showMarquees = false
@@ -402,12 +397,20 @@ private fun PlayerLayout(
             Box(
                 modifier = Modifier
                     .align(position.align)
-                    .padding(start = position.sPadding, top = position.tPadding, bottom = position.bPadding, end = position.ePadding)
+                    .padding(
+                        start = position.sPadding,
+                        top = position.tPadding,
+                        bottom = position.bPadding,
+                        end = position.ePadding
+                    )
             ){
                 Image(
                     bitmap = qrImage,
                     contentDescription = "",
-                    modifier = Modifier.width(150.dp).height(150.dp).padding(0.dp),
+                    modifier = Modifier
+                        .width(150.dp)
+                        .height(150.dp)
+                        .padding(0.dp),
                     contentScale = ContentScale.Crop
                 )
             }
