@@ -130,8 +130,10 @@ fun Player(
             if (durations.isNotEmpty()) {
                 if (currentIndex in durations.indices) {
                     delay(durations[currentIndex])
+
                     if (!isVideoPlaying) {
                         currentIndex = (currentIndex + 1) % images.size
+                        println(currentIndex)
                     }
                 }
             }
@@ -139,7 +141,7 @@ fun Player(
     }
 
     fun nextSlide() {
-        if (currentIndex < images.lastIndex) currentIndex++
+        currentIndex = (currentIndex + 1) % images.size
     }
 
     fun previousSlide() {

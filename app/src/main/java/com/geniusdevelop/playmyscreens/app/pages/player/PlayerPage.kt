@@ -61,6 +61,7 @@ import com.google.firebase.analytics.analytics
 import com.google.jetstream.presentation.common.Loading
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -89,6 +90,7 @@ fun PlayerPage(
     var updatingImagesData by remember { mutableStateOf(false) }
     var updateCurrentIndex by remember { mutableStateOf(false) }
     var initialSizeImages by remember { mutableIntStateOf(0) }
+    var backClickCount by remember { mutableIntStateOf(0) }
     val coroutineScope = rememberCoroutineScope()
     val code by sessionManager.deviceCode.collectAsState(initial = "")
     val uiState by playerPageViewModel.uiState.collectAsState()
@@ -108,14 +110,16 @@ fun PlayerPage(
 
     BackHandler {
         coroutineScope.launch {
-            activity?.finish()
+            backClickCount++
+            if (backClickCount == 2) {
+                backClickCount = 0
+                activity?.finish()
+            }
         }
     }
 
     DisposableEffect(Unit) {
-        // Effect is triggered when HomeScreen is displayed
         coroutineScope.launch {
-            playerPageViewModel.getContents(code.toString())
             playerPageViewModel.getMarquee(code.toString())
             playerPageViewModel.getQr(code.toString())
         }
@@ -169,6 +173,8 @@ fun PlayerPage(
             if (!images.contentEquals(s.images)) {
                 images = s.images
                 reloadCarrousel()
+            } else {
+                reloadCarrousel()
             }
         }
 
@@ -205,10 +211,19 @@ fun PlayerPage(
             } else {
                 showMarquees = false
             }
+
+            if (!s.isUpdate) {
+                println("Update content")
+                playerPageViewModel.getContents(code.toString())
+            }
         }
 
         is PlayerUiState.HideMarquee -> {
             showMarquees = false
+            if (!s.isUpdate) {
+                println("Update content")
+                playerPageViewModel.getContents(code.toString())
+            }
         }
 
         is PlayerUiState.ShowQR -> {
@@ -283,7 +298,11 @@ fun PlayerPage(
             globalDescriptionPosition = globalDescriptionPosition,
             globalDescriptionSize = globalDescriptionSize
         ) {
-            showButtonPause = true
+            coroutineScope.launch {
+                showButtonPause = true
+                delay(15000L)
+                showButtonPause = false
+            }
         }
     } else {
         Loading(text = "Waiting images for this screen", modifier = Modifier.fillMaxSize())
