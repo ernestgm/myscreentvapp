@@ -35,7 +35,7 @@ import kotlinx.coroutines.launch
 fun HomePage(
     goToSplashPage: () -> Unit,
     goToPlayerPage: () -> Unit,
-    goToLogoutPage: () -> Unit,
+    goToLogoutPage: (switchAccount: Boolean) -> Unit,
     homeScreeViewModel: HomeScreeViewModel = viewModel()
 ) {
     val context = LocalContext.current
@@ -92,7 +92,7 @@ fun HomePage(
             Error(text = "Screen has been Disabled. Contact with support. Device Code: ${code}", modifier = Modifier.fillMaxSize())
         }
         is HomeScreenUiState.LogoutUser -> {
-            goToLogoutPage()
+            goToLogoutPage(s.switchAccount)
         }
         else -> {}
     }

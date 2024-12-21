@@ -133,7 +133,6 @@ fun Player(
 
                     if (!isVideoPlaying) {
                         currentIndex = (currentIndex + 1) % images.size
-                        println(currentIndex)
                     }
                 }
             }

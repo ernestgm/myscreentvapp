@@ -24,6 +24,7 @@ import io.ktor.client.call.NoTransformationFoundException
 import io.ktor.client.network.sockets.ConnectTimeoutException
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.util.network.UnresolvedAddressException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -38,13 +39,20 @@ class PlayerViewModel : ViewModel() {
     private lateinit var marqueeSubscription: Subscription
     private lateinit var qrSubscription: Subscription
     private lateinit var userSubscription: Subscription
+
     private val _uiState = MutableStateFlow<PlayerUiState?>(null)
     val uiState: StateFlow<PlayerUiState?> = _uiState
+
+    private val _marqueeState = MutableStateFlow<PlayerMarqueeState?>(null)
+    val marqueeState: StateFlow<PlayerMarqueeState?> = _marqueeState
+
+    private val _qrState = MutableStateFlow<PlayerQRState?>(null)
+    val qrState: StateFlow<PlayerQRState?> = _qrState
 
 
     fun getContents (deviceCode: String) {
         _uiState.value = PlayerUiState.Loading
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 val result = Repository.api.getDataScreenByDeviceCode(deviceCode)
                 if (result.success.toBoolean()) {
@@ -68,13 +76,14 @@ class PlayerViewModel : ViewModel() {
     }
 
     fun getMarquee(deviceCode: String,  isUpdate: Boolean = false) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
+                println("get Marquee")
                 val result = Repository.api.getMarqueeByDeviceCode(deviceCode)
                 if (result.success != null && result.success.toBoolean()) {
-                    _uiState.value = result.marquee?.let { PlayerUiState.ShowMarquee(it, isUpdate) }
+                    _marqueeState.value = result.marquee?.let { PlayerMarqueeState.ShowMarquee(it, isUpdate) }
                 } else {
-                    _uiState.value = PlayerUiState.HideMarquee(isUpdate)
+                    _marqueeState.value = PlayerMarqueeState.HideMarquee
                 }
             } catch (e: Exception) {
                 showException(e)
@@ -83,13 +92,13 @@ class PlayerViewModel : ViewModel() {
     }
 
     fun getQr(deviceCode: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 val result = Repository.api.getQrByDeviceCode(deviceCode)
                 if (result.success != null && result.success.toBoolean()) {
-                    _uiState.value = result.qr?.let { PlayerUiState.ShowQR(it) }
+                    _qrState.value = result.qr?.let { PlayerQRState.ShowQR(it) }
                 } else {
-                    _uiState.value = PlayerUiState.HideQR
+                    _qrState.value = PlayerQRState.HideQR
                 }
             } catch (e: Exception) {
                 showException(e)
@@ -98,7 +107,7 @@ class PlayerViewModel : ViewModel() {
     }
 
     fun updatePlayer(deviceCode: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 val result = Repository.api.getDataScreenByDeviceCode(deviceCode)
                 if (result.success != null && result.success.toBoolean()) {
@@ -149,7 +158,7 @@ class PlayerViewModel : ViewModel() {
                     "player_marquee_$deviceCode" -> {
                         when (data.message) {
                             "check_marquee_update" -> {
-                                _uiState.value = PlayerUiState.UpdateMarquee
+                                _marqueeState.value = PlayerMarqueeState.UpdateMarquee
                                 viewModelScope.launch {
                                     delay(3000)
                                     _uiState.value = PlayerUiState.ReadyToUpdate
@@ -160,14 +169,17 @@ class PlayerViewModel : ViewModel() {
                     "player_qr_$deviceCode" -> {
                         when (data.message) {
                             "check_qr_update" -> {
-                                _uiState.value = PlayerUiState.UpdateQR
+                                _qrState.value = PlayerQRState.UpdateQR
                             }
                         }
                     }
                     "user_$deviceCode" -> {
                         when (data.message) {
                             "logout" -> {
-                                _uiState.value = PlayerUiState.GotoLogout
+                                _uiState.value = PlayerUiState.GotoLogout(false)
+                            }
+                            "switch_account" -> {
+                                _uiState.value = PlayerUiState.GotoLogout(true)
                             }
                         }
                     }
@@ -307,7 +319,9 @@ sealed interface PlayerUiState {
     data object Loading : PlayerUiState
     data object RefreshPlayer : PlayerUiState
     data object ReloadApp : PlayerUiState
-    data object GotoLogout : PlayerUiState
+    data class GotoLogout(
+        val switchAccount: Boolean
+    ) : PlayerUiState
     data class Error(val msg: String = "") : PlayerUiState
     data class Ready(
         val isPortrait: Boolean,
@@ -321,16 +335,20 @@ sealed interface PlayerUiState {
     data class Update(
         val images: Array<Images>
     ) : PlayerUiState
+    data class UpdateError(val msg: String = "") : PlayerUiState
+}
+
+sealed interface PlayerQRState {
+    data class ShowQR(val qr: QR) : PlayerQRState
+    data object HideQR : PlayerQRState
+    data object UpdateQR : PlayerQRState
+}
+
+sealed interface PlayerMarqueeState {
+    data object UpdateMarquee : PlayerMarqueeState
+    data object HideMarquee : PlayerMarqueeState
     data class ShowMarquee(
         val marquee: Marquee,
         val isUpdate: Boolean
-    ) : PlayerUiState
-    data class ShowQR(
-        val qr: QR
-    ) : PlayerUiState
-    data object UpdateMarquee : PlayerUiState
-    data object UpdateQR : PlayerUiState
-    data class UpdateError(val msg: String = "") : PlayerUiState
-    data class HideMarquee (val isUpdate: Boolean) : PlayerUiState
-    data object HideQR : PlayerUiState
+    ) : PlayerMarqueeState
 }

@@ -5,6 +5,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import com.geniusdevelop.playmyscreens.app.api.request.GenerateCodeRequest
 import com.geniusdevelop.playmyscreens.app.api.request.LoginByCodeRequest
+import com.geniusdevelop.playmyscreens.app.api.request.LoginByDeviceRequest
 import com.geniusdevelop.playmyscreens.app.api.request.LoginRequest
 import com.geniusdevelop.playmyscreens.app.api.request.SetIdRequest
 import com.geniusdevelop.playmyscreens.app.api.request.SetUpdateDeviceRequest
@@ -30,6 +31,10 @@ class ApiManager internal constructor(
 
     override suspend fun loginByCode(code: String, deviceId: String): LoginResponse {
         return client.post("/login-with-code", LoginByCodeRequest(code, deviceId))
+    }
+
+    override suspend fun loginByDevice(deviceId: String): LoginResponse {
+        return client.post("/login-with-device", LoginByDeviceRequest(deviceId))
     }
 
     override suspend fun authenticate(email: String, password: String): LoginResponse {
@@ -98,7 +103,7 @@ class ApiManager internal constructor(
     @RequiresApi(Build.VERSION_CODES.M)
     private suspend fun getDeviceCode(deviceID: String, userId: String): String {
         var code = ""
-        val response = client.get<GetCodeResponse>("/devices/byId?device_id=$deviceID&user_id=$userId")
+        val response = client.get<GetCodeResponse>("/devices/byId?device_id=$deviceID")
 
         if (response.data != null) {
             updateDataDevice(response.data.id.toString())

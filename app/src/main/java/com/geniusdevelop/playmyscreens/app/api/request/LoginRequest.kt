@@ -15,6 +15,11 @@ data class LoginByCodeRequest (
 )
 
 @Serializable
+data class LoginByDeviceRequest (
+    val deviceId: String
+)
+
+@Serializable
 data class GenerateCodeRequest (
     val deviceId: String
 )

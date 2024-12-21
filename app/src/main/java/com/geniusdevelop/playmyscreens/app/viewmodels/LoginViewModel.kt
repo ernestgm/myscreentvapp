@@ -88,6 +88,23 @@ class LoginViewModel : ViewModel() {
         }
     }
 
+    fun switchAccount(deviceId: String) {
+        _uiState.value = LoginUiState.Loading
+        viewModelScope.launch {
+            try {
+                val response = Repository.user.loginByDevice(deviceId)
+                if (response.success != null) {
+                    _uiState.value = LoginUiState.SwitchAccount(response.success)
+                } else {
+                    val msg = response.error
+                    _uiState.value = LoginUiState.Error(msg.toString())
+                }
+            } catch (e: Exception) {
+                showException(e)
+            }
+        }
+    }
+
     private fun showException(e: Exception) {
         FirebaseCrashlytics.getInstance().recordException(e)
         when(e) {
@@ -176,5 +193,6 @@ sealed interface LoginUiState {
     data object LoginByCode : LoginUiState
     data class Error(val msg: String = "") : LoginUiState
     data class Ready(val success: LoginSuccess? = null) : LoginUiState
+    data class SwitchAccount(val success: LoginSuccess? = null) : LoginUiState
     data class CodeReady(val code: String? = null) : LoginUiState
 }

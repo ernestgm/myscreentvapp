@@ -51,6 +51,8 @@ import com.geniusdevelop.playmyscreens.app.api.response.Images
 import com.geniusdevelop.playmyscreens.app.session.SessionManager
 import com.geniusdevelop.playmyscreens.app.util.BitmapUtil
 import com.geniusdevelop.playmyscreens.app.util.LayoutUtils
+import com.geniusdevelop.playmyscreens.app.viewmodels.PlayerMarqueeState
+import com.geniusdevelop.playmyscreens.app.viewmodels.PlayerQRState
 import com.geniusdevelop.playmyscreens.app.viewmodels.PlayerUiState
 import com.geniusdevelop.playmyscreens.app.viewmodels.PlayerViewModel
 import com.geniusdevelop.playmyscreens.ui.theme.common.Error
@@ -72,7 +74,7 @@ import kotlinx.coroutines.withContext
 fun PlayerPage(
     goToSplashPage: () -> Unit,
     refreshPlayer: () -> Unit,
-    goToLogout: () -> Unit,
+    goToLogout: (switchAccount: Boolean) -> Unit,
     playerPageViewModel: PlayerViewModel = viewModel(),
 ) {
     val context = LocalContext.current
@@ -94,10 +96,13 @@ fun PlayerPage(
     val coroutineScope = rememberCoroutineScope()
     val code by sessionManager.deviceCode.collectAsState(initial = "")
     val uiState by playerPageViewModel.uiState.collectAsState()
+    val qrState by playerPageViewModel.qrState.collectAsState()
+    val marqueeState by playerPageViewModel.marqueeState.collectAsState()
     val activity = LocalContext.current as? Activity
 
     var showMarquees by remember { mutableStateOf(false) }
     var marqueeMessage by remember { mutableStateOf("") }
+    var originalMarqueeMessage by remember { mutableStateOf("") }
     var marqueeBgColor by remember { mutableStateOf("#000000") }
     var marqueeTextColor by remember { mutableStateOf("#FFFFFF") }
 
@@ -120,8 +125,9 @@ fun PlayerPage(
 
     DisposableEffect(Unit) {
         coroutineScope.launch {
-            playerPageViewModel.getMarquee(code.toString())
+            playerPageViewModel.getContents(code.toString())
             playerPageViewModel.getQr(code.toString())
+            playerPageViewModel.getMarquee(code.toString())
         }
 
         onDispose {
@@ -148,6 +154,61 @@ fun PlayerPage(
         }
     }
 
+    when (val s = qrState) {
+        is PlayerQRState.UpdateQR -> {
+            playerPageViewModel.getQr(code.toString())
+        }
+        is PlayerQRState.ShowQR -> {
+            if (infoQR != s.qr.info.toString()) {
+                println("Show qr")
+                showQR = true
+                positionQR = s.qr.position.toString()
+                infoQR = s.qr.info.toString()
+            }
+        }
+        is PlayerQRState.HideQR -> {
+            infoQR = ""
+            println("Hide qr")
+            showQR = false
+        }
+        else -> {}
+    }
+
+    when (val s = marqueeState) {
+        is PlayerMarqueeState.UpdateMarquee -> {
+            playerPageViewModel.getMarquee(code.toString(), true)
+        }
+
+        is PlayerMarqueeState.ShowMarquee -> {
+            marqueeBgColor = s.marquee.bg_color.toString()
+            marqueeTextColor = s.marquee.text_color.toString()
+
+            val ads = s.marquee.ads?.first()
+            if ( ads != null ) {
+                if (ads.message.toString() != originalMarqueeMessage) {
+                    println("Show marquee")
+                    originalMarqueeMessage = ads.message.toString()
+                    showMarquees = true
+                    marqueeMessage = if (ads.message.toString().length < 100) {
+                        "           ${ads.message.toString()}                                                   "
+                    } else {
+                        ads.message.toString()
+                    }
+                }
+            } else {
+                showMarquees = false
+            }
+        }
+
+        is PlayerMarqueeState.HideMarquee -> {
+            originalMarqueeMessage = ""
+            println("Hide marquee")
+            showMarquees = false
+        }
+
+        else -> {}
+    }
+
     when (val s = uiState) {
         is PlayerUiState.Ready -> {
             if (!images.contentEquals(s.images)) {
@@ -160,15 +221,12 @@ fun PlayerPage(
                 playerPageViewModel.initSubscriptions(code.toString())
             }
         }
-
         is PlayerUiState.Loading -> {
             Loading(text = "Loading Screens", modifier = Modifier.fillMaxSize())
         }
-
         is PlayerUiState.Error -> {
             Error(text = s.msg, modifier = Modifier.fillMaxSize())
         }
-
         is PlayerUiState.Update -> {
             if (!images.contentEquals(s.images)) {
                 images = s.images
@@ -177,77 +235,22 @@ fun PlayerPage(
                 reloadCarrousel()
             }
         }
-
         is PlayerUiState.ReadyToUpdate -> {
             updateScreens()
         }
-
-        is PlayerUiState.UpdateMarquee -> {
-            playerPageViewModel.getMarquee(code.toString(), true)
-        }
-
-        is PlayerUiState.UpdateQR -> {
-            playerPageViewModel.getQr(code.toString())
-        }
-
         is PlayerUiState.UpdateError -> {
             updateCurrentIndex = false
             updatingImagesData = false
         }
-
-        is PlayerUiState.ShowMarquee -> {
-            marqueeMessage = ""
-            marqueeBgColor = s.marquee.bg_color.toString()
-            marqueeTextColor = s.marquee.text_color.toString()
-
-            val ads = s.marquee.ads?.first()
-            if ( ads != null ) {
-                showMarquees = true
-                marqueeMessage = if (ads.message.toString().length < 100) {
-                    "           ${ads.message.toString()}                                                   "
-                } else {
-                    ads.message.toString()
-                }
-            } else {
-                showMarquees = false
-            }
-
-            if (!s.isUpdate) {
-                println("Update content")
-                playerPageViewModel.getContents(code.toString())
-            }
-        }
-
-        is PlayerUiState.HideMarquee -> {
-            showMarquees = false
-            if (!s.isUpdate) {
-                println("Update content")
-                playerPageViewModel.getContents(code.toString())
-            }
-        }
-
-        is PlayerUiState.ShowQR -> {
-            showQR = true
-            positionQR = s.qr.position.toString()
-            infoQR = s.qr.info.toString()
-        }
-
-        is PlayerUiState.HideQR -> {
-            showQR = false
-        }
-
         is PlayerUiState.RefreshPlayer -> {
             refreshPlayer()
         }
-
         is PlayerUiState.ReloadApp -> {
             goToSplashPage()
         }
-
         is PlayerUiState.GotoLogout -> {
-            goToLogout()
+            goToLogout(s.switchAccount)
         }
-
         else -> {}
     }
 

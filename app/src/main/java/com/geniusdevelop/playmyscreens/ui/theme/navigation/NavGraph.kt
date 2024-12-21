@@ -1,5 +1,7 @@
 package com.geniusdevelop.playmyscreens.ui.theme.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
@@ -13,8 +15,10 @@ import com.geniusdevelop.playmyscreens.app.pages.login.LoginPage
 import com.geniusdevelop.playmyscreens.app.pages.splash.SplashScreen
 import com.geniusdevelop.playmyscreens.app.pages.player.PlayerPage
 import com.geniusdevelop.playmyscreens.app.pages.logout.LogoutPage
+import com.geniusdevelop.playmyscreens.app.pages.logout.SwitchAccountPage
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NavigationGraph() {
     val navHostController = LocalNavController.current
@@ -48,6 +52,7 @@ enum class NavGraph(
         }
     ),
 
+    @RequiresApi(Build.VERSION_CODES.O)
     Home(
         routeName = "home",
         composable = { appBar ->
@@ -57,12 +62,19 @@ enum class NavGraph(
                 HomePage(
                     goToSplashPage = { navController.navigate(Splash.routeName) },
                     goToPlayerPage = { navController.navigate(Player.routeName) },
-                    goToLogoutPage = { navController.navigate(Logout.routeName) }
+                    goToLogoutPage = { switchAccount ->
+                        if (switchAccount) {
+                            navController.navigate(SwitchAccount.routeName)
+                        } else {
+                            navController.navigate(Logout.routeName)
+                        }
+                    }
                 )
             }
         }
     ),
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @OptIn(ExperimentalTvMaterial3Api::class)
     Login(
         routeName = "login",
@@ -77,6 +89,7 @@ enum class NavGraph(
         }
     ),
     // Player
+    @RequiresApi(Build.VERSION_CODES.O)
     Player(
         routeName = "player",
         composable = {
@@ -85,13 +98,20 @@ enum class NavGraph(
                 PlayerPage(
                     goToSplashPage = { navController.navigate(Splash.routeName) },
                     refreshPlayer = { navController.navigate(Player.routeName) },
-                    goToLogout = { navController.navigate(Logout.routeName) }
+                    goToLogout = { switchAccount ->
+                        if (switchAccount) {
+                            navController.navigate(SwitchAccount.routeName)
+                        } else {
+                            navController.navigate(Logout.routeName)
+                        }
+                    }
                 )
             }
         }
     ),
+    @RequiresApi(Build.VERSION_CODES.O)
     Logout(
-        routeName = "motion",
+        routeName = "logout",
         composable = {
             val navController = LocalNavController.current
             Column {
@@ -99,14 +119,29 @@ enum class NavGraph(
             }
         }
     ),
+    @RequiresApi(Build.VERSION_CODES.O)
+    SwitchAccount(
+        routeName = "switch",
+        composable = {
+            val navController = LocalNavController.current
+            Column {
+                SwitchAccountPage(
+                    goToLogin = { navController.navigate(Login.routeName) },
+                    goToHomePage = { navController.navigate(Home.routeName) }
+                )
+            }
+        }
+    ),
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 val destinations = listOf(
     NavGraph.Splash,
     NavGraph.Home,
     NavGraph.Login,
     NavGraph.Player,
     NavGraph.Logout,
+    NavGraph.SwitchAccount,
 )
 
 val LocalNavController = compositionLocalOf<NavHostController> {

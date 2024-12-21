@@ -77,7 +77,10 @@ class HomeScreeViewModel : ViewModel() {
                     "user_$deviceCode" -> {
                         when (data.message) {
                             "logout" -> {
-                                _uiState.value = HomeScreenUiState.LogoutUser
+                                _uiState.value = HomeScreenUiState.LogoutUser(false)
+                            }
+                            "switch_account" -> {
+                                _uiState.value = HomeScreenUiState.LogoutUser(true)
                             }
                         }
                     }
@@ -198,7 +201,7 @@ sealed interface HomeScreenUiState {
     ) : HomeScreenUiState
     data class ExistScreen(val exist: Boolean): HomeScreenUiState
     data object DisabledScreen: HomeScreenUiState
-    data object LogoutUser: HomeScreenUiState
+    data class LogoutUser(val switchAccount: Boolean): HomeScreenUiState
     data object ReloadApp : HomeScreenUiState
 }
 
